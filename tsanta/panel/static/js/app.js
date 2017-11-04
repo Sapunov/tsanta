@@ -25,6 +25,12 @@
                 templateUrl: '/static/partials/events.html?v=' + tsanta.version,
                 controller: 'eventsCtrl'
             })
+
+            .when('/auth/logout', {
+                redirectTo: function() {
+                    window.location = '/auth/logout';
+                }
+            })
         }
     ]);
 })();

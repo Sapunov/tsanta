@@ -1,6 +1,8 @@
 import os
 
 
+APP_VERSION = '0.0.1'
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = '2unty@irwi_gg5=+k#y+45q8om=cbag&8=zwf0wfq&t=aoacmw'
@@ -98,5 +100,4 @@ REST_FRAMEWORK = {
     )
 }
 
-
-APP_VERSION = '0.0.1'
+LOGIN_URL = '/panel/auth/login'
