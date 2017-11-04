@@ -1,8 +1,0 @@
-<h2>Список задач</h2>
-<br>
-<div ng-repeat="task in tasks">
-  <a href="/tasks/{{ task.id }}">
-    <span class="task-list-item">{{ task.id }}. {{ task.title }}</span>
-    <span ng-class="solved_statuses[task.solved]" aria-hidden="true"></span>
-  </a>
-</div>

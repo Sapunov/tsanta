@@ -1,14 +1,10 @@
 (function() {
-    angular.module('judge', ['ngRoute', 'ui.bootstrap', 'ui.codemirror'])
+    angular.module('tsanta', ['ngRoute'])
 
     .controller('baseCtrl', BaseCtrl)
     .controller('headerCtrl', HeaderCtrl)
     .controller('indexCtrl', IndexCtrl)
-    .controller('tasklistCtrl', TaskListCtrl)
-    .controller('taskeditCtrl', TaskEditCtrl)
-    .controller('taskCtrl', TaskCtrl)
-    .controller('userpageCtrl', UserPageCtrl)
-    .controller('taskCommentsCtrl', TaskCommentsCtrl)
+    .controller('eventsCtrl', EventsCtrl)
 
     // Configuring routes
     .config(['$locationProvider', '$routeProvider', '$httpProvider',
@@ -21,34 +17,13 @@
             $routeProvider
 
             .when('/', {
-                templateUrl: 'static/partials/index.html?v=' + judge.version,
+                templateUrl: '/static/partials/index.html?v=' + tsanta.version,
                 controller: 'indexCtrl'
             })
 
-            .when('/tasks/new', {
-                templateUrl: 'static/partials/edittask.html?v=' + judge.version,
-                controller: 'taskeditCtrl'
-            })
-
-            .when('/tasks/:taskId', {
-                templateUrl: 'static/partials/task.html?v=' + judge.version,
-                controller: 'taskCtrl'
-            })
-
-            .when('/tasks', {
-                templateUrl: 'static/partials/tasklist.html?v=' + judge.version,
-                controller: 'tasklistCtrl'
-            })
-
-            .when('/users/:username', {
-                templateUrl: 'static/partials/userpage.html?v=' + judge.version,
-                controller: 'userpageCtrl'
-            })
-
-            .when('/auth/logout', {
-                redirectTo: function() {
-                    window.location = '/auth/logout';
-                }
+            .when('/events', {
+                templateUrl: '/static/partials/events.html?v=' + tsanta.version,
+                controller: 'eventsCtrl'
             })
         }
     ]);

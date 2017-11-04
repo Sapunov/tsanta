@@ -12,6 +12,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'api',
     'front',
+    'panel',
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -36,7 +37,7 @@ ROOT_URLCONF = 'tsanta.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [os.path.join(BASE_DIR, 'panel/templates')],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

@@ -5,18 +5,18 @@ def index(request):
 
     context = {}
 
-    return render(request, "index.html", context=context)
+    return render(request, "front/index.html", context=context)
 
 
 def application(request):
 
     context = {}
 
-    return render(request, "application.html", context=context)
+    return render(request, "front/application.html", context=context)
 
 
 def thanks(request):
 
     context = {}
 
-    return render(request, "thanks.html", context=context)
+    return render(request, "front/thanks.html", context=context)
