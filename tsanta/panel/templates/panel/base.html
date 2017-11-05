@@ -22,8 +22,11 @@ let tsanta = {
   version: '{{ app_version }}'
 };
 </script>
+{% if user.is_authenticated %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-route.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-sanitize.min.js"></script>
+<script src="/static/ui-bootstrap-tpls-2.5.0.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
@@ -31,20 +34,37 @@ let tsanta = {
         integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
         crossorigin="anonymous"></script>
 <script src="/static/app.js?v={{ app_version }}"></script>
+{% else %}
+<script src="/static/login.js?v={{ app_version }}"></script>
+{% endif %}
 </head>
 <body ng-controller="baseCtrl">
+  {% if user.is_authenticated %}
   <div class="messenger" ng-show="status_message" ng-bind="status_message"></div>
-  <div class="nav-wrapper-self" ng-controller="headerCtrl">
-    <nav class="navbar navbar-default">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/panel/">TSANTA</a>
-        </div>
-      </div>
-    </nav>
-  </div>
-  <div class="container main">
-    {% block content %}{% endblock %}
-  </div>
+  {% endif %}
+
+  <div class="wrapper">
+
+      <div class="middle">
+
+        <div class="container">
+          <main class="content">
+            <h2 class="logo-header">Тайный Санта
+              <span class="h2-separator">/</span>
+              <span class="pagename">{% block pagename %}{% endblock %}</span>
+            </h2>
+            {% block content %}{% endblock %}
+          </main><!-- .content -->
+        </div><!-- .container-->
+
+        <aside class="left-sidebar">
+          {% block logo %}<div class="logo-tree" title="Я - ель!"></div>{% endblock %}
+          <div class="separator-50"></div>
+          {% block leftside %}{% endblock %}
+        </aside><!-- .left-sidebar -->
+
+      </div><!-- .middle-->
+
+    </div><!-- .wrapper -->
 </body>
 </html>

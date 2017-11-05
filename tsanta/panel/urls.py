@@ -4,7 +4,8 @@ from panel import views
 
 
 urlpatterns = [
-    url('^auth/login$', views.loginView),
-    url('^auth/logout$', views.logoutView),
+    url('^login$', views.login_view),
+    url('^logout$', views.logout_view),
+    url('^signup', views.signup_view),
     url('^', views.index_view)
 ]

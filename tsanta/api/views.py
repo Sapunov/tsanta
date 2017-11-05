@@ -12,7 +12,7 @@ class CityView(APIView):
 
     def get(self, request):
 
-        req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
+        req_serializer = deserialize(serializers.OnlyQSerReq, request.query_params)
 
         items = City.suggest(req_serializer.data['q'])
 
@@ -26,7 +26,7 @@ class CityView(APIView):
 def check_slug(request):
     # Данный метод выполняется для неавторизованного пользователя
 
-    req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
+    req_serializer = deserialize(serializers.OnlyQSerReq, request.query_params)
 
     ans = Group.check_slug(req_serializer.data['q'])
 
@@ -37,9 +37,40 @@ def check_slug(request):
 
 class GroupView(APIView):
 
-    def get(self, request):
+    def get(self, request, group_id=None):
 
-        items = Group.get_my_groups(request.user)
-        ans_serializer = serialize(serializers.GroupSer, items, many=True)
+        if group_id is None:
+
+            req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
+
+            items = Group.get_my_groups(request.user, prefix=req_serializer.data['q'])
+            ans_serializer = serialize(serializers.GroupSer, items, many=True)
+        else:
+            item = Group.objects.get(pk=group_id)
+            ans_serializer = serialize(serializers.GroupSer, item)
 
         return Response(ans_serializer.data)
+
+    def post(self, request, group_id=None):
+
+        serializer = deserialize(serializers.GroupSer, data=request.data)
+        serializer.save(user=request.user)
+
+        return Response(serializer.data)
+
+    def put(self, request, group_id):
+
+        group = Group.objects.get(pk=group_id)
+        serializer = serialize(serializers.GroupSer, group, data=request.data)
+
+        serializer.save()
+
+        return Response(serializer.data)
+
+
+    def delete(self, request, group_id):
+
+        group = Group.objects.get(pk=group_id)
+        group.delete()
+
+        return Response()

@@ -1,10 +1,12 @@
 (function() {
-    angular.module('tsanta', ['ngRoute'])
+    angular.module('tsanta', ['ngRoute', 'ui.bootstrap', 'ngSanitize'])
 
     .controller('baseCtrl', BaseCtrl)
-    .controller('headerCtrl', HeaderCtrl)
-    .controller('indexCtrl', IndexCtrl)
+    .controller('groupsCtrl', GroupsCtrl)
     .controller('eventsCtrl', EventsCtrl)
+    .controller('participantsCtrl', ParticipantsCtrl)
+    .controller('notificationsCtrl', NotificationsCtrl)
+    .controller('groupFormCtrl', GroupFormCtrl)
 
     // Configuring routes
     .config(['$locationProvider', '$routeProvider', '$httpProvider',
@@ -17,8 +19,22 @@
             $routeProvider
 
             .when('/', {
-                templateUrl: '/static/partials/index.html?v=' + tsanta.version,
-                controller: 'indexCtrl'
+                redirectTo: '/groups'
+            })
+
+            .when('/groups', {
+                templateUrl: '/static/partials/groups.html?v=' + tsanta.version,
+                controller: 'groupsCtrl'
+            })
+
+            .when('/groups/new', {
+                templateUrl: '/static/partials/groups_form.html?v=' + tsanta.version,
+                controller: 'groupFormCtrl'
+            })
+
+            .when('/groups/:groupId', {
+                templateUrl: '/static/partials/groups_form.html?v=' + tsanta.version,
+                controller: 'groupFormCtrl'
             })
 
             .when('/events', {
@@ -26,9 +42,19 @@
                 controller: 'eventsCtrl'
             })
 
-            .when('/auth/logout', {
+            .when('/participants', {
+                templateUrl: '/static/partials/participants.html?v=' + tsanta.version,
+                controller: 'participantsCtrl'
+            })
+
+            .when('/notifications', {
+                templateUrl: '/static/partials/notifications.html?v=' + tsanta.version,
+                controller: 'notificationsCtrl'
+            })
+
+            .when('/logout', {
                 redirectTo: function() {
-                    window.location = '/auth/logout';
+                    window.location = '/panel/logout';
                 }
             })
         }

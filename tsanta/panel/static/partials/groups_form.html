@@ -1,0 +1,68 @@
+<form class="form-horizontal" novalidate ng-submit="submit_group()" name="group_form">
+    <table class="groups-new-wrapper">
+        <tr>
+            <td class="labels">
+                <label for="name">Название группы*</label>
+            </td>
+            <td class="elements">
+                <input type="text" class="form-control"
+                    required id="name" placeholder="Название группы" ng-model="name" autofocus>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="altnames">Альтернативные названия</label>
+            </td>
+            <td class="elements">
+                <textarea class="form-control noresize"
+                    rows="5" id="altnames"
+                    placeholder="Альтернативные названия" ng-model="alt_names"></textarea>
+                <p class="text-muted">Иные названия, по которым можно найти данную группу.
+                    <br>По одному на строке.
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="city">Город*</label>
+            </td>
+            <td class="elements">
+                <select name="" ng-model="cities.selected"
+                    ng-options="item as item.name for item in cities.items track by item.id">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="city">Slug*</label>
+            </td>
+            <td class="elements">
+                <div class="input-group">
+                    <input type="text" class="form-control"
+                        id="slug" placeholder="Slug"
+                        autocomplete="off" aria-describedby="is_unique"
+                        ng-keyup="slug.check()" ng-model="slug.text" required>
+                    <span class="input-group-addon text-success" id="is_unique">{{ slug.msg }}</span>
+                </div>
+                <p class="text-muted">Короткая ссылка группы. Например: t-santa.ru/<b>hse</b></p>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+            </td>
+            <td class="elements">
+                <button type="submit"
+                    ng-disabled="group_form.$invalid || !slug.is_ok"
+                    class="btn btn-warning">{{ (group_id === undefined) ? 'Добавить группу' : 'Сохранить' }}</button>
+            </td>
+        </tr>
+        <tr ng-show="group_id !== undefined">
+            <td class="labels">
+            </td>
+            <td class="elements">
+                <br>
+                <a href="#" class="text-danger" ng-click="delete_group()">Удалить группу</a>
+            </td>
+        </tr>
+    </table>
+</form>

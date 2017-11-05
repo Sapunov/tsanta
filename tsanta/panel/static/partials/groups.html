@@ -1,0 +1,37 @@
+<table class="groups-search-wrapper">
+    <tr>
+        <td class="search-input">
+            <input type="text" class="form-control"
+                placeholder="Поиск" autocomplete="off"
+                ng-model="groups.filter_text"
+                ng-keyup="groups.filter()"
+                autofocus>
+        </td>
+        <td class="other-button">
+            <a href="groups/new">
+                <button class="btn btn-warning">Добавить группу</button>
+            </a>
+        </td>
+    </tr>
+</table>
+
+<div class="grouplist">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Slug</th>
+                <th>Город</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="group in groups.items" ng-click="go('groups/' + group.id)" class="clickable">
+                <td>{{ $index + 1 }}</td>
+                <td ng-bind-html="group.short_name"></td>
+                <td>{{ group.slug }}</td>
+                <td>{{ group.city.name }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

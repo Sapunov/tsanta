@@ -1,3 +1,16 @@
 {% extends "panel/base.html" %}
 
 {% block content %}<div ng-view>Загружаю контентище...</div>{% endblock content %}
+
+{% block leftside %}
+<div class="left-nav">
+    <p><a href="/panel/participants">Участники</a></p>
+    <p><a href="/panel/notifications">Рассылки сообщений</a></p>
+    <p><a href="/panel/groups">Группы</a></p>
+    <p><a href="/panel/events">События</a></p>
+    <br>
+    <p><a href="/panel/logout">Выйти</a></p>
+</div>
+{% endblock %}
+
+{% block pagename %}<span ng-bind="pagename"></span>{% endblock %}

@@ -5,5 +5,6 @@ from api import views
 urlpatterns = [
     url(r'^cities$', views.CityView.as_view()),
     url(r'^groups$', views.GroupView.as_view()),
+    url(r'^groups/(?P<group_id>[0-9]{1,10})$', views.GroupView.as_view()),
     url(r'^groups/check_slug$', views.check_slug)
 ]

@@ -1,0 +1,45 @@
+{% extends "panel/base.html" %}
+
+{% block pagename %}Вход в мастерскую{% endblock %}
+
+{% block logo %}
+<img src="/static/images/panel_intro.png" alt="Вход в мастрскую" class="panel-intro-img">
+{% endblock %}
+
+{% block leftside %}
+<a href="/panel/signup">Регистрация</a>
+{% endblock %}
+
+{% block content %}
+<div class="loginform-wrapper">
+  <form class="form-horizontal login-form" role="form" method="POST" action="{{ request.get_full_path }}">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="login" class="col-sm-3 control-label">Логин</label>
+      <div class="col-sm-9">
+        <input type="text" class="form-control input" required id="login" name="username" placeholder="Введите логин" autofocus="on">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="password" class="col-sm-3 control-label">Пароль</label>
+      <div class="col-sm-9">
+        <input type="password" class="form-control input" required id="password" name="password" placeholder="Введите пароль">
+      </div>
+    </div>
+    {% if error_message %}
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <div class="reset-pw-error login-error">
+          <span>{{ error_message }}</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="form-group">
+      <div class="col-sm-offset-3 col-sm-9">
+        <button type="submit" class="btn btn-warning">Войти</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}

@@ -4,6 +4,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 
+from . import misc
+
 
 @login_required
 def index_view(request):
@@ -15,14 +17,14 @@ def index_view(request):
     return render(request, 'panel/index.html', context)
 
 
-def logoutView(request):
+def logout_view(request):
 
     logout(request)
 
     return redirect(settings.LOGIN_URL)
 
 
-def loginView(request):
+def login_view(request):
 
     context = {
         'loginpage': settings.LOGIN_URL,
@@ -33,7 +35,7 @@ def loginView(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        next_url = request.GET.get('next', '/')
+        next_url = request.GET.get('next', '/panel/')
 
         user = authenticate(username=username, password=password)
 
@@ -46,4 +48,13 @@ def loginView(request):
         else:
             context['error_message'] = 'Неправильный логин или пароль'
 
-    return render(request, 'panel/loginpage.html', context)
+    return render(request, 'panel/login.html', context)
+
+
+def signup_view(request):
+
+    context = {
+        'app_version': settings.APP_VERSION
+    }
+
+    return render(request, 'panel/signup.html', context)

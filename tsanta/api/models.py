@@ -59,12 +59,14 @@ class City(models.Model):
     @classmethod
     def suggest(cls, text, limit=10):
 
-        items = cls.objects.filter(name__startswith=text).order_by('-freq')
-        items = items[:limit]
+        items = cls.objects.filter(_name__istartswith=text).order_by('-freq')
+
+        if text != '':
+            items = items[:limit]
 
         # Сделаем городишки с большой буквы
         for i, item in enumerate(items):
-            items[i].name = item.name.capitalize()
+            items[i]._name = item._name.capitalize()
 
         return items
 
@@ -84,24 +86,19 @@ class City(models.Model):
 class Group(models.Model):
 
     short_name = models.CharField(max_length=500)
-    _alt_names = models.TextField()
+    alt_names = models.TextField()
     city = models.ForeignKey(City)
     slug = models.SlugField(unique=True)
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
-
-    @property
-    def alt_names(self):
-
-        return self._alt_names.split("\n")
-
+    tag = models.CharField(max_length=500, default="")
 
     @classmethod
-    def get_my_groups(cls, user):
+    def get_my_groups(cls, user, prefix=""):
 
         participant = Participant.objects.get(user=user)
 
-        items = cls.objects.filter(owner=participant)
+        items = cls.objects.filter(owner=participant, short_name__istartswith=prefix)
 
         return items
 
