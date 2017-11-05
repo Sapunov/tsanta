@@ -1,1 +1,32 @@
-События
+<table class="groups-search-wrapper">
+    <tr>
+        <td class="search-input">
+            <a href="events/new">
+                <button class="btn btn-warning">Создать событие</button>
+            </a>
+        </td>
+        <td class="other-button">
+        </td>
+    </tr>
+</table>
+
+<div class="grouplist">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Начало</th>
+                <th>Конец</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="event in events.items" ng-click="go('events/' + event.id)" class="clickable">
+                <td>{{ $index + 1 }}</td>
+                <td ng-bind-html="event.name"></td>
+                <td>{{ event.date_start }}</td>
+                <td>{{ event.date_end }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

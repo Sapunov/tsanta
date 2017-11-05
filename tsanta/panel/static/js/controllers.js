@@ -223,7 +223,47 @@ function GroupFormCtrl($scope, $http, $routeParams) {
 
 
 function EventsCtrl($scope, $http) {
+
     $scope.set_pagename('События');
+
+    $scope.events = {
+        items: []
+    };
+}
+
+function EventsFormCtrl($scope, $http, $routeParams) {
+
+    $scope.set_pagename('Новое событие');
+
+    $scope.event_id = $routeParams.eventId;
+
+    $scope.name;
+    $scope.date_start;
+    $scope.date_end;
+
+    $scope.datepickers = {
+        elems: [
+            {opened: false},
+            {opened: false}
+        ],
+        // Disable weekend selection
+        disabled: function (data) {
+            var date = data.date,
+            mode = data.mode;
+            return mode === 'day' && (date.getDay() === 0 || date.getDay() === 6);
+        },
+        options: {
+            dateDisabled: this.disabled,
+            formatYear: 'yy',
+            maxDate: new Date(2020, 5, 22),
+            minDate: new Date(),
+            startingDay: 1
+        }
+    };
+
+    $scope.submit_event = function() {
+
+    };
 }
 
 

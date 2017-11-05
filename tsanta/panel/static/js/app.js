@@ -7,6 +7,7 @@
     .controller('participantsCtrl', ParticipantsCtrl)
     .controller('notificationsCtrl', NotificationsCtrl)
     .controller('groupFormCtrl', GroupFormCtrl)
+    .controller('eventsFormCtrl', EventsFormCtrl)
 
     // Configuring routes
     .config(['$locationProvider', '$routeProvider', '$httpProvider',
@@ -40,6 +41,16 @@
             .when('/events', {
                 templateUrl: '/static/partials/events.html?v=' + tsanta.version,
                 controller: 'eventsCtrl'
+            })
+
+            .when('/events/new', {
+                templateUrl: '/static/partials/events_form.html?v=' + tsanta.version,
+                controller: 'eventsFormCtrl'
+            })
+
+            .when('/events/:eventId', {
+                templateUrl: '/static/partials/events_form.html?v=' + tsanta.version,
+                controller: 'eventsFormCtrl'
             })
 
             .when('/participants', {

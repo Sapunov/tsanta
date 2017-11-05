@@ -1,0 +1,34 @@
+<form class="form-horizontal" novalidate ng-submit="submit_group()" name="group_form">
+    <table class="groups-new-wrapper">
+        <tr>
+            <td class="labels">
+                <label for="name">Название события*</label>
+            </td>
+            <td class="elements">
+                <input type="text" class="form-control"
+                    required id="name" placeholder="Название события"
+                    ng-model="name" ng-autofocus="(true)">
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="name">Дата начала*</label>
+            </td>
+            <td class="elements">
+                <input type="text" class="form-control"
+                    required id="name" placeholder="Дата начала"
+                    ng-model="date_start">
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="name">Дата окончания*</label>
+            </td>
+            <td class="elements">
+                <input type="text" class="form-control"
+                    required id="name" placeholder="Дата окончания"
+                    ng-model="date_end">
+            </td>
+        </tr>
+    </table>
+</form>
