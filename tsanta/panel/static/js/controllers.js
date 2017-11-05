@@ -52,6 +52,19 @@ function BaseCtrl($scope, $timeout, $http, $location) {
     $scope.go = function(path) {
         $location.path(path);
     };
+
+    $scope.load_group_list = function(prefix, callback) {
+        prefix = prefix || '';
+
+        $http.get(tsanta.api + '/groups?q=' + prefix)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                if ( callback !== undefined ) {
+                    callback(response.data);
+                }
+            }
+        }, $scope.errorHandler);
+    }
 }
 
 
@@ -63,14 +76,14 @@ function GroupsCtrl($scope, $http) {
         items: [],
         filter_text: '',
         filter: function() {
-            load_group_list(this.filter_text, function() {
+            $scope.load_group_list(this.filter_text, function(response) {
                 if ( $scope.groups.filter_text ) {
                     var regexp = new RegExp('^' + $scope.groups.filter_text, 'i');
 
-                    for ( var i = 0; i < $scope.groups.items.length; ++i ) {
-                        var match = $scope.groups.items[i].short_name.match(regexp);
+                    for ( var i = 0; i < response.length; ++i ) {
+                        var match = response[i].short_name.match(regexp);
 
-                        $scope.groups.items[i].short_name = $scope.groups.items[i].short_name.replace(
+                        $scope.groups.items[i].short_name = response[i].short_name.replace(
                             match[0], '<mark>' + match[0] + '</mark>');
                     }
                 }
@@ -78,22 +91,9 @@ function GroupsCtrl($scope, $http) {
         }
     };
 
-    function load_group_list(prefix, callback) {
-        prefix = prefix || '';
-
-        $http.get(tsanta.api + '/groups?q=' + prefix)
-        .then(function(response) {
-            if ( response.status === 200 ) {
-                $scope.groups.items = response.data;
-            }
-
-            if ( callback !== undefined ) {
-                callback();
-            }
-        }, $scope.errorHandler);
-    }
-
-    load_group_list();
+    $scope.load_group_list('', function(response) {
+        $scope.groups.items = response;
+    });
 }
 
 
@@ -111,9 +111,10 @@ function GroupFormCtrl($scope, $http, $routeParams) {
         $scope.set_pagename('Новая группа');
     }
 
-    $scope.name;
-    $scope.alt_names;
+    $scope.name = '';
+    $scope.alt_names = '';
     $scope.current_slug = undefined;
+    $scope.event_lock = undefined;
 
     $scope.cities = {
         items: [],
@@ -201,6 +202,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
                 $scope.alt_names = response.data.alt_names;
                 $scope.slug.text = response.data.slug;
                 $scope.cities.selected = response.data.city;
+                $scope.event_lock = response.data.event_lock;
             }
 
             callback();
@@ -240,26 +242,34 @@ function EventsFormCtrl($scope, $http, $routeParams) {
     $scope.name;
     $scope.date_start;
     $scope.date_end;
+    $scope.rules;
+    $scope.process;
 
-    $scope.datepickers = {
-        elems: [
-            {opened: false},
-            {opened: false}
-        ],
-        // Disable weekend selection
-        disabled: function (data) {
-            var date = data.date,
-            mode = data.mode;
-            return mode === 'day' && (date.getDay() === 0 || date.getDay() === 6);
-        },
-        options: {
-            dateDisabled: this.disabled,
-            formatYear: 'yy',
-            maxDate: new Date(2020, 5, 22),
-            minDate: new Date(),
-            startingDay: 1
-        }
+    $scope.groups = {
+        items: []
     };
+
+    $scope.free_questions = [];
+
+    $scope.add_question = function() {
+        $scope.free_questions.push({'text': ''});
+    };
+
+    $scope.delete_question = function(index) {
+        delete $scope.free_questions[index];
+    };
+
+    $scope.load_group_list('', function(response) {
+        var j = 0;
+        for ( var i = 0; i < response.length; ++i ) {
+            if ( response[i].event_lock === false ) {
+                $scope.groups.items[j] = response[i];
+                $scope.groups.items[j].checked = false;
+
+                j++;
+            }
+        }
+    });
 
     $scope.submit_event = function() {
 

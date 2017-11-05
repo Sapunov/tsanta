@@ -111,7 +111,7 @@ class Group(models.Model):
     slug = models.SlugField(unique=True)
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
-    tag = models.CharField(max_length=500, default="")
+    tag = models.CharField(max_length=500, default="", blank=True)
 
     @classmethod
     def get_my_groups(cls, user, prefix=""):
@@ -164,6 +164,8 @@ class Event(models.Model):
     date_end = models.DateTimeField()
     groups = models.ManyToManyField(Group)
     questions = models.ManyToManyField(Question)
+    rules = models.TextField()
+    process = models.TextField()
 
     def __str__(self):
 

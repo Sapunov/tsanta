@@ -42,10 +42,11 @@ class GroupSer(serializers.Serializer):
 
     id = serializers.IntegerField(read_only=True)
     short_name = serializers.CharField()
-    alt_names = serializers.CharField(allow_blank=True)
+    alt_names = serializers.CharField(allow_blank=True, required=False)
     city = CitySer()
     slug = serializers.SlugField()
     tag = serializers.CharField(default='')
+    event_lock = serializers.BooleanField(read_only=True)
 
     def create(self, validated_data):
 

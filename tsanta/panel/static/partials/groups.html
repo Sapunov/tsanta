@@ -23,6 +23,7 @@
                 <th>Название</th>
                 <th>Slug</th>
                 <th>Город</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +32,11 @@
                 <td ng-bind-html="group.short_name"></td>
                 <td>{{ group.slug }}</td>
                 <td>{{ group.city.name }}</td>
+                <th>
+                    <span ng-show="group.event_lock"
+                        uib-tooltip="Участвует в мероприятии"
+                        class="glyphicon glyphicon-play"></span>
+                </th>
             </tr>
         </tbody>
     </table>

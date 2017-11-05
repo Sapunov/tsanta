@@ -56,7 +56,7 @@
                     class="btn btn-warning">{{ (group_id === undefined) ? 'Добавить группу' : 'Сохранить' }}</button>
             </td>
         </tr>
-        <tr ng-show="group_id !== undefined">
+        <tr ng-show="group_id !== undefined && event_lock === false">
             <td class="labels">
             </td>
             <td class="elements">

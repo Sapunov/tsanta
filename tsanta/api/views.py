@@ -71,6 +71,10 @@ class GroupView(APIView):
     def delete(self, request, group_id):
 
         group = Group.objects.get(pk=group_id)
+
+        if group.event_lock:
+            raise ValidationError('Нельзя удалить группу, пока она участвует в событии')
+
         group.delete()
 
         return Response()

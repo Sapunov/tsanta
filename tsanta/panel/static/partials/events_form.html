@@ -1,4 +1,4 @@
-<form class="form-horizontal" novalidate ng-submit="submit_group()" name="group_form">
+<form class="form-horizontal" novalidate ng-submit="submit_event()" name="event_form">
     <table class="groups-new-wrapper">
         <tr>
             <td class="labels">
@@ -15,7 +15,7 @@
                 <label for="name">Дата начала*</label>
             </td>
             <td class="elements">
-                <input type="text" class="form-control"
+                <input type="date" class="form-control"
                     required id="name" placeholder="Дата начала"
                     ng-model="date_start">
             </td>
@@ -25,9 +25,113 @@
                 <label for="name">Дата окончания*</label>
             </td>
             <td class="elements">
-                <input type="text" class="form-control"
+                <input type="date" class="form-control"
                     required id="name" placeholder="Дата окончания"
                     ng-model="date_end">
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="rules">Правила участия</label>
+            </td>
+            <td class="elements">
+                <textarea class="form-control noresize"
+                    rows="10" id="rules"
+                    placeholder="Правила участия" ng-model="rules"></textarea>
+                <p class="text-muted">Поддерживается синтаксис
+                    <a href="http://rukeba.com/by-the-way/markdown-sintaksis-po-russki/"
+                        target="blank">markdown</a>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="rules">Процесс проведения</label>
+            </td>
+            <td class="elements">
+                <textarea class="form-control noresize"
+                    rows="10" id="process"
+                    placeholder="Как проходит мероприятие. Регламент. Временные отметки"
+                    ng-model="process"></textarea>
+                <p class="text-muted">Поддерживается синтаксис
+                    <a href="http://rukeba.com/by-the-way/markdown-sintaksis-po-russki/"
+                        target="blank">markdown</a>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="rules">Участвующие группы</label>
+            </td>
+            <td class="elements">
+                <div class="select-groups">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Название</th>
+                                <th>Slug</th>
+                                <th>Город</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="group in groups.items"
+                                ng-click="group.checked = !group.checked"
+                                class="clickable">
+                                <td>
+                                    <input type="checkbox"
+                                        ng-model="group.checked"
+                                        ng-checked="group.checked">
+                                </td>
+                                <td ng-bind-html="group.short_name"></td>
+                                <td>{{ group.slug }}</td>
+                                <td>{{ group.city.name }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+                <label for="rules">Вопросы анкеты</label>
+            </td>
+            <td class="elements">
+                <p>Следующие поля уже содержатся в любой анкете:</p>
+                <ul>
+                    <li>Имя</li>
+                    <li>Фамилия</li>
+                    <li>Телефон</li>
+                    <li>Email</li>
+                    <li>Ссылка на социальную сеть</li>
+                    <li>Пол</li>
+                </ul>
+                <p><strong>Вы можете добавить произвольные вопросы</strong></p>
+                <table class="free-question">
+                    <tr ng-repeat="question in free_questions">
+                        <td class="question-wrapper">
+                            <textarea class="form-control noresize"
+                                rows="2"
+                                placeholder="Текст вопроса"
+                                ng-model="free_questions[$index].text"></textarea>
+                        </td>
+                        <td class="delete-wrapper">
+                            <span class="glyphicon glyphicon-remove item-delete"
+                                uib-tooltip="Удалить вопрос"
+                                ng-click="delete_question($index)"></span>
+                        </td>
+                    </tr>
+                </table>
+                <a href="#" ng-click="add_question()">Добавить вопрос</a>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
+            </td>
+            <td class="elements">
+                    <button type="submit"
+                        ng-disabled="event_form.$invalid"
+                        class="btn btn-warning">{{ (group_id === undefined) ? 'Добавить группу' : 'Сохранить' }}</button>
             </td>
         </tr>
     </table>
