@@ -14,58 +14,72 @@
 <div class="loginform-wrapper">
     <form class="form-horizontal login-form" role="form" method="POST" action="{{ request.get_full_path }}">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="username" class="col-sm-3 control-label">Имя</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control input"
-                    required id="username" name="username"
-                    placeholder="Ваше имя" autofocus="on">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="surname" class="col-sm-3 control-label">Фамилия</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control input"
-                    required id="surname" name="surname"
-                    placeholder="Ваша фамилия">
-                </div>
-        </div>
-        <div class="form-group">
-            <label for="email" class="col-sm-3 control-label">Email</label>
-            <div class="col-sm-9">
-                <input type="email" class="form-control input"
-                    required id="email" name="email"
-                    placeholder="Ваша email">
-                </div>
-        </div>
-        <div class="form-group">
-            <label for="password" class="col-sm-3 control-label">Пароль</label>
-            <div class="col-sm-9">
-                <input type="password" class="form-control input"
-                    required id="password" name="password" placeholder="Ваш пароль">
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="password2" class="col-sm-3 control-label">Повторим</label>
-            <div class="col-sm-9">
-                <input type="password" class="form-control input"
-                    required id="password2" name="password2" placeholder="Повторите пароль">
-            </div>
-        </div>
-        {% if error_message %}
-        <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-9">
-            <div class="reset-pw-error login-error">
-            <span>{{ error_message }}</span>
-            </div>
-        </div>
-        </div>
-        {% endif %}
-        <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-9">
-            <button type="submit" class="btn btn-warning">Зарегистрироваться</button>
-        </div>
-        </div>
+        <table class="groups-new-wrapper">
+            <tr>
+                <td class="labels">
+                    <label for="username" class="control-label">Имя</label>
+                </td>
+                <td class="elements">
+                    <input type="text" class="form-control input"
+                            required id="username" name="name"
+                            placeholder="Ваше имя" autofocus="on" value="{{ data.name }}">
+                </td>
+            </tr>
+            <tr>
+                <td class="labels">
+                    <label for="surname" class="control-label">Фамилия</label>
+                </td>
+                <td class="elements">
+                    <input type="text" class="form-control input"
+                            required id="surname" name="surname"
+                            placeholder="Ваша фамилия" value="{{ data.surname }}">
+                </td>
+            </tr>
+            <tr>
+                <td class="labels">
+                    <label for="email" class="control-label">Email</label>
+                </td>
+                <td class="elements">
+                    <input type="email" class="form-control input"
+                            required id="email" name="email"
+                            placeholder="Ваша email" value="{{ data.email }}">
+                </td>
+            </tr>
+            <tr>
+                <td class="labels">
+                    <label for="password" class="control-label">Пароль</label>
+                </td>
+                <td class="elements">
+                    <input type="password" class="form-control input"
+                            required id="password" name="password" placeholder="Ваш пароль">
+                </td>
+            </tr>
+            <tr>
+                <td class="labels">
+                    <label for="password2" class="control-label">Повторим</label>
+                </td>
+                <td class="elements">
+                    <input type="password" class="form-control input"
+                            required id="password2" name="password2" placeholder="Повторите пароль">
+                </td>
+            </tr>
+            {% if error_message %}
+            <tr>
+                <td class="labels"></td>
+                <td class="elements">
+                    <div class="reset-pw-error login-error">
+                        <span>{{ error_message }}</span>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td class="labels"></td>
+                <td class="elements">
+                    <button type="submit" class="btn btn-warning">Зарегистрироваться</button>
+                </td>
+            </tr>
+        </table>
     </form>
 </div>
 {% endblock %}

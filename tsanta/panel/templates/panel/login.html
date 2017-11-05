@@ -13,33 +13,45 @@
 {% block content %}
 <div class="loginform-wrapper">
   <form class="form-horizontal login-form" role="form" method="POST" action="{{ request.get_full_path }}">
+    <table class="groups-new-wrapper">
+      <tr>
+          <td class="labels">
+              <label for="login" class="control-label">Email</label>
+          </td>
+          <td class="elements">
+              <input type="email" class="form-control input"
+                required id="login" name="username" placeholder="Введите email"
+                autofocus="on" value="{{ data.username }}">
+          </td>
+      </tr>
+      <tr>
+          <td class="labels">
+              <label for="password" class="control-label">Пароль</label>
+          </td>
+          <td class="elements">
+              <input type="password"
+                class="form-control input" required id="password"
+                name="password" placeholder="Введите пароль">
+          </td>
+      </tr>
+      {% if error_message %}
+      <tr>
+          <td class="labels"></td>
+          <td class="elements">
+                <div class="reset-pw-error login-error">
+                    <span>{{ error_message }}</span>
+                </div>
+          </td>
+      </tr>
+      {% endif %}
+      <tr>
+          <td class="labels"></td>
+          <td class="elements">
+              <button type="submit" class="btn btn-warning">Войти</button>
+          </td>
+      </tr>
+    </table>
     {% csrf_token %}
-    <div class="form-group">
-      <label for="login" class="col-sm-3 control-label">Логин</label>
-      <div class="col-sm-9">
-        <input type="text" class="form-control input" required id="login" name="username" placeholder="Введите логин" autofocus="on">
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="password" class="col-sm-3 control-label">Пароль</label>
-      <div class="col-sm-9">
-        <input type="password" class="form-control input" required id="password" name="password" placeholder="Введите пароль">
-      </div>
-    </div>
-    {% if error_message %}
-    <div class="form-group">
-      <div class="col-sm-offset-3 col-sm-9">
-        <div class="reset-pw-error login-error">
-          <span>{{ error_message }}</span>
-        </div>
-      </div>
-    </div>
-    {% endif %}
-    <div class="form-group">
-      <div class="col-sm-offset-3 col-sm-9">
-        <button type="submit" class="btn btn-warning">Войти</button>
-      </div>
-    </div>
   </form>
 </div>
 {% endblock content %}

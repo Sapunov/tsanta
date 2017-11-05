@@ -31,11 +31,40 @@ class Participant(models.Model):
     user = models.OneToOneField(User)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField()
-    social_network_link = models.CharField(max_length=200)
-    age = models.SmallIntegerField()
-    sex = models.SmallIntegerField(choices=SEX_CHOICES)
+    social_network_link = models.CharField(max_length=200, null=True, blank=True)
+    age = models.SmallIntegerField(null=True, blank=True)
+    sex = models.SmallIntegerField(choices=SEX_CHOICES, default=2)
+
+    @classmethod
+    def exists(cls, user):
+
+        try:
+            cls.objects.get(user=user)
+        except cls.DoesNotExist:
+            return False
+
+        return True
+
+    @classmethod
+    def email_exists(cls, email):
+
+        try:
+            cls.objects.get(email=email)
+        except cls.DoesNotExist:
+            return False
+
+        return True
+
+    @classmethod
+    def get_name_surname(cls, user):
+
+        participant = cls.objects.get(user=user)
+
+        return '{name} {surname}'.format(
+            name=participant.name.capitalize(),
+            surname=participant.surname.capitalize())
 
     def __str__(self):
 
@@ -48,25 +77,16 @@ class Participant(models.Model):
 
 class City(models.Model):
 
-    _name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     freq = models.IntegerField(default=0)
-
-    @property
-    def name(self):
-
-        return self._name.capitalize()
 
     @classmethod
     def suggest(cls, text, limit=10):
 
-        items = cls.objects.filter(_name__istartswith=text).order_by('-freq')
+        items = cls.objects.filter(name__istartswith=text).order_by('-freq')
 
         if text != '':
             items = items[:limit]
-
-        # Сделаем городишки с большой буквы
-        for i, item in enumerate(items):
-            items[i]._name = item._name.capitalize()
 
         return items
 
