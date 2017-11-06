@@ -259,7 +259,13 @@ function EventsFormCtrl($scope, $http, $routeParams) {
     };
 
     $scope.delete_question = function(index) {
-        delete $scope.free_questions[index];
+        var len = $scope.free_questions.length;
+
+        for ( var i = index; i < len; ++i ) {
+            $scope.free_questions[i] = $scope.free_questions[i + 1];
+        }
+
+        $scope.free_questions.splice(len - 1, 1);
     };
 
     $scope.load_group_list('', function(response) {
