@@ -76,16 +76,16 @@
                         </thead>
                         <tbody>
                             <tr ng-repeat="group in groups.items"
-                                ng-click="group.checked = !group.checked"
                                 class="clickable">
                                 <td>
                                     <input type="checkbox"
                                         ng-model="group.checked"
                                         ng-checked="group.checked">
                                 </td>
-                                <td ng-bind-html="group.short_name"></td>
-                                <td>{{ group.slug }}</td>
-                                <td>{{ group.city.name }}</td>
+                                <td ng-bind-html="group.short_name"
+                                    ng-click="group.checked = !group.checked"></td>
+                                <td ng-click="group.checked = !group.checked">{{ group.slug }}</td>
+                                <td ng-click="group.checked = !group.checked">{{ group.city.name }}</td>
                             </tr>
                         </tbody>
                     </table>

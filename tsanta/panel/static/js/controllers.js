@@ -77,6 +77,9 @@ function GroupsCtrl($scope, $http) {
         filter_text: '',
         filter: function() {
             $scope.load_group_list(this.filter_text, function(response) {
+
+                $scope.groups.items = response;
+
                 if ( $scope.groups.filter_text ) {
                     var regexp = new RegExp('^' + $scope.groups.filter_text, 'i');
 
