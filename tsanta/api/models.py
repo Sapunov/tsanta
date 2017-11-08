@@ -33,7 +33,7 @@ class Participant(models.Model):
     surname = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, null=True, blank=True)
     email = models.EmailField()
-    social_network_link = models.CharField(max_length=200, null=True, blank=True)
+    social_network_link = models.URLField(null=True, blank=True)
     age = models.SmallIntegerField(null=True, blank=True)
     sex = models.SmallIntegerField(choices=SEX_CHOICES, default=2)
 
@@ -142,28 +142,12 @@ class Group(models.Model):
         return 'Group[{0}]: {1}'.format(self.id, self.short_name)
 
 
-class Question(models.Model):
-
-    QUESTION_TYPES = (
-        (0, "Text"),
-        (1, "Radio")
-    )
-
-    type = models.SmallIntegerField(choices=QUESTION_TYPES, default=QUESTION_TYPES[0])
-    json = models.TextField()
-
-    def __str__(self):
-
-        return 'Question[{0}]'.format(self.id)
-
-
 class Event(models.Model):
 
     name = models.CharField(max_length=100)
     date_start = models.DateTimeField()
     date_end = models.DateTimeField()
     groups = models.ManyToManyField(Group)
-    questions = models.ManyToManyField(Question)
     rules = models.TextField()
     process = models.TextField()
 
@@ -177,7 +161,6 @@ class Questionnaire(models.Model):
     participant = models.ForeignKey(Participant)
     event = models.ForeignKey(Event)
     ward = models.ForeignKey("self", null=True, blank=True)
-    questions_answers = models.TextField(null=False, blank=True)
     group = models.ForeignKey(Group)
     is_closed = models.BooleanField(default=False)
     participation_confirmed = models.BooleanField(default=False)
@@ -186,6 +169,29 @@ class Questionnaire(models.Model):
 
         return 'Questionnaire[{0}]: {1} {2}'.format(
             self.id, self.participant.name, self.participant.surname)
+
+
+class Question(models.Model):
+
+    QUESTION_TYPES = (
+        (0, "Text"),
+        (1, "Radio")
+    )
+
+    event = models.ForeignKey(Event)
+    type = models.SmallIntegerField(choices=QUESTION_TYPES, default=QUESTION_TYPES[0])
+    typed_content = models.TextField()
+
+    def __str__(self):
+
+        return 'Question[{0}]'.format(self.id)
+
+
+class Answer(models.Model):
+
+    question = models.ForeignKey(Question)
+    questionnaire = models.ForeignKey(Questionnaire)
+    content = models.TextField()
 
 
 class Notification(models.Model):

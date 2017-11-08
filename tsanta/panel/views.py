@@ -13,10 +13,17 @@ from . import misc
 @login_required
 def index_view(request):
 
+    name_surname = None
+
+    try:
+        name_surname = Participant.get_name_surname(request.user)
+    except Participant.DoesNotExist:
+        logout_view(request)
+
     context = {
         # 'app_version': settings.APP_VERSION
         'app_version': misc.random_string(),
-        'name_surname': Participant.get_name_surname(request.user)
+        'name_surname': name_surname
     }
 
     return render(request, 'panel/index.html', context)
