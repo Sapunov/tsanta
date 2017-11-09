@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -40,7 +40,6 @@ class GroupView(APIView):
     def get(self, request, group_id=None):
 
         if group_id is None:
-
             req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
 
             items = Group.get_my_groups(request.user, prefix=req_serializer.data['q'])
@@ -61,6 +60,11 @@ class GroupView(APIView):
     def put(self, request, group_id):
 
         group = Group.objects.get(pk=group_id)
+
+        # Группу может изменить только владелец
+        if group.owner.user != request.user:
+            raise PermissionDenied
+
         serializer = serialize(serializers.GroupSer, group, data=request.data)
 
         serializer.save()
@@ -71,6 +75,10 @@ class GroupView(APIView):
     def delete(self, request, group_id):
 
         group = Group.objects.get(pk=group_id)
+
+        # Группу может удалить только владелец
+        if group.owner.user != request.user:
+            raise PermissionDenied
 
         if group.event_lock:
             raise ValidationError('Нельзя удалить группу, пока она участвует в событии')
