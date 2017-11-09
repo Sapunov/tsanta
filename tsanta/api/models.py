@@ -150,6 +150,16 @@ class Event(models.Model):
     groups = models.ManyToManyField(Group)
     rules = models.TextField()
     process = models.TextField()
+    owner = models.ForeignKey(Participant)
+
+    @classmethod
+    def get_my_events(cls, user, prefix=''):
+
+        participant = Participant.objects.get(user=user)
+
+        items = cls.objects.filter(owner=participant, name__istartswith=prefix)
+
+        return items
 
     def __str__(self):
 
@@ -178,7 +188,7 @@ class Question(models.Model):
         (1, "Radio")
     )
 
-    event = models.ForeignKey(Event)
+    event = models.ForeignKey(Event, related_name="questions")
     type = models.SmallIntegerField(choices=QUESTION_TYPES, default=QUESTION_TYPES[0])
     typed_content = models.TextField()
 

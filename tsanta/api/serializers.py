@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.conf import settings
 
 from api import models
 
@@ -20,6 +21,11 @@ def serialize(serializer_class, instance, data=None, **kwargs):
         serializer.is_valid(raise_exception=True)
 
     return serializer
+
+
+class OnlyIdSer(serializers.Serializer):
+
+    id = serializers.IntegerField()
 
 
 class OnlyQSerReq(serializers.Serializer):
@@ -86,3 +92,22 @@ class CheckSlug(serializers.Serializer):
     is_exists = serializers.BooleanField()
     is_correct = serializers.BooleanField()
     is_ok = serializers.BooleanField()
+
+
+class QuestionSer(serializers.Serializer):
+
+    id = serializers.IntegerField(read_only=True)
+    type = serializers.IntegerField()
+    typed_content = serializers.CharField()
+
+
+class EventSer(serializers.Serializer):
+
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    date_start = serializers.DateTimeField(format=settings.API_DATETIME_FORMAT)
+    date_end = serializers.DateTimeField(format=settings.API_DATETIME_FORMAT)
+    rules = serializers.CharField()
+    rules = serializers.CharField()
+    groups = OnlyIdSer(many=True)
+    questions = QuestionSer(many=True)

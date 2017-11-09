@@ -65,6 +65,19 @@ function BaseCtrl($scope, $timeout, $http, $location) {
             }
         }, $scope.errorHandler);
     }
+
+    $scope.load_event_list = function(prefix, callback) {
+        prefix = prefix || '';
+
+        $http.get(tsanta.api + '/events?q=' + prefix)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                if ( callback !== undefined ) {
+                    callback(response.data);
+                }
+            }
+        }, $scope.errorHandler);
+    }
 }
 
 
@@ -234,6 +247,10 @@ function EventsCtrl($scope, $http) {
     $scope.events = {
         items: []
     };
+
+    $scope.load_event_list('', function(response) {
+        $scope.events.items = response;
+    });
 }
 
 function EventsFormCtrl($scope, $http, $routeParams) {

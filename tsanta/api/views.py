@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api import serializers
-from api.models import City, Group
+from api.models import City, Group, Event
 from api.serializers import serialize, deserialize
 
 
@@ -86,3 +86,15 @@ class GroupView(APIView):
         group.delete()
 
         return Response()
+
+
+class EventView(APIView):
+
+    def get(self, request, event_id=None):
+
+        if event_id is None:
+            req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
+            events = Event.get_my_events(request.user, prefix=req_serializer.data['q'])
+            ans_serializer = serialize(serializers.EventSer, events, many=True)
+
+        return Response(ans_serializer.data)

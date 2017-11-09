@@ -105,3 +105,5 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_URL = '/panel/login'
+
+API_DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
