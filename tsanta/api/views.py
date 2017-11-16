@@ -98,3 +98,10 @@ class EventView(APIView):
             ans_serializer = serialize(serializers.EventSer, events, many=True)
 
         return Response(ans_serializer.data)
+
+    def post(self, request, event_id=None):
+
+        serializer = deserialize(serializers.EventSer, data=request.data)
+        serializer.save(user=request.user)
+
+        return Response(serializer.data)

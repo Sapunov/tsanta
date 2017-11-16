@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.conf import settings
+from rest_framework.exceptions import ValidationError
 
 from api import models
 
@@ -108,6 +109,45 @@ class EventSer(serializers.Serializer):
     date_start = serializers.DateTimeField(format=settings.API_DATETIME_FORMAT)
     date_end = serializers.DateTimeField(format=settings.API_DATETIME_FORMAT)
     rules = serializers.CharField()
-    rules = serializers.CharField()
+    process = serializers.CharField()
     groups = OnlyIdSer(many=True)
     questions = QuestionSer(many=True)
+
+    def create(self, validated_data):
+
+        participant = models.Participant.objects.get(user=validated_data['user'])
+
+        if validated_data['date_start'] > validated_data['date_end']:
+            raise ValidationError("Дата начала события не может быть раньше даты конца")
+
+        group_ids = [it['id'] for it in validated_data['groups']]
+        groups = models.Group.objects.filter(
+            owner=participant, id__in=group_ids, event_lock=False)
+
+        if groups.count() != len(group_ids):
+            raise ValidationError("Не все группы доступны для создания события")
+
+        event = models.Event.objects.create(
+            name=validated_data['name'],
+            date_start=validated_data['date_start'],
+            date_end=validated_data['date_end'],
+            rules=validated_data['rules'],
+            process=validated_data['process'],
+            owner=participant)
+
+        event.groups = groups
+        event.save()
+
+        # Блокирование групп
+        for group in groups:
+            group.event_lock = True
+            group.save()
+
+        # Создание вопросов и добавление их к event
+        for question in validated_data['questions']:
+            models.Question.objects.create(
+                event=event,
+                type=question['type'],
+                typed_content=question['typed_content'])
+
+        return event

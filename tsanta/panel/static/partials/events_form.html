@@ -7,7 +7,7 @@
             <td class="elements">
                 <input type="text" class="form-control"
                     required id="name" placeholder="Название события"
-                    ng-model="name" ng-autofocus="(true)">
+                    ng-model="data.name" ng-autofocus="(true)">
             </td>
         </tr>
         <tr>
@@ -17,7 +17,7 @@
             <td class="elements">
                 <input type="date" class="form-control"
                     required id="name" placeholder="Дата начала"
-                    ng-model="date_start">
+                    ng-model="data.date_start">
             </td>
         </tr>
         <tr>
@@ -27,7 +27,7 @@
             <td class="elements">
                 <input type="date" class="form-control"
                     required id="name" placeholder="Дата окончания"
-                    ng-model="date_end">
+                    ng-model="data.date_end">
             </td>
         </tr>
         <tr>
@@ -37,7 +37,7 @@
             <td class="elements">
                 <textarea class="form-control noresize"
                     rows="10" id="rules"
-                    placeholder="Правила участия" ng-model="rules"></textarea>
+                    placeholder="Правила участия" ng-model="data.rules"></textarea>
                 <p class="text-muted">Поддерживается синтаксис
                     <a href="http://rukeba.com/by-the-way/markdown-sintaksis-po-russki/"
                         target="blank">markdown</a>
@@ -52,7 +52,7 @@
                 <textarea class="form-control noresize"
                     rows="10" id="process"
                     placeholder="Как проходит мероприятие. Регламент. Временные отметки"
-                    ng-model="process"></textarea>
+                    ng-model="data.process"></textarea>
                 <p class="text-muted">Поддерживается синтаксис
                     <a href="http://rukeba.com/by-the-way/markdown-sintaksis-po-russki/"
                         target="blank">markdown</a>
@@ -108,12 +108,12 @@
                 </ul>
                 <p><strong>Вы можете добавить произвольные вопросы</strong></p>
                 <table class="free-question">
-                    <tr ng-repeat="question in free_questions">
+                    <tr ng-repeat="question in data.questions">
                         <td class="question-wrapper">
                             <textarea class="form-control noresize"
                                 rows="2"
                                 placeholder="Текст вопроса"
-                                ng-model="free_questions[$index].text"></textarea>
+                                ng-model="data.questions[$index].typed_content"></textarea>
                         </td>
                         <td class="delete-wrapper">
                             <span class="glyphicon glyphicon-remove item-delete"

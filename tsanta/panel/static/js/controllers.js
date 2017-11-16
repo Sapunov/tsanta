@@ -100,7 +100,7 @@ function GroupsCtrl($scope, $http) {
                         var match = response[i].short_name.match(regexp);
 
                         $scope.groups.items[i].short_name = response[i].short_name.replace(
-                            match[0], '<mark>' + match[0] + '</mark>');
+                            match[0], '<span class="mark">' + match[0] + '</span>');
                     }
                 }
             });
@@ -180,7 +180,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
             $http.post(tsanta.api + '/groups', obj)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say('Новая группа создана');
+                    $scope.say('Новая группа создана!');
                     $scope.go('/groups');
                 }
             }, $scope.errorHandler);
@@ -259,30 +259,18 @@ function EventsFormCtrl($scope, $http, $routeParams) {
 
     $scope.event_id = $routeParams.eventId;
 
-    $scope.name;
-    $scope.date_start;
-    $scope.date_end;
-    $scope.rules;
-    $scope.process;
+    $scope.data = {
+        name: "",
+        date_start: "",
+        date_end: "",
+        rules: "",
+        process: "",
+        groups: [],
+        questions: []
+    };
 
     $scope.groups = {
         items: []
-    };
-
-    $scope.free_questions = [];
-
-    $scope.add_question = function() {
-        $scope.free_questions.push({'text': ''});
-    };
-
-    $scope.delete_question = function(index) {
-        var len = $scope.free_questions.length;
-
-        for ( var i = index; i < len; ++i ) {
-            $scope.free_questions[i] = $scope.free_questions[i + 1];
-        }
-
-        $scope.free_questions.splice(len - 1, 1);
     };
 
     $scope.load_group_list('', function(response) {
@@ -295,11 +283,53 @@ function EventsFormCtrl($scope, $http, $routeParams) {
                 j++;
             }
         }
+
+        // Проверка на доступность групп
+        if ( $scope.groups.items.length == 0 ) {
+            $scope.say_error('Нет групп для создания события!\nСначала добавьте новую группу.');
+            $scope.go('/groups');
+        }
     });
 
-    $scope.submit_event = function() {
-
+    $scope.add_question = function() {
+        // В данный момент api поддерживает только один тип вопросов - текст
+        // type == 0 - текст
+        $scope.data.questions.push({'typed_content': '', type: 0});
     };
+
+    $scope.delete_question = function(index) {
+        var len = $scope.data.questions.length;
+
+        for ( var i = index; i < len; ++i ) {
+            $scope.data.questions[i] = $scope.data.questions[i + 1];
+        }
+
+        $scope.data.questions.splice(len - 1, 1);
+    };
+
+    $scope.submit_event = function() {
+        $scope.data.groups = extract_group_ids($scope.groups.items);
+
+        $http.post(tsanta.api + '/events', $scope.data)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.say("Новое событие создано!");
+                $scope.go('/events');
+            }
+        }, $scope.errorHandler);
+    };
+
+    function extract_group_ids(group_items) {
+        let ids = [];
+
+        for ( let i = 0; i < group_items.length; ++i ) {
+            if ( group_items[i].checked ) {
+                ids.push({id: group_items[i].id});
+            }
+        }
+
+        return ids;
+    }
 }
 
 
