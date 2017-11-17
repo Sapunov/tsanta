@@ -1,5 +1,12 @@
 <form class="form-horizontal" novalidate ng-submit="submit_group()" name="group_form">
     <table class="groups-new-wrapper">
+        <tr ng-show="current_event">
+            <td class="labels">
+            </td>
+            <td class="elements">
+                <p>Участвует в <strong><a href="events/{{ current_event.id }}">{{ current_event.name }}</a></strong></p>
+            </td>
+        </tr>
         <tr>
             <td class="labels">
                 <label for="name">Название группы*</label>

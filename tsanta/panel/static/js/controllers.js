@@ -78,6 +78,17 @@ function BaseCtrl($scope, $timeout, $http, $location) {
             }
         }, $scope.errorHandler);
     }
+
+    $scope.load_event = function (event_id, callback) {
+        $http.get(tsanta.api + '/events/' + event_id)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                if ( callback !== undefined ) {
+                    callback(response.data);
+                }
+            }
+        }, $scope.errorHandler);
+    }
 }
 
 
@@ -131,6 +142,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
     $scope.alt_names = '';
     $scope.current_slug = undefined;
     $scope.event_lock = undefined;
+    $scope.current_event = undefined;
 
     $scope.cities = {
         items: [],
@@ -219,6 +231,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
                 $scope.slug.text = response.data.slug;
                 $scope.cities.selected = response.data.city;
                 $scope.event_lock = response.data.event_lock;
+                $scope.current_event = response.data.current_event;
             }
 
             callback();
@@ -255,8 +268,6 @@ function EventsCtrl($scope, $http) {
 
 function EventsFormCtrl($scope, $http, $routeParams) {
 
-    $scope.set_pagename('Новое событие');
-
     $scope.event_id = $routeParams.eventId;
 
     $scope.data = {
@@ -270,13 +281,36 @@ function EventsFormCtrl($scope, $http, $routeParams) {
     };
 
     $scope.groups = {
-        items: []
+        items: [],
+        item_ids: []
     };
+
+    if ( $scope.event_id !== undefined ) {
+        $scope.load_event($scope.event_id, function(response) {
+            $scope.set_pagename(response.name);
+            $scope.data.name = response.name;
+            $scope.data.date_start = new Date(response.date_start);
+            $scope.data.date_end = new Date(response.date_end);
+            $scope.data.rules = response.rules;
+            $scope.data.process = response.process;
+            $scope.data.questions = response.questions;
+            $scope.groups.item_ids = response.groups.map( function( item ) {return item.id;} );
+        });
+    } else {
+        $scope.set_pagename('Новое событие');
+    }
 
     $scope.load_group_list('', function(response) {
         var j = 0;
         for ( var i = 0; i < response.length; ++i ) {
-            if ( response[i].event_lock === false ) {
+
+            if ( $scope.event_id !== undefined && $scope.groups.item_ids.indexOf(response[i].id) != -1) {
+                $scope.groups.items[j] = response[i];
+                $scope.groups.items[j].checked = true;
+
+                j++;
+            }
+            else if ( response[i].event_lock === false ) {
                 $scope.groups.items[j] = response[i];
                 $scope.groups.items[j].checked = false;
 
@@ -285,7 +319,7 @@ function EventsFormCtrl($scope, $http, $routeParams) {
         }
 
         // Проверка на доступность групп
-        if ( $scope.groups.items.length == 0 ) {
+        if ( $scope.event_id === undefined && $scope.groups.items.length == 0 ) {
             $scope.say_error('Нет групп для создания события!\nСначала добавьте новую группу.');
             $scope.go('/groups');
         }
@@ -309,14 +343,23 @@ function EventsFormCtrl($scope, $http, $routeParams) {
 
     $scope.submit_event = function() {
         $scope.data.groups = extract_group_ids($scope.groups.items);
-
-        $http.post(tsanta.api + '/events', $scope.data)
-        .then(function(response) {
-            if ( response.status === 200 ) {
-                $scope.say("Новое событие создано!");
-                $scope.go('/events');
-            }
-        }, $scope.errorHandler);
+        if ( $scope.event_id === undefined ) {
+            $http.post(tsanta.api + '/events', $scope.data)
+            .then(function(response) {
+                if ( response.status === 200 ) {
+                    $scope.say("Новое событие создано!");
+                    $scope.go('/events');
+                }
+            }, $scope.errorHandler);
+        } else {
+            $http.put(tsanta.api + '/events/' + $scope.event_id, $scope.data)
+            .then(function(response) {
+                if ( response.status === 200 ) {
+                    $scope.say("Событие изменено");
+                    $scope.go('/events');
+                }
+            }, $scope.errorHandler);
+        }
     };
 
     function extract_group_ids(group_items) {
@@ -330,6 +373,18 @@ function EventsFormCtrl($scope, $http, $routeParams) {
 
         return ids;
     }
+}
+
+function EventsFlyCtrl($scope, $http, $routeParams) {
+
+    $scope.event_id = $routeParams.eventId;
+    $scope.data = {};
+
+
+    $scope.load_event($scope.event_id, function(response) {
+        $scope.data = response;
+        $scope.set_pagename($scope.data.name);
+    });
 }
 
 

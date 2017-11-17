@@ -8,6 +8,7 @@
     .controller('notificationsCtrl', NotificationsCtrl)
     .controller('groupFormCtrl', GroupFormCtrl)
     .controller('eventsFormCtrl', EventsFormCtrl)
+    .controller('eventsFlyCtrl', EventsFlyCtrl)
 
     // Configuring routes
     .config(['$locationProvider', '$routeProvider', '$httpProvider',
@@ -33,7 +34,7 @@
                 controller: 'groupFormCtrl'
             })
 
-            .when('/groups/:groupId', {
+            .when('/groups/:groupId/edit', {
                 templateUrl: '/static/partials/groups_form.html?v=' + tsanta.version,
                 controller: 'groupFormCtrl'
             })
@@ -49,6 +50,11 @@
             })
 
             .when('/events/:eventId', {
+                templateUrl: '/static/partials/events_fly.html?v=' + tsanta.version,
+                controller: 'eventsFlyCtrl'
+            })
+
+            .when('/events/:eventId/edit', {
                 templateUrl: '/static/partials/events_form.html?v=' + tsanta.version,
                 controller: 'eventsFormCtrl'
             })
