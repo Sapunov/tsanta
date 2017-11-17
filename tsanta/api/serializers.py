@@ -106,8 +106,8 @@ class EventSer(serializers.Serializer):
 
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField()
-    date_start = serializers.DateTimeField(format=settings.API_DATETIME_FORMAT)
-    date_end = serializers.DateTimeField(format=settings.API_DATETIME_FORMAT)
+    date_start = serializers.DateTimeField()
+    date_end = serializers.DateTimeField()
     rules = serializers.CharField()
     process = serializers.CharField()
     groups = OnlyIdSer(many=True)
