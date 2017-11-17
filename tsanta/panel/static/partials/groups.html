@@ -27,14 +27,14 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="group in groups.items" ng-click="go('groups/' + group.id)" class="clickable">
+            <tr ng-repeat="group in groups.items" ng-click="go('groups/' + group.id + '/edit')" class="clickable">
                 <td>{{ $index + 1 }}</td>
                 <td ng-bind-html="group.short_name"></td>
                 <td>{{ group.slug }}</td>
                 <td>{{ group.city.name }}</td>
                 <th>
                     <span ng-show="group.event_lock"
-                        uib-tooltip="Участвует в мероприятии"
+                        uib-tooltip='Участвует в "{{ group.current_event.name }}"'
                         class="glyphicon glyphicon-play"></span>
                 </th>
             </tr>

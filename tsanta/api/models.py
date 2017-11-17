@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.validators import validate_slug
 from django.core import exceptions as django_exceptions
-
+from django.utils import timezone
 
 class IsExists:
 
@@ -103,6 +103,38 @@ class City(models.Model):
         verbose_name_plural = "Cities"
 
 
+class Event(models.Model):
+
+    name = models.CharField(max_length=100)
+    date_start = models.DateTimeField()
+    date_end = models.DateTimeField()
+    groups = models.ManyToManyField("Group")
+    rules = models.TextField()
+    process = models.TextField()
+    owner = models.ForeignKey(Participant)
+
+    @classmethod
+    def get_my_events(cls, user, event_id=None, prefix=''):
+
+        participant = Participant.objects.get(user=user)
+
+        items = cls.objects.filter(owner=participant, name__istartswith=prefix)
+
+        if not event_id is None:
+            items = items.filter(pk=event_id)
+
+            if items.count() == 1:
+                return items[0]
+            else:
+                return None
+
+        return items
+
+    def __str__(self):
+
+        return 'Event[{0}]: {1}'.format(self.id, self.name)
+
+
 class Group(models.Model):
 
     short_name = models.CharField(max_length=500)
@@ -137,33 +169,22 @@ class Group(models.Model):
 
         return CheckSlug(is_exists, is_correct)
 
+    @property
+    def current_event(self):
+
+        if not self.event_lock:
+            return None
+
+        event = Event.objects.get(
+            groups__id=self.id,
+            date_start__lte=timezone.now(),
+            date_end__gte=timezone.now())
+
+        return event
+
     def __str__(self):
 
         return 'Group[{0}]: {1}'.format(self.id, self.short_name)
-
-
-class Event(models.Model):
-
-    name = models.CharField(max_length=100)
-    date_start = models.DateTimeField()
-    date_end = models.DateTimeField()
-    groups = models.ManyToManyField(Group)
-    rules = models.TextField()
-    process = models.TextField()
-    owner = models.ForeignKey(Participant)
-
-    @classmethod
-    def get_my_events(cls, user, prefix=''):
-
-        participant = Participant.objects.get(user=user)
-
-        items = cls.objects.filter(owner=participant, name__istartswith=prefix)
-
-        return items
-
-    def __str__(self):
-
-        return 'Event[{0}]: {1}'.format(self.id, self.name)
 
 
 class Questionnaire(models.Model):

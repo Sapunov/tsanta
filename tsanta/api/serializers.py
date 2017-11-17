@@ -45,6 +45,12 @@ class CitySer(serializers.Serializer):
     name = serializers.CharField()
 
 
+class EventForGroupSer(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+
+
 class GroupSer(serializers.Serializer):
 
     id = serializers.IntegerField(read_only=True)
@@ -54,6 +60,7 @@ class GroupSer(serializers.Serializer):
     slug = serializers.SlugField()
     tag = serializers.CharField(default='')
     event_lock = serializers.BooleanField(read_only=True)
+    current_event = EventForGroupSer(read_only=True, required=False)
 
     def create(self, validated_data):
 

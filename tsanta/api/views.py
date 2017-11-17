@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.exceptions import ValidationError, PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -97,13 +97,17 @@ class EventView(APIView):
             events = Event.get_my_events(request.user, prefix=req_serializer.data['q'])
             ans_serializer = serialize(serializers.EventSer, events, many=True)
         else:
-            event = Event.objects.get(pk=event_id)
+            event = Event.get_my_events(request.user, event_id=event_id)
+
+            if event is None:
+                raise NotFound
+
             ans_serializer = serialize(serializers.EventSer, event)
 
         return Response(ans_serializer.data)
 
     def post(self, request, event_id=None):
-        
+
         serializer = deserialize(serializers.EventSer, data=request.data)
         serializer.save(user=request.user)
 
@@ -117,7 +121,7 @@ class EventView(APIView):
         # Событие может изменить только владелец
         if event.owner.user != request.user:
             raise PermissionDenied
-        
+
         serializer = serialize(serializers.EventSer, event, data=request.data)
         serializer.save(user=request.user)
 
