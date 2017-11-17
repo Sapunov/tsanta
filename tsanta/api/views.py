@@ -96,12 +96,29 @@ class EventView(APIView):
             req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
             events = Event.get_my_events(request.user, prefix=req_serializer.data['q'])
             ans_serializer = serialize(serializers.EventSer, events, many=True)
+        else:
+            event = Event.objects.get(pk=event_id)
+            ans_serializer = serialize(serializers.EventSer, event)
 
         return Response(ans_serializer.data)
 
     def post(self, request, event_id=None):
-
+        
         serializer = deserialize(serializers.EventSer, data=request.data)
+        serializer.save(user=request.user)
+
+        return Response(serializer.data)
+
+
+    def put(self, request, event_id):
+
+        event = Event.objects.get(pk=event_id)
+
+        # Событие может изменить только владелец
+        if event.owner.user != request.user:
+            raise PermissionDenied
+        
+        serializer = serialize(serializers.EventSer, event, data=request.data)
         serializer.save(user=request.user)
 
         return Response(serializer.data)

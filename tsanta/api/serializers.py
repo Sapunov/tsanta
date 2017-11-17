@@ -97,7 +97,7 @@ class CheckSlug(serializers.Serializer):
 
 class QuestionSer(serializers.Serializer):
 
-    id = serializers.IntegerField(read_only=True)
+    id = serializers.IntegerField(required=False)
     type = serializers.IntegerField()
     typed_content = serializers.CharField()
 
@@ -113,13 +113,16 @@ class EventSer(serializers.Serializer):
     groups = OnlyIdSer(many=True)
     questions = QuestionSer(many=True)
 
+    def validate(self, data):
+        
+        if data['date_start'] > data['date_end']:
+            raise ValidationError("Дата начала события не может быть раньше даты конца")
+        
+        return data
+
     def create(self, validated_data):
 
         participant = models.Participant.objects.get(user=validated_data['user'])
-
-        if validated_data['date_start'] > validated_data['date_end']:
-            raise ValidationError("Дата начала события не может быть раньше даты конца")
-
         group_ids = [it['id'] for it in validated_data['groups']]
         groups = models.Group.objects.filter(
             owner=participant, id__in=group_ids, event_lock=False)
@@ -151,3 +154,108 @@ class EventSer(serializers.Serializer):
                 typed_content=question['typed_content'])
 
         return event
+
+    def update(self, instance, validated_data):
+
+        participant = models.Participant.objects.get(user=validated_data['user'])
+
+        requested_gids = [it['id'] for it in validated_data['groups']]
+        bound_gids = [
+            gid for gid in instance.groups.values_list('id', flat=True)
+        ]
+        
+        # ID групп, которые необходимо разблокировать (удаленные из события группы)
+        unbound_gids = [
+            gid for gid in bound_gids if gid not in requested_gids
+        ]
+        
+        # ID групп, которые необходимо заблокировать (добавленные к событию группы)
+        new_gids = [
+            gid for gid in requested_gids 
+            if gid not in unbound_gids and gid not in bound_gids
+        ]
+        
+        # Можно ли разблокировать группы, которые просят удалить из события?
+        unlocked_groups = models.Group.objects.filter(
+            owner=participant, id__in=unbound_gids, event_lock=True
+        )
+        if unlocked_groups.count() != len(unbound_gids):
+            raise ValidationError("Не все группы можно удалить из события")
+
+        # Можно ли заблокировать группы, которые просят добавить?
+        locked_groups = models.Group.objects.filter(
+            owner=participant, id__in=new_gids, event_lock=False
+        )
+        if locked_groups.count() != len(new_gids):
+            raise ValidationError("Не все группы можно добавить к событию")
+
+        final_groups_ids = [
+            gid for gid in requested_gids 
+            if gid not in unbound_gids
+        ]
+
+        groups = models.Group.objects.filter(
+            owner=participant, id__in=final_groups_ids
+        )
+        
+        instance.name = validated_data['name']
+        instance.date_start = validated_data['date_start']
+        instance.date_end = validated_data['date_end']
+        instance.rules = validated_data['rules']
+        instance.process = validated_data['process']
+
+        # Блокирование групп
+        for group in groups:
+            group.event_lock = True
+            group.save()
+        
+        # Разблокирование групп
+        for group in unlocked_groups:
+            group.event_lock = False
+            group.save()
+
+        instance.groups = groups
+        instance.save()
+
+
+        # Все вопросы запроса, имеющие id (по мнению клиента)
+        questions_with_ids = {
+            q['id']: q for q in validated_data['questions'] if 'id' in q
+        }
+
+        # Существующие вопросы события
+        bound_question_ids = [
+            qid for qid in instance.questions.values_list('id', flat=True)
+        ]
+
+        # Удаляем ненужные вопросы события
+        unbound_question_ids = [
+            qid for qid in bound_question_ids if qid not in questions_with_ids.keys()
+        ]
+        if unbound_question_ids:
+            models.Question.objects.filter(id__in=unbound_question_ids).delete()
+
+        # Проверяем оставшиеся вопросы на наличие изменений
+        mod_questions_ids = [
+            qid for qid in bound_question_ids if qid not in unbound_question_ids
+        ]
+        if mod_questions_ids:
+            questions = models.Question.objects.filter(id__in=mod_questions_ids)
+            for question in questions:
+                if question.typed_content != questions_with_ids[question.id]['typed_content']:
+                    question.typed_content = questions_with_ids[question.id]['typed_content']
+                    question.save()
+                # TODO Type
+
+        # Абсолютно новые вопросы
+        new_questions = [
+            q for q in validated_data['questions'] if not 'id' in q
+        ]
+
+        for question in new_questions:
+            models.Question.objects.create(
+                event=instance,
+                type=question['type'],
+                typed_content=question['typed_content'])
+
+        return instance

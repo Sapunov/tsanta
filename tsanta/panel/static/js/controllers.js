@@ -255,10 +255,8 @@ function EventsCtrl($scope, $http) {
 
 function EventsFormCtrl($scope, $http, $routeParams) {
 
-    $scope.set_pagename('Новое событие');
-
     $scope.event_id = $routeParams.eventId;
-
+    
     $scope.data = {
         name: "",
         date_start: "",
@@ -270,13 +268,29 @@ function EventsFormCtrl($scope, $http, $routeParams) {
     };
 
     $scope.groups = {
-        items: []
+        items: [],
+        item_ids: []
     };
+
+    if ( $scope.event_id !== undefined ) {
+        load_event($scope.event_id, function() {
+            $scope.set_pagename($scope.data.name);
+        });
+    } else {
+        $scope.set_pagename('Новое событие');
+    }
 
     $scope.load_group_list('', function(response) {
         var j = 0;
         for ( var i = 0; i < response.length; ++i ) {
-            if ( response[i].event_lock === false ) {
+
+            if ( $scope.event_id !== undefined && $scope.groups.item_ids.indexOf(response[i].id) != -1) {
+                $scope.groups.items[j] = response[i];
+                $scope.groups.items[j].checked = true;
+
+                j++;
+            }
+            else if ( response[i].event_lock === false ) {
                 $scope.groups.items[j] = response[i];
                 $scope.groups.items[j].checked = false;
 
@@ -290,6 +304,23 @@ function EventsFormCtrl($scope, $http, $routeParams) {
             $scope.go('/groups');
         }
     });
+
+    function load_event(event_id, callback) {
+        $http.get(tsanta.api + '/events/' + event_id)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.data.name = response.data.name;
+                $scope.data.date_start = new Date(response.data.date_start);
+                $scope.data.date_end = new Date(response.data.date_end);
+                $scope.data.rules = response.data.rules;
+                $scope.data.process = response.data.process;
+                $scope.data.questions = response.data.questions;
+                $scope.groups.item_ids = response.data.groups.map( function( item ) {return item.id;} );
+            }
+
+            callback();
+        }, $scope.errorHandler);
+    }
 
     $scope.add_question = function() {
         // В данный момент api поддерживает только один тип вопросов - текст
@@ -309,14 +340,23 @@ function EventsFormCtrl($scope, $http, $routeParams) {
 
     $scope.submit_event = function() {
         $scope.data.groups = extract_group_ids($scope.groups.items);
-
-        $http.post(tsanta.api + '/events', $scope.data)
-        .then(function(response) {
-            if ( response.status === 200 ) {
-                $scope.say("Новое событие создано!");
-                $scope.go('/events');
-            }
-        }, $scope.errorHandler);
+        if ( $scope.event_id === undefined ) {            
+            $http.post(tsanta.api + '/events', $scope.data)
+            .then(function(response) {
+                if ( response.status === 200 ) {
+                    $scope.say("Новое событие создано!");
+                    $scope.go('/events');
+                }
+            }, $scope.errorHandler);
+        } else {
+            $http.put(tsanta.api + '/events/' + $scope.event_id, $scope.data)
+            .then(function(response) {
+                if ( response.status === 200 ) {
+                    $scope.say("Событие изменено");
+                    $scope.go('/events');
+                }
+            }, $scope.errorHandler);
+        }
     };
 
     function extract_group_ids(group_items) {
