@@ -78,6 +78,17 @@ function BaseCtrl($scope, $timeout, $http, $location) {
             }
         }, $scope.errorHandler);
     }
+
+    $scope.load_event = function (event_id, callback) {
+        $http.get(tsanta.api + '/events/' + event_id)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                if ( callback !== undefined ) {
+                    callback(response.data);
+                }
+            }
+        }, $scope.errorHandler);
+    }
 }
 
 
@@ -131,6 +142,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
     $scope.alt_names = '';
     $scope.current_slug = undefined;
     $scope.event_lock = undefined;
+    $scope.current_event = undefined;
 
     $scope.cities = {
         items: [],
@@ -219,6 +231,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
                 $scope.slug.text = response.data.slug;
                 $scope.cities.selected = response.data.city;
                 $scope.event_lock = response.data.event_lock;
+                $scope.current_event = response.data.current_event;
             }
 
             callback();
@@ -255,8 +268,6 @@ function EventsCtrl($scope, $http) {
 
 function EventsFormCtrl($scope, $http, $routeParams) {
 
-    $scope.set_pagename('Новое событие');
-
     $scope.event_id = $routeParams.eventId;
 
     $scope.data = {
@@ -273,6 +284,15 @@ function EventsFormCtrl($scope, $http, $routeParams) {
         items: []
     };
 
+    if ( $scope.event_id !== undefined ) {
+        $scope.load_event($scope.event_id, function(response) {
+            $scope.data = response;
+            $scope.set_pagename($scope.data.name);
+        });
+    } else {
+        $scope.set_pagename('Новое событие');
+    }
+
     $scope.load_group_list('', function(response) {
         var j = 0;
         for ( var i = 0; i < response.length; ++i ) {
@@ -285,7 +305,7 @@ function EventsFormCtrl($scope, $http, $routeParams) {
         }
 
         // Проверка на доступность групп
-        if ( $scope.groups.items.length == 0 ) {
+        if ( $scope.event_id === undefined && $scope.groups.items.length == 0 ) {
             $scope.say_error('Нет групп для создания события!\nСначала добавьте новую группу.');
             $scope.go('/groups');
         }
@@ -330,6 +350,18 @@ function EventsFormCtrl($scope, $http, $routeParams) {
 
         return ids;
     }
+}
+
+function EventsFlyCtrl($scope, $http, $routeParams) {
+
+    $scope.event_id = $routeParams.eventId;
+    $scope.data = {};
+
+
+    $scope.load_event($scope.event_id, function(response) {
+        $scope.data = response;
+        $scope.set_pagename($scope.data.name);
+    });
 }
 
 
