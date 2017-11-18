@@ -110,7 +110,9 @@ class Event(models.Model):
     date_end = models.DateTimeField()
     groups = models.ManyToManyField("Group")
     rules = models.TextField()
+    rules_html = models.TextField()
     process = models.TextField()
+    process_html = models.TextField()
     owner = models.ForeignKey(Participant)
 
     @classmethod

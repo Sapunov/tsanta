@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
+import mistune
 
 from api import models
 
@@ -116,7 +117,9 @@ class EventSer(serializers.Serializer):
     date_start = serializers.DateTimeField()
     date_end = serializers.DateTimeField()
     rules = serializers.CharField()
+    rules_html = serializers.CharField(read_only=True)
     process = serializers.CharField()
+    process_html = serializers.CharField(read_only=True)
     groups = OnlyIdSer(many=True)
     questions = QuestionSer(many=True)
 
@@ -125,7 +128,7 @@ class EventSer(serializers.Serializer):
         if data['date_start'] > data['date_end']:
             raise ValidationError("Дата начала события не может быть раньше даты конца")
 
-        if len(data['groups']) == 0:
+        if not data['groups']:
             raise ValidationError('Нельзя создать событие без групп')
 
         return data
@@ -145,7 +148,9 @@ class EventSer(serializers.Serializer):
             date_start=validated_data['date_start'],
             date_end=validated_data['date_end'],
             rules=validated_data['rules'],
+            rules_html=mistune.markdown(validated_data['rules']),
             process=validated_data['process'],
+            process_html=mistune.markdown(validated_data['process']),
             owner=participant)
 
         event.groups = groups
@@ -213,6 +218,8 @@ class EventSer(serializers.Serializer):
         instance.date_end = validated_data['date_end']
         instance.rules = validated_data['rules']
         instance.process = validated_data['process']
+        instance.rules_html = mistune.markdown(validated_data['rules'])
+        instance.process_html = mistune.markdown(validated_data['process'])
 
         # Блокирование групп
         for group in groups:
