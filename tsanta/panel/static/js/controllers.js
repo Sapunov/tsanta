@@ -110,8 +110,10 @@ function GroupsCtrl($scope, $http) {
                     for ( var i = 0; i < response.length; ++i ) {
                         var match = response[i].short_name.match(regexp);
 
-                        $scope.groups.items[i].short_name = response[i].short_name.replace(
-                            match[0], '<span class="mark">' + match[0] + '</span>');
+                        if ( match ) {
+                            $scope.groups.items[i].short_name = response[i].short_name.replace(
+                                match[0], '<span class="mark">' + match[0] + '</span>');
+                        }
                     }
                 }
             });
