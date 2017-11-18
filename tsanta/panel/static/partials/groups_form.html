@@ -56,6 +56,29 @@
         </tr>
         <tr>
             <td class="labels">
+                <label for="repr_name">Отображаемое название*</label>
+            </td>
+            <td class="elements">
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button type="button"
+                            class="btn btn-default dropdown-toggle"
+                            data-toggle="dropdown">{{ repr_name.excuse }} <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" ng-click="repr_name.excuse = 'В'; repr_name.make_example()">В</a></li>
+                            <li><a href="#" ng-click="repr_name.excuse = 'На'; repr_name.make_example()">На</a></li>
+                        </ul>
+                    </div>
+                    <input type="text" class="form-control"
+                        id="repr_name" placeholder="Отображаемое имя"
+                        autocomplete="off"
+                        ng-keyup="repr_name.make_example()" ng-model="repr_name.name" required>
+                </div>
+                <p class="text-muted">Тайный Санта <b>{{ repr_name.example }}</b></p>
+            </td>
+        </tr>
+        <tr>
+            <td class="labels">
             </td>
             <td class="elements">
                 <button type="submit"

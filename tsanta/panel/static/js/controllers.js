@@ -144,6 +144,43 @@ function GroupFormCtrl($scope, $http, $routeParams) {
     $scope.event_lock = undefined;
     $scope.current_event = undefined;
 
+    $scope.repr_name = {
+        name: '',
+        example: '',
+        excuse: 'В',
+        get: function() {
+            return this.excuse.toLowerCase() + ' ' + (this.name || '');
+        },
+        set: function(value) {
+            let parts = value.split(' ');
+
+            if ( parts.length > 1 ) {
+                switch (parts[0].toLowerCase()) {
+                    case 'в':
+                        this.excuse = 'В';
+                        break;
+                    case 'на':
+                        this.excuse = 'На';
+                        break;
+                    default:
+                        this.excuse = 'В'
+                        break;
+                }
+
+                parts.splice(0, 1);
+                this.name = parts.join(' ');
+            } else {
+                this.excuse = 'В';
+                this.name = value;
+            }
+
+            this.make_example();
+        },
+        make_example: function() {
+            this.example = this.name ? this.get() : '';
+        }
+    };
+
     $scope.cities = {
         items: [],
         selected: undefined
@@ -184,6 +221,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
         var obj = {
             short_name: $scope.name,
             alt_names: $scope.alt_names,
+            repr_name: $scope.repr_name.get(),
             city: $scope.cities.selected,
             slug: $scope.slug.text
         }
@@ -192,7 +230,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
             $http.post(tsanta.api + '/groups', obj)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say('Новая группа создана!');
+                    $scope.say('Группа ' + $scope.name + ' создана!');
                     $scope.go('/groups');
                 }
             }, $scope.errorHandler);
@@ -200,7 +238,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
             $http.put(tsanta.api + '/groups/' + $scope.group_id, obj)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say('Данные группы обновлены');
+                    $scope.say('Группа ' + $scope.name + '  обновлена');
                     $scope.go('/groups');
                 }
             }, $scope.errorHandler);
@@ -216,7 +254,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
         $http.delete(tsanta.api + '/groups/' + $scope.group_id)
         .then(function(response) {
             if ( response.status === 200 ) {
-                $scope.say('Группы удалена');
+                $scope.say('Группа ' + $scope.name + ' удалена');
                 $scope.go('/groups');
             }
         }, $scope.errorHandler);
@@ -228,6 +266,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
             if ( response.status === 200 ) {
                 $scope.name = response.data.short_name;
                 $scope.alt_names = response.data.alt_names;
+                $scope.repr_name.set(response.data.repr_name);
                 $scope.slug.text = response.data.slug;
                 $scope.cities.selected = response.data.city;
                 $scope.event_lock = response.data.event_lock;
@@ -354,7 +393,7 @@ function EventsFormCtrl($scope, $http, $routeParams) {
             $http.post(tsanta.api + '/events', $scope.data)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say("Новое событие создано!");
+                    $scope.say('Событие ' + $scope.data.name + ' создано!');
                     $scope.go('/events');
                 }
             }, $scope.errorHandler);
@@ -363,7 +402,7 @@ function EventsFormCtrl($scope, $http, $routeParams) {
             $http.put(tsanta.api + '/events/' + $scope.event_id, $scope.data)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say("Событие изменено");
+                    $scope.say('Событие ' + $scope.data.name + ' изменено');
                     $scope.go('/events');
                 }
             }, $scope.errorHandler);

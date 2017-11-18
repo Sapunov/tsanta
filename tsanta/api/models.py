@@ -141,6 +141,7 @@ class Group(models.Model):
 
     short_name = models.CharField(max_length=500)
     alt_names = models.TextField()
+    repr_name = models.CharField(max_length=503)
     city = models.ForeignKey(City)
     slug = models.SlugField(unique=True)
     owner = models.ForeignKey(Participant)

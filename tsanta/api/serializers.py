@@ -57,6 +57,7 @@ class GroupSer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     short_name = serializers.CharField()
     alt_names = serializers.CharField(allow_blank=True, required=False)
+    repr_name = serializers.CharField()
     city = CitySer()
     slug = serializers.SlugField()
     tag = serializers.CharField(default='')
@@ -71,6 +72,7 @@ class GroupSer(serializers.Serializer):
         group = models.Group.objects.create(
             short_name=validated_data['short_name'],
             alt_names=validated_data['alt_names'],
+            repr_name=validated_data['repr_name'],
             city=city,
             slug=validated_data['slug'],
             owner=participant)
@@ -84,6 +86,7 @@ class GroupSer(serializers.Serializer):
         instance.city = city
         instance.short_name = validated_data['short_name']
         instance.alt_names = validated_data['alt_names']
+        instance.repr_name = validated_data['repr_name']
         instance.slug = validated_data['slug']
 
         instance.save()
