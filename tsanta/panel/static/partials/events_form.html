@@ -61,7 +61,7 @@
         </tr>
         <tr>
             <td class="labels">
-                <label for="rules">Участвующие группы</label>
+                <label for="rules">Участвующие группы*</label>
             </td>
             <td class="elements">
                 <div class="select-groups">
@@ -130,7 +130,7 @@
             </td>
             <td class="elements">
                     <button type="submit"
-                        ng-disabled="event_form.$invalid"
+                        ng-disabled="event_form.$invalid || no_checked_groups()"
                         class="btn btn-warning">{{ (event_id === undefined) ? 'Создать события' : 'Сохранить' }}</button>
             </td>
         </tr>

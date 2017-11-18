@@ -328,7 +328,7 @@ function EventsFormCtrl($scope, $http, $routeParams) {
     $scope.add_question = function() {
         // В данный момент api поддерживает только один тип вопросов - текст
         // type == 0 - текст
-        $scope.data.questions.push({'typed_content': '', type: 0});
+        $scope.data.questions.push({typed_content: '', type: 0});
     };
 
     $scope.delete_question = function(index) {
@@ -341,8 +341,15 @@ function EventsFormCtrl($scope, $http, $routeParams) {
         $scope.data.questions.splice(len - 1, 1);
     };
 
+    $scope.no_checked_groups = function() {
+        return extract_group_ids($scope.groups.items).length === 0;
+    };
+
     $scope.submit_event = function() {
         $scope.data.groups = extract_group_ids($scope.groups.items);
+        $scope.data.questions = extract_not_null_questions($scope.data.questions);
+
+        // Создание нового события
         if ( $scope.event_id === undefined ) {
             $http.post(tsanta.api + '/events', $scope.data)
             .then(function(response) {
@@ -351,6 +358,7 @@ function EventsFormCtrl($scope, $http, $routeParams) {
                     $scope.go('/events');
                 }
             }, $scope.errorHandler);
+        // Обновление события
         } else {
             $http.put(tsanta.api + '/events/' + $scope.event_id, $scope.data)
             .then(function(response) {
@@ -372,6 +380,18 @@ function EventsFormCtrl($scope, $http, $routeParams) {
         }
 
         return ids;
+    }
+
+    function extract_not_null_questions(input_questions) {
+        let questions = [];
+
+        for ( let i = 0; i < input_questions.length; ++i ) {
+            if ( input_questions[i].typed_content !== '') {
+                questions.push(input_questions[i]);
+            }
+        }
+
+        return questions;
     }
 }
 

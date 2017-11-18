@@ -121,10 +121,13 @@ class EventSer(serializers.Serializer):
     questions = QuestionSer(many=True)
 
     def validate(self, data):
-        
+
         if data['date_start'] > data['date_end']:
             raise ValidationError("Дата начала события не может быть раньше даты конца")
-        
+
+        if len(data['groups']) == 0:
+            raise ValidationError('Нельзя создать событие без групп')
+
         return data
 
     def create(self, validated_data):
@@ -170,18 +173,18 @@ class EventSer(serializers.Serializer):
         bound_gids = [
             gid for gid in instance.groups.values_list('id', flat=True)
         ]
-        
+
         # ID групп, которые необходимо разблокировать (удаленные из события группы)
         unbound_gids = [
             gid for gid in bound_gids if gid not in requested_gids
         ]
-        
+
         # ID групп, которые необходимо заблокировать (добавленные к событию группы)
         new_gids = [
-            gid for gid in requested_gids 
+            gid for gid in requested_gids
             if gid not in unbound_gids and gid not in bound_gids
         ]
-        
+
         # Можно ли разблокировать группы, которые просят удалить из события?
         unlocked_groups = models.Group.objects.filter(
             owner=participant, id__in=unbound_gids, event_lock=True
@@ -197,14 +200,14 @@ class EventSer(serializers.Serializer):
             raise ValidationError("Не все группы можно добавить к событию")
 
         final_groups_ids = [
-            gid for gid in requested_gids 
+            gid for gid in requested_gids
             if gid not in unbound_gids
         ]
 
         groups = models.Group.objects.filter(
             owner=participant, id__in=final_groups_ids
         )
-        
+
         instance.name = validated_data['name']
         instance.date_start = validated_data['date_start']
         instance.date_end = validated_data['date_end']
@@ -215,7 +218,7 @@ class EventSer(serializers.Serializer):
         for group in groups:
             group.event_lock = True
             group.save()
-        
+
         # Разблокирование групп
         for group in unlocked_groups:
             group.event_lock = False
