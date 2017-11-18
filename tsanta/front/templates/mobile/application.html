@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="clearfix">
+    <section class="half-section left" style="margin:0% 0% 0% 20%;width:70%;font-size:250%;">
+            <h2>Правила мероприятия</h2>
+            <div class="rules">
+                <!-- <?php
+        $prise = ($uninum == 688) ? "5000 драм" : "500 рублей";
+        ?> -->
+                    <ol>
+                        <li>Вы заполняете регистрационную форму</li>
+                        <li>Из всех Тайных Сант формируется база данных, которая случайным образом перемешивается</li>
+                        <li>
+                            <b>20 декабря</b> получаете имя и указанную в анкете информацию о своем «подопечном», которому
+                            <b>будете дарить подарок</b>
+                        </li>
+                        <li>В промежутке
+                            <b>с 20 по 31 декабря</b> каждый Тайный Санта связывается со своим «подопечным» и
+                            <b>дарит ему подарок</b>
+                        </li>
+                        <li>Стоимость подарка — на ваше усмотрение. Желательно в пределах
+                            <b>
+                                <?php echo $prise;?>.</b>
+                        </li>
+                    </ol>
+            </div>
+            <h2>Как проходит регистрация</h2>
+            <div class="regs">
+                <ul>
+                    <li>Анонимность со стороны организаторов гарантируется</li>
+                    <li>Для подтверждения участия вам
+                        <b>на почту придет письмо</b>, в ответ на которое необходимо будет
+                        <b>подтвердить свое участие</b>
+                    </li>
+                    <li>Подтвердив свое участие, вы
+                        <b>обязуетесь передать подарок своему «подопечному»</b>
+                    </li>
+                    <li>Дата окончания регистрации —
+                        <b>19 декабря</b>
+                    </li>
+                </ul>
+            </div>
+            <div class="thank">
+                Организация
+                <a href='http://vk.com/shthse' target="blank">Школа Тренинга</a> благодарит за помощь в создании дизайна данного сайта
+                <a href="http://vk.com/id50596252" target="blank">Марью Канту</a>,
+                <a href="http://vk.com/kamilcat" target="blank">Камиля Мундубаева</a>
+            </div>
+    </section>
+    <section class="half-section left" style="margin:0% 0% 0% 20%;width:70%;font-size:250%;">
+            <div class="reg-form">
+                <b>Все поля обязательны для заполнения</b>
+                <form action="#" onsubmit="return saveForm(this);">
+                    <p>Имя:
+                        <br>
+                        <input type="text" autofocus name="name" value="">
+                    </p>
+                    <p>Фамилия:
+                        <br>
+                        <input type="text" name="surname" value="">
+                    </p>
+                    <div>
+                        <div>Пол:</div>
+                        <div>
+                            <input type="radio" name="sex" class="radio" value="female" checked/>
+                            <label>Женщина</label>
+                        </div>
+
+                        <div>
+                            <input type="radio" name="sex" class="radio" value="male" />
+                            <label>Мужчина</label>
+                        </div>
+                    </div>
+                    <p>Email:
+                        <br>
+                        <input type="text" name="email" value="">
+                    </p>
+                    <p>Мобильный телефон:
+                        <br>
+                        <input type="text" name="phone" value="">
+                    </p>
+                    <div>
+                        <div>Кто вы?:</div>
+                        <div>
+                            <input type="radio" name="who" class="radio" value="3" checked/>
+                            <label>Студент</label>
+                        </div>
+
+                        <div>
+                            <input type="radio" name="who" class="radio" value="4" />
+                            <label>Преподаватель</label>
+                        </div>
+
+                        <div>
+                            <input type="radio" name="who" class="radio" value="5" />
+                            <label>Сотрудник</label>
+                        </div>
+                    </div>
+                    <p>На каком вы курсе:
+                        <br>
+                        <select name="course">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="0">Не учусь</option>
+                        </select>
+                    </p>
+                    <p>Ссылка на профиль ВКонтакте
+                        <?php echo ($uninum == 688) ? "или Facebook" : "";?>:
+                        <br>
+                        <input type="text" name="vk">
+                    </p>
+                    <p>Опишите кратко, чем вы увлекаетесь. Это будет полезно участнику, который будет выбирать вам подарок:
+                        <br>
+                        <textarea name="interests"></textarea>
+                    </p>
+                    <p>Что для вас самое главное в новогоднем подарке?
+                        <br>
+                        <textarea name="inpresent"></textarea>
+                    </p>
+                    <p>Если вы точно знаете, что хотите получить в подарок, напишите об этом:
+                        <br>
+                        <textarea name="present"></textarea>
+                    </p>
+                    <input type="hidden" name="univer" value="<?= $uninum;?>">
+                    <input type="hidden" name="act" value="save">
+                    <div class="but-wrap">
+                        <button class="main-button" name="but">Зарегистрироваться</button>
+                    </div>
+                </form>
+            </div>
+    </section>
+</div>
+{% endblock content %}
