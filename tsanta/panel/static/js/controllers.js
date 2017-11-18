@@ -110,8 +110,10 @@ function GroupsCtrl($scope, $http) {
                     for ( var i = 0; i < response.length; ++i ) {
                         var match = response[i].short_name.match(regexp);
 
-                        $scope.groups.items[i].short_name = response[i].short_name.replace(
-                            match[0], '<span class="mark">' + match[0] + '</span>');
+                        if ( match ) {
+                            $scope.groups.items[i].short_name = response[i].short_name.replace(
+                                match[0], '<span class="mark">' + match[0] + '</span>');
+                        }
                     }
                 }
             });
@@ -143,6 +145,43 @@ function GroupFormCtrl($scope, $http, $routeParams) {
     $scope.current_slug = undefined;
     $scope.event_lock = undefined;
     $scope.current_event = undefined;
+
+    $scope.repr_name = {
+        name: '',
+        example: '',
+        excuse: 'В',
+        get: function() {
+            return this.excuse.toLowerCase() + ' ' + (this.name || '');
+        },
+        set: function(value) {
+            let parts = value.split(' ');
+
+            if ( parts.length > 1 ) {
+                switch (parts[0].toLowerCase()) {
+                    case 'в':
+                        this.excuse = 'В';
+                        break;
+                    case 'на':
+                        this.excuse = 'На';
+                        break;
+                    default:
+                        this.excuse = 'В'
+                        break;
+                }
+
+                parts.splice(0, 1);
+                this.name = parts.join(' ');
+            } else {
+                this.excuse = 'В';
+                this.name = value;
+            }
+
+            this.make_example();
+        },
+        make_example: function() {
+            this.example = this.name ? this.get() : '';
+        }
+    };
 
     $scope.cities = {
         items: [],
@@ -184,6 +223,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
         var obj = {
             short_name: $scope.name,
             alt_names: $scope.alt_names,
+            repr_name: $scope.repr_name.get(),
             city: $scope.cities.selected,
             slug: $scope.slug.text
         }
@@ -192,7 +232,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
             $http.post(tsanta.api + '/groups', obj)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say('Новая группа создана!');
+                    $scope.say('Группа ' + $scope.name + ' создана!');
                     $scope.go('/groups');
                 }
             }, $scope.errorHandler);
@@ -200,7 +240,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
             $http.put(tsanta.api + '/groups/' + $scope.group_id, obj)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say('Данные группы обновлены');
+                    $scope.say('Группа ' + $scope.name + '  обновлена');
                     $scope.go('/groups');
                 }
             }, $scope.errorHandler);
@@ -216,7 +256,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
         $http.delete(tsanta.api + '/groups/' + $scope.group_id)
         .then(function(response) {
             if ( response.status === 200 ) {
-                $scope.say('Группы удалена');
+                $scope.say('Группа ' + $scope.name + ' удалена');
                 $scope.go('/groups');
             }
         }, $scope.errorHandler);
@@ -228,6 +268,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
             if ( response.status === 200 ) {
                 $scope.name = response.data.short_name;
                 $scope.alt_names = response.data.alt_names;
+                $scope.repr_name.set(response.data.repr_name);
                 $scope.slug.text = response.data.slug;
                 $scope.cities.selected = response.data.city;
                 $scope.event_lock = response.data.event_lock;
@@ -328,7 +369,7 @@ function EventsFormCtrl($scope, $http, $routeParams) {
     $scope.add_question = function() {
         // В данный момент api поддерживает только один тип вопросов - текст
         // type == 0 - текст
-        $scope.data.questions.push({'typed_content': '', type: 0});
+        $scope.data.questions.push({typed_content: '', type: 0});
     };
 
     $scope.delete_question = function(index) {
@@ -341,21 +382,29 @@ function EventsFormCtrl($scope, $http, $routeParams) {
         $scope.data.questions.splice(len - 1, 1);
     };
 
+    $scope.no_checked_groups = function() {
+        return extract_group_ids($scope.groups.items).length === 0;
+    };
+
     $scope.submit_event = function() {
         $scope.data.groups = extract_group_ids($scope.groups.items);
+        $scope.data.questions = extract_not_null_questions($scope.data.questions);
+
+        // Создание нового события
         if ( $scope.event_id === undefined ) {
             $http.post(tsanta.api + '/events', $scope.data)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say("Новое событие создано!");
+                    $scope.say('Событие ' + $scope.data.name + ' создано!');
                     $scope.go('/events');
                 }
             }, $scope.errorHandler);
+        // Обновление события
         } else {
             $http.put(tsanta.api + '/events/' + $scope.event_id, $scope.data)
             .then(function(response) {
                 if ( response.status === 200 ) {
-                    $scope.say("Событие изменено");
+                    $scope.say('Событие ' + $scope.data.name + ' изменено');
                     $scope.go('/events');
                 }
             }, $scope.errorHandler);
@@ -372,6 +421,18 @@ function EventsFormCtrl($scope, $http, $routeParams) {
         }
 
         return ids;
+    }
+
+    function extract_not_null_questions(input_questions) {
+        let questions = [];
+
+        for ( let i = 0; i < input_questions.length; ++i ) {
+            if ( input_questions[i].typed_content !== '') {
+                questions.push(input_questions[i]);
+            }
+        }
+
+        return questions;
     }
 }
 

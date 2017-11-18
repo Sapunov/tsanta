@@ -110,7 +110,9 @@ class Event(models.Model):
     date_end = models.DateTimeField()
     groups = models.ManyToManyField("Group")
     rules = models.TextField()
+    rules_html = models.TextField()
     process = models.TextField()
+    process_html = models.TextField()
     owner = models.ForeignKey(Participant)
 
     @classmethod
@@ -139,6 +141,7 @@ class Group(models.Model):
 
     short_name = models.CharField(max_length=500)
     alt_names = models.TextField()
+    repr_name = models.CharField(max_length=503)
     city = models.ForeignKey(City)
     slug = models.SlugField(unique=True)
     owner = models.ForeignKey(Participant)

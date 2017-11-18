@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
+import mistune
 
 from api import models
 
@@ -56,6 +57,7 @@ class GroupSer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     short_name = serializers.CharField()
     alt_names = serializers.CharField(allow_blank=True, required=False)
+    repr_name = serializers.CharField()
     city = CitySer()
     slug = serializers.SlugField()
     tag = serializers.CharField(default='')
@@ -70,6 +72,7 @@ class GroupSer(serializers.Serializer):
         group = models.Group.objects.create(
             short_name=validated_data['short_name'],
             alt_names=validated_data['alt_names'],
+            repr_name=validated_data['repr_name'],
             city=city,
             slug=validated_data['slug'],
             owner=participant)
@@ -83,6 +86,7 @@ class GroupSer(serializers.Serializer):
         instance.city = city
         instance.short_name = validated_data['short_name']
         instance.alt_names = validated_data['alt_names']
+        instance.repr_name = validated_data['repr_name']
         instance.slug = validated_data['slug']
 
         instance.save()
@@ -116,15 +120,20 @@ class EventSer(serializers.Serializer):
     date_start = serializers.DateTimeField()
     date_end = serializers.DateTimeField()
     rules = serializers.CharField()
+    rules_html = serializers.CharField(read_only=True)
     process = serializers.CharField()
+    process_html = serializers.CharField(read_only=True)
     groups = OnlyIdSer(many=True)
     questions = QuestionSer(many=True)
 
     def validate(self, data):
-        
+
         if data['date_start'] > data['date_end']:
             raise ValidationError("Дата начала события не может быть раньше даты конца")
-        
+
+        if not data['groups']:
+            raise ValidationError('Нельзя создать событие без групп')
+
         return data
 
     def create(self, validated_data):
@@ -142,7 +151,9 @@ class EventSer(serializers.Serializer):
             date_start=validated_data['date_start'],
             date_end=validated_data['date_end'],
             rules=validated_data['rules'],
+            rules_html=mistune.markdown(validated_data['rules']),
             process=validated_data['process'],
+            process_html=mistune.markdown(validated_data['process']),
             owner=participant)
 
         event.groups = groups
@@ -170,18 +181,18 @@ class EventSer(serializers.Serializer):
         bound_gids = [
             gid for gid in instance.groups.values_list('id', flat=True)
         ]
-        
+
         # ID групп, которые необходимо разблокировать (удаленные из события группы)
         unbound_gids = [
             gid for gid in bound_gids if gid not in requested_gids
         ]
-        
+
         # ID групп, которые необходимо заблокировать (добавленные к событию группы)
         new_gids = [
-            gid for gid in requested_gids 
+            gid for gid in requested_gids
             if gid not in unbound_gids and gid not in bound_gids
         ]
-        
+
         # Можно ли разблокировать группы, которые просят удалить из события?
         unlocked_groups = models.Group.objects.filter(
             owner=participant, id__in=unbound_gids, event_lock=True
@@ -197,25 +208,27 @@ class EventSer(serializers.Serializer):
             raise ValidationError("Не все группы можно добавить к событию")
 
         final_groups_ids = [
-            gid for gid in requested_gids 
+            gid for gid in requested_gids
             if gid not in unbound_gids
         ]
 
         groups = models.Group.objects.filter(
             owner=participant, id__in=final_groups_ids
         )
-        
+
         instance.name = validated_data['name']
         instance.date_start = validated_data['date_start']
         instance.date_end = validated_data['date_end']
         instance.rules = validated_data['rules']
         instance.process = validated_data['process']
+        instance.rules_html = mistune.markdown(validated_data['rules'])
+        instance.process_html = mistune.markdown(validated_data['process'])
 
         # Блокирование групп
         for group in groups:
             group.event_lock = True
             group.save()
-        
+
         # Разблокирование групп
         for group in unlocked_groups:
             group.event_lock = False
