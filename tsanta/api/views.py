@@ -35,6 +35,17 @@ def check_slug(request):
     return Response(ans_serializer.data)
 
 
+@api_view()
+@permission_classes([])
+def suggest_group(request):
+    '''Данный метод должен быть быстрым, поэтому тут не используется
+       дополнительная сериализация после получения ответа'''
+
+    req_serializer = deserialize(serializers.OnlyQSerReq, request.query_params)
+
+    return Response(Group.suggest(req_serializer.data['q']))
+
+
 class GroupView(APIView):
 
     def get(self, request, group_id=None):

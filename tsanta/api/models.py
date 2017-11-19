@@ -3,6 +3,7 @@ from django.db import models
 from django.core.validators import validate_slug
 from django.core import exceptions as django_exceptions
 from django.utils import timezone
+from django.db.models import Q, Count
 
 class IsExists:
 
@@ -184,6 +185,52 @@ class Group(models.Model):
             date_end__gte=timezone.now())
 
         return event
+
+    @classmethod
+    def suggest(cls, query, limit=10):
+
+        query = query.lower()
+
+        groups = cls.objects.filter(
+            Q(event_lock=True) & (
+                Q(short_name__icontains=query) | Q(alt_names__icontains=query)
+            ))
+
+        registered = {}
+
+        # Сбор статистики по зарегистрировавшимся людям в группах
+        if groups.count() > 0:
+            for item in Questionnaire.objects.filter(
+                    is_closed=False).values('group').annotate(count=Count('group')):
+                registered[item['group']] = item['count']
+
+        answer = []
+
+        for group in groups:
+            in_short_name = group.short_name.lower().count(query)
+            in_alt_names = group.alt_names.lower().count(query)
+            count_participants = 0
+            startswith = 1 if group.short_name.lower().startswith(query) else 0
+
+            if group.id in registered:
+                count_participants = registered[group.id]
+
+            # Супер формула
+            score = (in_short_name / len(group.short_name)) * 0.3
+            score += startswith * 0.4
+            score += (in_alt_names / len(group.alt_names)) * 0.2
+            score += count_participants * 0.1
+
+            answer.append(
+                {'short_name': group.short_name,
+                 'slug': group.slug,
+                 'score': score})
+
+        if answer:
+            answer.sort(key=lambda it: it['score'], reverse=True)
+
+        return answer[:limit]
+
 
     def __str__(self):
 
