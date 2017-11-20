@@ -189,3 +189,137 @@
 .mark {
   background: #ff0;
 }
+
+
+#slider {
+  width: 720px;
+  height: 400px;
+  border: 3px solid #FFFFFF;
+  border-radius: 0px;
+  overflow: hidden;
+  position: relative;
+  cursor: hand;
+  cursor: pointer
+}
+
+#slider .slides {
+      width: 4320px;
+      height: 400px;
+      display: block;
+      margin: 0;
+      padding: 0;
+}
+
+#slider .slide {
+      width: 720px;
+      height: 400px;
+      float: left;
+      list-style-type: none;
+}
+
+.DOT171116 {
+  position: absolute;
+  max-width: 720px;
+  margin: 0px;
+}
+
+.c96336  {
+  position: absolute;
+  bottom: 0px;
+  width:100%;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #FFFFFF;
+  font-size:24pt;
+  font-family:Arial;
+  text-align:center;
+  line-height:48px;
+  z-index:33;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+#slider ul {
+      margin: 0;
+      padding: 0;
+      position: relative;
+}
+
+#slider li {
+      width: 720px;
+      height: 400px;
+      position: absolute;
+      top: -405px;
+      list-style: none;
+}
+#slider li.firstanimation {
+  animation: cycle 25s linear infinite;
+}
+
+#slider li.secondanimation {
+  animation: cycletwo 25s linear infinite;
+}
+
+#slider li.thirdanimation {
+  animation: cyclethree 25s linear infinite;
+}
+
+#slider li.fourthanimation {
+  animation: cyclefour 25s linear infinite;
+}
+
+#slider li.fifthanimation {
+  animation: cyclefive 25s linear infinite;
+}
+@keyframes cycle {
+  0%  { top: 0px; } /* При запуске слайдера, первое изображение уже видимо */
+  4%  { top: 0px; } /* Стартовая позиция */
+  16% { top: 0px; opacity:1; z-index:0; } /* С 4% до 16 % (3 секунды) изображение видимо */
+  20% { top: 405px; opacity: 0; z-index: 0; } /* с 16% до 20% (1 секунды)выход изображения*/
+  21% { top: -405px; opacity: 0; z-index: -1; } /* Возвращение на исходную позицию за пределами маски */
+  92% { top: -405px; opacity: 0; z-index: 0; }
+  96% { top: -405px; opacity: 0; } /* С 96% до 100% (1 секунда) – вход */
+  100%{ top: 0px; opacity: 1; }
+}
+
+@keyframes cycletwo {
+0%  { top: -405px; opacity: 0; } /* Исходная позиция за пределами маски */
+16% { top: -405px; opacity: 0; }/* Начало движения с 16% */
+20% { top: 0px; opacity: 1; }
+24% { top: 0px; opacity: 1; }  /* С 20% до 24% (в течении 1 секунды) — вход*/
+36% { top: 0px; opacity: 1; z-index: 0; }   /* С 24% до 36 % (3 секунды) изображение видимо */
+40% { top: 405px; opacity: 0; z-index: 0; } /* С 36% до 40% (1 секунда)— выход */
+41% { top: -405px; opacity: 0; z-index: -1; }   /* Возврат на исходную позицию */
+100%{ top: -405px; opacity: 0; z-index: -1; }
+}
+
+@keyframes cyclethree {
+0%  { top: -405px; opacity: 0; }
+36% { top: -405px; opacity: 0; }
+40% { top: 0px; opacity: 1; }
+44% { top: 0px; opacity: 1; }
+56% { top: 0px; opacity: 1; }
+60% { top: 405px; opacity: 0; z-index: 0; }
+61% { top: -405px; opacity: 0; z-index: -1; }
+100%{ top: -405px; opacity: 0; z-index: -1; }
+}
+
+@keyframes cyclefour {
+0%  { top: -405px; opacity: 0; }
+56% { top: -405px; opacity: 0; }
+60% { top: 0px; opacity: 1; }
+64% { top: 0px; opacity: 1; }
+76% { top: 0px; opacity: 1; z-index: 0; }
+80% { top: 405px; opacity: 0; z-index: 0; }
+81% { top: -405px; opacity: 0; z-index: -1; }
+100%{ top: -405px; opacity: 0; z-index: -1; }
+}
+@keyframes cyclefive {
+0%  { top: -405px; opacity: 0; }
+76% { top: -405px; opacity: 0; }
+80% { top: 0px; opacity: 1; }
+84% { top: 0px; opacity: 1; }
+96% { top: 0px; opacity: 1; z-index: 0; }
+100%{ top: 405px; opacity: 0; z-index: 0; }
+}

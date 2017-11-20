@@ -1,16 +1,16 @@
-{% extends "base.html" %}
+{% extends "front/mobile/base.html" %}
 
 {% block content %}
-<div class="welcome-text">
-    <h2>Зарегистрируйтесь и станьте Тайным Сантой,
+<div class="welcome-text" style="font-size:120%;">
+    <h2 style="font-size:160%;">Зарегистрируйтесь и станьте Тайным Сантой,
         <br>получите и подарите подарок!</h2>
 </div>
-<div class="change_uni">
+<div class="change_uni" style="font-size:150%;">
     <form action="#" onsubmit="return changeUni(this);">
-        <h4>Введите аббревиатуру вашего вуза:</h4>
+        <h3>Введите аббревиатуру вашего вуза:</h3>
         <div class="clearfix input-but-wrap">
             <div class="input-wrap left">
-                <input type="text" placeholder="Аббревиатура вашего вуза..." autofocus name="vuz" autocomplete=off>
+                <input style="font-size:130%;" type="text" placeholder="Аббревиатура вашего вуза..." autofocus name="vuz" autocomplete=off>
             </div>
             <div class="but-wrap welcome-but-wrap left">
                 <button class="main-button">Ок!</button>
@@ -19,4 +19,61 @@
     </form>
     <div class="results" id="se-results"></div>
 </div>
+<div id="slider" style="margin-left:auto;">
+    <ul class="slides">
+
+    <li id="first" class="slide slide1 firstanimation">
+     <figure class="DOT171116">
+      <IMG SRC="/static/images/slider/96336.jpg">
+     </figure>
+     </li>
+
+    <li id="second" class="slide slide2 secondanimation">
+     <figure class="DOT171116">
+      <IMG SRC="/static/images/slider/-.jpg">
+     <figcaption class="c96336">
+    Нарядный Санта и его подопечный
+    </figcaption>
+     </figure>
+     </li>
+
+    <li id="third" class="slide slide3 thirdanimation">
+     <figure class="DOT171116">
+      <IMG SRC="/static/images/slider/96336-3.jpg">
+     </figure>
+     </li>
+
+    <li id="fourth" class="slide slide4 fourthanimation">
+     <figure class="DOT171116">
+      <IMG SRC="/static/images/slider/--1.jpg">
+     <figcaption class="c96336">
+    Моим Сантой оказалась моя одногруппница! Это было неожиданно и безумно приятно)
+    </figcaption>
+     </figure>
+     </li>
+
+    <li id="fifth" class="slide slide5 fifthanimation">
+     <figure class="DOT171116">
+      <IMG SRC="/static/images/slider/--2.jpg">
+     <figcaption class="c96336">
+    Слева направо: Санта и та, кто хорошо себя вела в этом году :)
+    </figcaption>
+     </figure>
+     </li>
+
+    <li class="slide slide1">
+     <figure class="DOT171116">
+      <IMG SRC="/static/images/slider/96336.jpg">
+     </figure>
+     </li>
+
+    </ul></div></div></div>
+    </div></div>
+    <br style="clear: both;" />
+    <p style="margin-top:15px; font-family:Underdog; color:rgb(183,16,67); font-size:40px" align="center"><b>Следите за нами Вконтакте!</b></p>
+    <div class="social">
+        <div class="vk">
+            <a href="http://vk.com/t_santa" target="blank"></a>
+        </div>
+    </div>
 {% endblock content %}
