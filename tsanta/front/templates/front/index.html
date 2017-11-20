@@ -1,19 +1,26 @@
 {% extends "front/base.html" %}
 
 {% block content %}
-<div class="welcome-text">
-    <h2>Зарегистрируйтесь и станьте Тайным Сантой,
+<div ng-controller="indexCtrl">
+    <div class="welcome-text">
+        <h2>Зарегистрируйтесь и станьте Тайным Сантой,
         <br>получите и подарите подарок!</h2>
-</div>
-<div class="results" id="se-results" style="margin-bottom:50px;">
-</div>
-<div class="change_uni">
-    <form action="#" onsubmit="return changeUni(this);">
-        <h3>Введите аббревиатуру вашего вуза:</h3>
-        <input type="text" placeholder="Аббревиатура вашего вуза..." autofocus name="vuz" autocomplete=off>
-        <div class="but-wrap welcome-but">
-            <button class="main-button">Зарегистрироваться</button>
+    </div>
+    <br>
+    <div class="change_uni">
+        <h3>Введите название вашего вуза или группы:</h3>
+        <input type="text"
+            ng-class="results_class"
+            placeholder="Введите название вашего вуза или группы"
+            ng-model="text"
+            ng-keyup="suggest()"
+            autofocus autocomplete=off>
+        <div class="results" ng-show="show_suggests" ng-cloak>
+            <div ng-repeat="suggest in suggests">
+                {% verbatim %}<a href="/{{ suggest.slug }}">{% endverbatim %}
+                    <p ng-bind-html="suggest.short_name"></p></a>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock content %}
