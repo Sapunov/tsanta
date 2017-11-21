@@ -32,11 +32,16 @@ function IndexCtrl($scope, $http) {
 
     $scope.toggleSuggests = function(where) {
         if ( where == 'enter' ) {
-            for ( let i = 0; i < $scope.suggests.length; ++i ) {
-                if ( $scope.suggests[i].selected ) {
-                    document.location = '/' + $scope.suggests[i].slug;
+            if ( $scope.suggests.length === 1 ) {
+                document.location = '/' + $scope.suggests[0].slug;
+            } else {
+                for ( let i = 0; i < $scope.suggests.length; ++i ) {
+                    if ( $scope.suggests[i].selected ) {
+                        document.location = '/' + $scope.suggests[i].slug;
+                    }
                 }
             }
+            return;
         }
 
         let current = where === 'up' ? $scope.suggests.length : -1;
