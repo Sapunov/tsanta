@@ -1,10 +1,14 @@
 from django.shortcuts import render, redirect
 from api.models import Group
 
+from tsanta import misc
+
 
 def index(request):
 
-    context = {}
+    context = {
+        'app_version': misc.random_string(),
+    }
 
     return render(request, "front/index.html", context=context)
 
