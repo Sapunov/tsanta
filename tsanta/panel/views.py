@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 from api.models import Participant
 
-from . import misc
+from tsanta import misc
 
 
 @login_required

@@ -75,6 +75,8 @@
                         ng-keyup="repr_name.make_example()" ng-model="repr_name.name" required>
                 </div>
                 <p class="text-muted">Тайный Санта <b>{{ repr_name.example }}</b></p>
+                <p class="text-danger"
+                    ng-show="repr_name.error_len">Размер имени превышает максимальный допустимый. Можно 13 символов.</p>
             </td>
         </tr>
         <tr>
@@ -82,7 +84,7 @@
             </td>
             <td class="elements">
                 <button type="submit"
-                    ng-disabled="group_form.$invalid || !slug.is_ok"
+                    ng-disabled="group_form.$invalid || !slug.is_ok || repr_name.error_len"
                     class="btn btn-warning">{{ (group_id === undefined) ? 'Добавить группу' : 'Сохранить' }}</button>
             </td>
         </tr>

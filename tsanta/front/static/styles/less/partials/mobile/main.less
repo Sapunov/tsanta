@@ -1,171 +1,176 @@
 ﻿// ---------------------------------------------------------------
 //  Partials -> Main
 // ---------------------------------------------------------------
-
-
 // welcome page
 .welcome-text {
-  text-align: center;
-  padding-right: 5px;
-  padding-left: 5px;
+    text-align: center;
+    padding-right: 5px;
+    padding-left: 5px;
 }
 
 .change_uni {
-  width:100%;
-  padding-right: 5px;
-  padding-left: 5px;
-}
-.change_uni h4{
-  margin-bottom: 2px;
-  padding-left: 7px;
-}
-.input-but-wrap{
-  position: relative;
-  width: 100%;
-}
-.input-wrap{
-  position: relative;
-  width: 80%;
-  padding-right: 5px;
-  input[type=text] {
-    .input;
     width: 100%;
-    height: 50px;
-    font-size: 20px;
-  }
+    padding-right: 5px;
+    padding-left: 5px;
+}
 
+.change_uni h4 {
+    margin-bottom: 2px;
+    padding-left: 7px;
 }
-.welcome-but-wrap {
-  position: relative;
-  width: 20%;
-  button {
+
+.input-but-wrap {
+    position: relative;
     width: 100%;
-    padding: 8px 18%;
-  }
 }
-.results{
-  display: none;
-  min-height: 100px;
-  width: 100%;
-  border: 3px solid #fff;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 10px 20px 20px;
-  font-weight: bold;
-  background-color: rgba(255, 255, 255, 0.9);
-  .search-results{
-    display: block;
-    text-decoration: none;
-    border-bottom: 1px solid rgb(240, 240, 240);
-    padding: 5px 5px;
-    cursor: pointer;
-    &:hover {
-      background-color: #d9e3ee;
+
+.input-wrap {
+    position: relative;
+    width: 80%;
+    padding-right: 5px;
+    input[type=text] {
+        .input;
+        width: 100%;
+        height: 50px;
+        font-size: 20px;
     }
-  }
-}
-.but-wrap {
-  height: 60px;
 }
 
+.welcome-but-wrap {
+    position: relative;
+    width: 20%;
+    button {
+        width: 100%;
+        padding: 8px 18%;
+    }
+}
+
+.results {
+    display: none;
+    min-height: 100px;
+    width: 100%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 10px 20px 20px;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.9);
+    .search-results {
+        display: block;
+        text-decoration: none;
+        border-bottom: 1px solid rgb(240, 240, 240);
+        padding: 5px 5px;
+        cursor: pointer;
+        &:hover {
+            background-color: #d9e3ee;
+        }
+    }
+}
+
+.but-wrap {
+    height: 60px;
+}
 
 // univer page
 .half-section {
-  position: relative;
-  width: 50%;
-  h2 {
-    padding-left: 62px;
-  }
-  .rules, .regs {
-    padding: 10px 40px 10px 20px;
-    border: 3px solid #fff;
-    border-radius: 10px 0 0 10px;
-    border-right: none;
-    background-color: rgba(255, 255, 255, 0.5);
-    transition: background-color 0.5s ease;
-    &:hover{
-      background-color: rgb(255, 255, 255);
-    }
-  }
-  .regs{
-    color: @clr-h2;
-  }
-}
-.reg-form {
-  border: 3px solid #fff;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
-  padding: 10px 20px 20px;
-  font-weight: bold;
-  background-color: rgba(255, 255, 255, 0.7);
-  input[type=text] {
-    .input;
-    width: 100%;
-    height: 50px;
-    font-size: 20px;
-  }
-  textarea {
-    width: 100%;
-    height: 100px;
-    resize: none;
-    .input;
-    font-size: 20px;
-  }
-  p > span {
-    display: block;
-    float: left;
-  }
-  p > .item {
-    padding-left: 10px;
-    .clearfix;
-    input {
-      display: block;
-      float: left;
-      padding-top: 15px;
-    }
-    .te {
-      display: block;
-      float: left;
-      margin-top: -2px;
-    }
-  }
-  select {
-    height: 40px;
-  }
-}
-
-.thank{
-  padding: 20px 20px 20px 45px;
-  a{
-    text-decoration: none;
-  }
-}
-.social{
-  width: 89px;
-  margin-right: auto;
-  margin-left: auto;
-  div{
-    width: 89px;
-    height: 89px;
-
-  }
-  .vk{
-    background-image: url(../images/social.png);
-    background-position: 396px 0;
-  }
-  a{
-    display: block;
     position: relative;
-    width: 100%;
-    height: 100%;
-  }
+    width: 50%;
+    h2 {
+        padding-left: 62px;
+    }
+    .rules,
+    .regs {
+        padding: 10px 40px 10px 20px;
+        border: 3px solid #fff;
+        border-radius: 10px 0 0 10px;
+        border-right: none;
+        background-color: rgba(255, 255, 255, 0.5);
+        transition: background-color 0.5s ease;
+        &:hover {
+            background-color: rgb(255, 255, 255);
+        }
+    }
+    .regs {
+        color: @clr-h2;
+    }
 }
-.olen{
-  position: fixed;
-  background-image:url(../images/olen3.png);
-  background-repeat: no-repeat;
-  width: 581px;
-  height: 400px;
-  bottom: 90px;
-  z-index: -8;
+
+.reg-form {
+    border: 3px solid #fff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 10px 20px 20px;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.7);
+    input[type=text] {
+        .input;
+        width: 100%;
+        height: 50px;
+        font-size: 20px;
+    }
+    textarea {
+        width: 100%;
+        height: 100px;
+        resize: none;
+        .input;
+        font-size: 20px;
+    }
+    p>span {
+        display: block;
+        float: left;
+    }
+    p>.item {
+        padding-left: 10px;
+        .clearfix;
+        input {
+            display: block;
+            float: left;
+            padding-top: 15px;
+        }
+        .te {
+            display: block;
+            float: left;
+            margin-top: -2px;
+        }
+    }
+    select {
+        height: 40px;
+    }
+}
+
+.thank {
+    padding: 20px 20px 20px 45px;
+    a {
+        text-decoration: none;
+    }
+}
+
+.social {
+    width: 89px;
+    margin-right: auto;
+    margin-left: auto;
+    div {
+        width: 89px;
+        height: 89px;
+    }
+    .vk {
+        background-image: url(../images/social.png);
+        background-position: 396px 0;
+    }
+    a {
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.olen {
+    position: fixed;
+    background-image: url(../images/olen3.png);
+    background-repeat: no-repeat;
+    width: 581px;
+    height: 400px;
+    bottom: 90px;
+    z-index: -8;
 }

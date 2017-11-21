@@ -1,19 +1,53 @@
 {% extends "front/base.html" %}
 
 {% block content %}
-<div class="welcome-text">
+<div ng-controller="indexCtrl">
+  <div class="welcome-text">
     <h2>Зарегистрируйтесь и станьте Тайным Сантой,
-        <br>получите и подарите подарок!</h2>
+      <br>получите и подарите подарок!
+    </h2>
+  </div>
+  <br>
+  <div class="change_uni">
+    <h3>Введите название вашего вуза или группы:</h3>
+    <input type="text"
+      ng-cloak
+      ng-class="results_class"
+      placeholder="Введите название вашего вуза или группы"
+      ng-model="text"
+      ng-keyup="suggest($event)"
+      ng-blur="hideSuggests()"
+      ng-focus="tryToShowSuggests()"
+      autofocus autocomplete=off>
+    <div class="results" ng-cloak ng-show="show_suggests">
+      {% verbatim %}
+      <div ng-repeat="suggest in suggests"
+        class="suggest-item {{ (suggest.selected ? 'suggest-item-selected' : '') }}"
+        ng-mouseover="selectSuggest($index, true)"
+        ng-mouseleave="unselectSuggests()">
+        <a href="/{{ suggest.slug }}" ng-bind-html="suggest.short_name"></a>
+      </div>
+      {% endverbatim %}
+    </div>
+  </div>
 </div>
-<div class="results" id="se-results" style="margin-bottom:50px;">
+
+<div class="santas-photos">
+  <h2 class="title">Ваши фото!</h2>
+  <div class="photos-slider">
+
+  </div>
 </div>
-<div class="change_uni">
-    <form action="#" onsubmit="return changeUni(this);">
-        <h3>Введите аббревиатуру вашего вуза:</h3>
-        <input type="text" placeholder="Аббревиатура вашего вуза..." autofocus name="vuz" autocomplete=off>
-        <div class="but-wrap welcome-but">
-            <button class="main-button">Зарегистрироваться</button>
-        </div>
-    </form>
+
+<div class="group-wall-wrapper clearfix">
+  <p class="title">
+    <b>Следите за<br> нами<br> Вконтакте!</b>
+  </p>
+  <!-- VK Widget -->
+  <div class="index-vk-widget" id="vk_groups"></div>
+  <script src="https://vk.com/js/api/openapi.js?150" type="text/javascript"></script>
+  <script type="text/javascript">
+    VK.Widgets.Group("vk_groups", {mode: 4, no_cover: 1, width: "680", height: "750"}, 62775353);
+  </script>
 </div>
 {% endblock content %}

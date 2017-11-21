@@ -1,147 +1,131 @@
-function validateEmail(email) {
-  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(email);
-}
+function IndexCtrl($scope, $http) {
+    $scope.text = '';
+    $scope.suggests = [];
+    $scope.show_suggests = false;
+    $scope.results_class = 'input-form';
+    $scope.is_mouse = false;
 
-function changeUni(form) {
-  var f = serializeForm(form),
-    resBox = ge("se-results"),
-    out = "",
-    str = [];
-  if (f.vuz.trim() == "") {
-    return form.vuz.focus(), !1;
-  }
-  if (f.vuz.length >= 2) {
-    $.post("ajax.php", {
-      "act": "search",
-      "text": f.vuz
-    }, function(data, status) {
-      if (status == "success") {
-        console.log(data);
-        str = parseJSON(data);
-        if (str.length > 0) {
-          out += "<h3>Уточним ВУЗ:</h3>";
-          each(str, function(i, e) {
-            out += "<a class='search-results' href='" + e.way + "'>" + e.ans + "</a>"
-          });
-        } else {
-          out = "Ой ой ой!<br>Тайный Санта доберется до Вас уже в следующем году";
+    $scope.tryToShowSuggests = function() {
+        if ($scope.suggests.length > 0) {
+            showSuggests();
         }
+    };
 
-        resBox.style.display = "block";
-        resBox.innerHTML = out;
-        return !1;
-      }
-    });
-  }
-  return !1;
-}
-
-function recipient(form) {
-  var f = serializeForm(form),
-    resBox = ge("se-results"),
-    out = "";
-  if (f.email.trim() == "") {
-    return form.email.focus(), !1;
-  }
-  if (validateEmail(f.email)) {
-    $.post("ajax.php", {
-      "act": "recipient",
-      "email": f.email
-    }, function(data, status) {
-      if (status == "success") {
-        console.log(data);
-        out = parseJSON(data);
-        console.log(out);
-
-        document.write(out);
-        return !1;
-      }
-    });
-  } else {
-    return form.email.focus(), !1;
-  }
-  return !1;
-}
-function santa(form) {
-  var f = serializeForm(form),
-    resBox = ge("se-results"),
-    out = "";
-  if (f.email.trim() == "") {
-    return form.email.focus(), !1;
-  }
-  if (validateEmail(f.email)) {
-    $.post("ajax.php", {
-      "act": "santa",
-      "email": f.email
-    }, function(data, status) {
-      if (status == "success") {
-        out = parseJSON(data);
-
-        if (out == "not") {
-          resBox.style.display = "block";
-          resBox.innerHTML = "<h2 style='text-align:center;'>Ошибочка! Не можем найти Вашего Санту.</h2>";
-        } else if (out) {
-          resBox.style.display = "block";
-          var html = "";
-          for(var i = 0; i < out.length; i ++) {
-            html += '<p><b><a href="' + out[i].vk + '" target="blank">' + out[i].name + '</a></b></p>';
-          }
-          resBox.innerHTML = "<h2 style='text-align:center;'>Ваш Тайный Санта:</h2>" + html;
-        }
-        console.log(out);
-
-        return !1;
-      }
-    });
-  } else {
-    return form.email.focus(), !1;
-  }
-  return !1;
-}
-
-var use_ajax = false;
-
-function saveForm(form) {
-  var f = serializeForm(form),
-    imp = [
-      form.name,
-      form.surname,
-      form.sex,
-      form.email,
-      form.phone,
-      form.vk,
-      form.interests,
-      form.inpresent,
-      form.present
-    ],
-    ans = 0;
-
-  for (var i = 0; i <= imp.length - 1; i++) {
-    if (imp[i].value == 0 || imp[i] == "") {
-      return imp[i].focus(), !1;
+    function showSuggests() {
+        $scope.show_suggests = true;
+        $scope.results_class = 'input-form input-suggest';
     }
-  }
-  if (!validateEmail(form.email.value)) {
-    return form.email.focus(), !1;
-  }
 
-  if (!use_ajax) {
-    use_ajax = true;
-    form.but.innerHTML = "Загрузка...";
-    $.post("ajax.php", f, function(data, status) {
-      if (status == "success") {
-        console.log(data);
-        use_ajax = false;
-        ans = parseJSON(data);
-        if (ans == 200) {
-          document.location.href = 'thanks';
-        } else {
-          ajax.error("Ошибка загрузки содержимого.");
+    $scope.hideSuggests = function() {
+        // Нельзя прятать подсказки, если фокус на каком-то элементе
+        // и сделан он был мышкой
+        if ( $scope.is_mouse ) {
+            for ( let i = 0; i < $scope.suggests.length; ++i ) {
+                if ( $scope.suggests[i].selected ) {
+                    return;
+                }
+            }
         }
-        return !1;
-      }
-    });
-  }
-  return !1;
+        $scope.show_suggests = false;
+        $scope.results_class = 'input-form';
+    }
+
+    $scope.toggleSuggests = function(where) {
+        if ( where == 'enter' ) {
+            if ( $scope.suggests.length === 1 ) {
+                document.location = '/' + $scope.suggests[0].slug;
+            } else {
+                for ( let i = 0; i < $scope.suggests.length; ++i ) {
+                    if ( $scope.suggests[i].selected ) {
+                        document.location = '/' + $scope.suggests[i].slug;
+                    }
+                }
+            }
+            return;
+        }
+
+        let current = where === 'up' ? $scope.suggests.length : -1;
+
+        for ( let i = 0; i < $scope.suggests.length; ++i ) {
+            if ( $scope.suggests[i].selected ) {
+                current = i;
+            }
+        }
+
+        if ( where == 'down' ) {
+            $scope.selectSuggest((current + 1) % $scope.suggests.length);
+        } else {
+            $scope.selectSuggest((current + $scope.suggests.length - 1) % $scope.suggests.length);
+        }
+    }
+
+    $scope.selectSuggest = function(index, is_mouse) {
+        $scope.is_mouse = is_mouse || false;
+
+        for ( let i = 0; i < $scope.suggests.length; ++i ) {
+            if ( i === index ) {
+                $scope.suggests[i].selected = true;
+            } else {
+                $scope.suggests[i].selected = false;
+            }
+        }
+    }
+
+    $scope.unselectSuggests = function() {
+        for ( let i = 0; i < $scope.suggests.length; ++i ) {
+            $scope.suggests[i].selected = false;
+        }
+    }
+
+    $scope.suggest = function() {
+        switch (event.keyCode) {
+            case 13: // enter
+                $scope.toggleSuggests('enter');
+                return;
+            case 38:
+                $scope.toggleSuggests('up');
+                return;
+            case 40:
+                $scope.toggleSuggests('down');
+                return;
+            default: break;
+        }
+
+        $http.get(tsanta.api + '/groups/suggest?q=' + $scope.text)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.suggests = response.data;
+            } else {
+                $scope.suggests = [];
+            }
+
+            if ( $scope.suggests.length > 0 ) {
+                // Выделение результатов
+                let regexp = new RegExp($scope.text, 'ig');
+
+                for ( let i = 0; i < $scope.suggests.length; ++i ) {
+                    let match = $scope.suggests[i].short_name.match(regexp);
+
+                    if ( match ) {
+                        $scope.suggests[i].short_name = $scope.suggests[i].short_name.replace(
+                            match[0], '<span class="mark">' + match[0] + '</span>');
+                    }
+                }
+
+                showSuggests();
+            } else {
+                $scope.hideSuggests();
+            }
+        });
+    };
+
+    $scope.checkToGo = function() {
+
+    };
 }
+
+(function() {
+    angular.module('tsantafront', ['ngSanitize'])
+
+    .controller('indexCtrl', IndexCtrl);
+})();
