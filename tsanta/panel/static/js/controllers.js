@@ -150,6 +150,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
         name: '',
         example: '',
         excuse: 'В',
+        error_len: false,
         get: function() {
             return this.excuse.toLowerCase() + ' ' + (this.name || '');
         },
@@ -180,6 +181,11 @@ function GroupFormCtrl($scope, $http, $routeParams) {
         },
         make_example: function() {
             this.example = this.name ? this.get() : '';
+            if ( this.example.length > 13 ) {
+                $scope.repr_name.error_len = true;
+            } else {
+                $scope.repr_name.error_len = false;
+            }
         }
     };
 

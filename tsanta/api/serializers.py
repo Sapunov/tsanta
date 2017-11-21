@@ -57,7 +57,7 @@ class GroupSer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     short_name = serializers.CharField()
     alt_names = serializers.CharField(allow_blank=True, required=False)
-    repr_name = serializers.CharField()
+    repr_name = serializers.CharField(max_length=13)
     city = CitySer()
     slug = serializers.SlugField()
     tag = serializers.CharField(default='')

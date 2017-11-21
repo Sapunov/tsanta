@@ -2,112 +2,99 @@
 <html lang="en" ng-app="tsantafront">
 <head>
 <meta charset="UTF-8">
-<link rel="shortcut icon" href="/favicon-v3.ico" type="image/x-icon">
-<link rel="icon" href="/favicon-v3.ico" type="image/x-icon">
+<link rel="shortcut icon" href="/static/images/favicon-v3.ico" type="image/x-icon">
+<link rel="icon" href="/static/images/favicon-v3.ico" type="image/x-icon">
+
+<title>Тайный Санта</title>
+
+<!-- open graph -->
 <meta property="og:image" content="/static/images/olen3.png" />
 <meta name="description" content="Тайный Санта — зарегистрируйся и стань Тайным Сантой, получи и подари подарок!" />
 <meta property="og:title" content="Тайный Санта — получи и подари подарок!" />
 <meta property="og:description" content="Тайный Санта — зарегистрируйся и стань Тайным Сантой, получи и подари подарок!"/>
-<title>Тайный Санта
-</title>
-<script async src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/static/styles/styles.min.css" />
-<link href="http://fonts.googleapis.com/css?family=Roboto:400,300,100&subset=latin,cyrillic" rel="stylesheet" type="text/css">
-<link href="https://fonts.googleapis.com/css?family=Underdog" rel="stylesheet">
+
+<!-- styles -->
+<link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100&subset=latin,cyrillic" rel="stylesheet" type="text/css"/>
+<link href="https://fonts.googleapis.com/css?family=Underdog" rel="stylesheet" type="text/css"/>
+<link href="/static/styles/styles.min.css?v={{ app_version }}" rel="stylesheet" type="text/css" />
+
+<!-- scripts -->
 <script type="text/javascript">
     let tsanta = {
       api: `${location.protocol}//${location.hostname}:${location.port}/api`
     };
-    </script>
+</script>
+<script async src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-sanitize.min.js"></script>
-<script src="/static/js/script.js"></script>
-<script type="text/javascript" src="//vk.com/js/api/openapi.js?150"></script>
-<link rel="stylesheet" type="text/css" href="/static/styles/styles.min.css" />
+
 <!-- Yandex.Metrika counter -->
 <!-- <script type="text/javascript">
-    (function (d, w, c) {
-        (w[c] = w[c] || []).push(function () {
-            try {
-                w.yaCounter27095231 = new Ya.Metrika({
-                    id: 27095231,
-                    webvisor: true,
-                    clickmap: true,
-                    trackLinks: true,
-                    accurateTrackBounce: true
-                });
-            } catch (e) { }
-        });
+(function (d, w, c) {
+  (w[c] = w[c] || []).push(function () {
+    try {
+      w.yaCounter27095231 = new Ya.Metrika({
+        id: 27095231,
+        webvisor: true,
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true
+      });
+    } catch (e) { }
+  });
 
-        var n = d.getElementsByTagName("script")[0],
-            s = d.createElement("script"),
-            f = function () { n.parentNode.insertBefore(s, n); };
-        s.type = "text/javascript";
-        s.async = true;
-        s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+  var n = d.getElementsByTagName("script")[0],
+    s = d.createElement("script"),
+    f = function () { n.parentNode.insertBefore(s, n); };
+  s.type = "text/javascript";
+  s.async = true;
+  s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
 
-        if (w.opera == "[object Opera]") {
-            d.addEventListener("DOMContentLoaded", f, false);
-        } else { f(); }
-    })(document, window, "yandex_metrika_callbacks");
+  if (w.opera == "[object Opera]") {
+    d.addEventListener("DOMContentLoaded", f, false);
+  } else { f(); }
+})(document, window, "yandex_metrika_callbacks");
 </script>
 <noscript>
-    <div>
-        <img src="//mc.yandex.ru/watch/27095231" style="position:absolute; left:-9999px;" alt="" />
-    </div>
+  <div>
+    <img src="//mc.yandex.ru/watch/27095231" style="position:absolute; left:-9999px;" alt="" />
+  </div>
 </noscript> -->
 <!-- END OF - Yandex.Metrika counter -->
 </head>
 <body>
-    <header class="global-header">
-        <div class="clearfix">
-            <div class="logo-sht left" title="Школа Тренинга">
-                <a href="http://vk.com/shthse" target="blank"></a>
-                <span>
-                    <b>Организаторы:</b>
-                    <br>Студорганизация НИУ ВШЭ
-                    <br>Школа Тренинга</span>
-            </div>
-            <div class="logo-santa left"></div>
-            <div class="social-share left clearfix">
-                <div class="yashare-auto-init right" data-yashareL10n="ru" data-yashareQuickServices="vkontakte,facebook,twitter,odnoklassniki"
-                    data-yashareTheme="counter"></div>
-                <div class="right say-friends">Расскажите друзьям:</div>
-            </div>
-        </div>
-        <!-- <?php
-      $clas = (isset($uninum) && $uninum == 691) ? "uni-small" : "uni";
-      echo (isset($univer)) ? "<div class=\"".$clas."\">".$univer."</div>" : "";
-      ?> -->
-    </header>
-    <main class="area">
-         {% block content %}{% endblock %}
-    </main>
-    <footer class="global-footer">
-        <div class="snowdrifts"></div>
-        <div class="trees tree1"></div>
-        <div class="trees tree2"></div>
-        <div class="trees tree3"></div>
-        <div class="trees tree4"></div>
-        <div class="trees tree5"></div>
-    </footer>
-    <!-- <script type="text/javascript">
-        imageDir = "t-santa.ru/images/snow/";
-        sflakesMax = 100;
-        sflakesMaxActive = 100;
-        svMaxX = 3;
-        svMaxY = 6;
-        ssnowStick = 0;
-        ssnowCollect = 0;
-        sfollowMouse = 0;
-        sflakeBottom = 0;
-        susePNG = 1;
-        sflakeTypes = 5;
-        sflakeWidth = 15;
-        sflakeHeight = 15;
-    </script> -->
-    <!--  <script type="text/javascript" async src="scripts/snow.min.js"></script>-->
+  <header class="global-header">
+    <div class="clearfix">
+      <div class="logo-sht left" title="Школа Тренинга">
+        <a href="https://vk.com/shthse" target="blank"></a>
+        <span>
+          <b>Организаторы:</b>
+          <br>Студорганизация НИУ ВШЭ
+          <br>Школа Тренинга
+        </span>
+      </div>
+      <div class="logo-santa left"></div>
+      <div class="social-share left clearfix">
+        <div class="yashare-auto-init right" data-yashareL10n="ru" data-yashareQuickServices="vkontakte,facebook,twitter,odnoklassniki"
+          data-yashareTheme="counter"></div>
+        <div class="right say-friends">Расскажите друзьям:</div>
+      </div>
+    </div>
+    <div class="uni">{{ top_header_title }}</div>
+  </header>
+  <main class="area">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="global-footer">
+    <div class="snowdrifts"></div>
+    <div class="trees tree1"></div>
+    <div class="trees tree2"></div>
+    <div class="trees tree3"></div>
+    <div class="trees tree4"></div>
+    <div class="trees tree5"></div>
+  </footer>
+  <div class="olen"></div>
+<script src="/static/js/script.js?v={{ app_version }}"></script>
 <script type="text/javascript" async src="//yastatic.net/share/share.js" charset="utf-8"></script>
-<div class="olen"></div>
 </body>
 </html>
