@@ -8,6 +8,7 @@ def index(request):
 
     context = {
         'app_version': misc.random_string(),
+        'top_header_title': 'В здании'
     }
 
     return render(request, "front/index.html", context=context)
@@ -15,7 +16,9 @@ def index(request):
 
 def application(request):
 
-    context = {}
+    context = {
+        'app_version': misc.random_string(),
+    }
 
     path = request.path_info.lstrip('/')
 
@@ -28,7 +31,7 @@ def application(request):
 
     event = current_group.current_event
 
-    context['name'] = current_group.repr_name
+    context['top_header_title'] = current_group.repr_name
     context['rules'] = event.rules_html
     context['process'] = event.process_html
 
