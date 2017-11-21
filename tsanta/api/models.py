@@ -5,6 +5,8 @@ from django.core import exceptions as django_exceptions
 from django.utils import timezone
 from django.db.models import Q, Count
 
+from tsanta import misc
+
 class IsExists:
 
     def __init__(self, is_exists):
@@ -190,10 +192,17 @@ class Group(models.Model):
     def suggest(cls, query, limit=5):
 
         query = query.lower()
+        query_kb_inverse = misc.keyboard_layout_inverse(query)
 
         groups = cls.objects.filter(
             Q(event_lock=True) & (
-                Q(short_name__icontains=query) | Q(alt_names__icontains=query) | Q(slug__icontains=query)
+                # С нормальный раскладкой
+                Q(short_name__icontains=query)
+                | Q(alt_names__icontains=query)
+                | Q(slug__icontains=query)
+                # С инвертированной раскладкой
+                | Q(short_name__icontains=query_kb_inverse)
+                | Q(alt_names__icontains=query_kb_inverse)
             ))
 
         registered = {}
