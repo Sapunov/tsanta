@@ -11,17 +11,23 @@
   <div class="change_uni">
     <h3>Введите название вашего вуза или группы:</h3>
     <input type="text"
-      class="input-form input-quiet"
+      ng-cloak
+      ng-class="results_class"
       placeholder="Введите название вашего вуза или группы"
       ng-model="text"
-      ng-keyup="suggest()"
+      ng-keyup="suggest($event)"
+      ng-blur="hideSuggests()"
+      ng-focus="tryToShowSuggests()"
       autofocus autocomplete=off>
-    <div class="results" ng-cloak>
-      <div ng-repeat="suggest in suggests">
-        {% verbatim %}<a href="/{{ suggest.slug }}">{% endverbatim %}
-          <p ng-bind-html="suggest.short_name"></p>
-        </a>
+    <div class="results" ng-cloak ng-show="show_suggests">
+      {% verbatim %}
+      <div ng-repeat="suggest in suggests"
+        class="suggest-item {{ (suggest.selected ? 'suggest-item-selected' : '') }}"
+        ng-mouseover="selectSuggest($index, true)"
+        ng-mouseleave="unselectSuggests()">
+        <a href="/{{ suggest.slug }}" ng-bind-html="suggest.short_name"></a>
       </div>
+      {% endverbatim %}
     </div>
   </div>
 </div>

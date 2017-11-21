@@ -2,13 +2,88 @@ function IndexCtrl($scope, $http) {
     $scope.text = '';
     $scope.suggests = [];
     $scope.show_suggests = false;
-    $scope.results_class = 'input-form input-quiet';
+    $scope.results_class = 'input-form';
+    $scope.is_mouse = false;
+
+    $scope.tryToShowSuggests = function() {
+        if ($scope.suggests.length > 0) {
+            showSuggests();
+        }
+    };
+
+    function showSuggests() {
+        $scope.show_suggests = true;
+        $scope.results_class = 'input-form input-suggest';
+    }
+
+    $scope.hideSuggests = function() {
+        // Нельзя прятать подсказки, если фокус на каком-то элементе
+        // и сделан он был мышкой
+        if ( $scope.is_mouse ) {
+            for ( let i = 0; i < $scope.suggests.length; ++i ) {
+                if ( $scope.suggests[i].selected ) {
+                    return;
+                }
+            }
+        }
+        $scope.show_suggests = false;
+        $scope.results_class = 'input-form';
+    }
+
+    $scope.toggleSuggests = function(where) {
+        if ( where == 'enter' ) {
+            for ( let i = 0; i < $scope.suggests.length; ++i ) {
+                if ( $scope.suggests[i].selected ) {
+                    document.location = '/' + $scope.suggests[i].slug;
+                }
+            }
+        }
+
+        let current = where === 'up' ? $scope.suggests.length : -1;
+
+        for ( let i = 0; i < $scope.suggests.length; ++i ) {
+            if ( $scope.suggests[i].selected ) {
+                current = i;
+            }
+        }
+
+        if ( where == 'down' ) {
+            $scope.selectSuggest((current + 1) % $scope.suggests.length);
+        } else {
+            $scope.selectSuggest((current + $scope.suggests.length - 1) % $scope.suggests.length);
+        }
+    }
+
+    $scope.selectSuggest = function(index, is_mouse) {
+        $scope.is_mouse = is_mouse || false;
+
+        for ( let i = 0; i < $scope.suggests.length; ++i ) {
+            if ( i === index ) {
+                $scope.suggests[i].selected = true;
+            } else {
+                $scope.suggests[i].selected = false;
+            }
+        }
+    }
+
+    $scope.unselectSuggests = function() {
+        for ( let i = 0; i < $scope.suggests.length; ++i ) {
+            $scope.suggests[i].selected = false;
+        }
+    }
 
     $scope.suggest = function() {
-        if ( $scope.text.length < 2 ) {
-            $scope.show_suggests = false;
-            $scope.results_class = 'input-form input-quiet';
-            return;
+        switch (event.keyCode) {
+            case 13: // enter
+                $scope.toggleSuggests('enter');
+                return;
+            case 38:
+                $scope.toggleSuggests('up');
+                return;
+            case 40:
+                $scope.toggleSuggests('down');
+                return;
+            default: break;
         }
 
         $http.get(tsanta.api + '/groups/suggest?q=' + $scope.text)
@@ -32,11 +107,9 @@ function IndexCtrl($scope, $http) {
                     }
                 }
 
-                $scope.show_suggests = true;
-                $scope.results_class = 'input-form input-suggest';
+                showSuggests();
             } else {
-                $scope.show_suggests = false;
-                $scope.results_class = 'input-form input-quiet';
+                $scope.hideSuggests();
             }
         });
     };

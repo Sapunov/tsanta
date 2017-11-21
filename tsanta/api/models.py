@@ -187,13 +187,13 @@ class Group(models.Model):
         return event
 
     @classmethod
-    def suggest(cls, query, limit=10):
+    def suggest(cls, query, limit=5):
 
         query = query.lower()
 
         groups = cls.objects.filter(
             Q(event_lock=True) & (
-                Q(short_name__icontains=query) | Q(alt_names__icontains=query)
+                Q(short_name__icontains=query) | Q(alt_names__icontains=query) | Q(slug__icontains=query)
             ))
 
         registered = {}
