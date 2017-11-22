@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 from django.core.validators import validate_slug
 from django.core import exceptions as django_exceptions
@@ -271,6 +272,9 @@ class Question(models.Model):
     event = models.ForeignKey(Event, related_name="questions")
     type = models.SmallIntegerField(choices=QUESTION_TYPES, default=QUESTION_TYPES[0])
     typed_content = models.TextField()
+
+    def has_answers(self):
+        return self.answer_set.count() > settings.QUESTION_DELETE_TRESHOLD
 
     def __str__(self):
 

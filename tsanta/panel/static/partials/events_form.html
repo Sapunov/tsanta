@@ -113,12 +113,17 @@
                             <textarea class="form-control noresize"
                                 rows="2"
                                 placeholder="Текст вопроса"
+                                ng-disabled="data.questions[$index].has_answers"
                                 ng-model="data.questions[$index].typed_content"></textarea>
                         </td>
                         <td class="delete-wrapper">
                             <span class="glyphicon glyphicon-remove item-delete"
                                 uib-tooltip="Удалить вопрос"
+                                ng-show="!data.questions[$index].has_answers"
                                 ng-click="delete_question($index)"></span>
+                            <span class="glyphicon glyphicon-question-sign item-delete"
+                                uib-tooltip="Вы не можете удалить или изменить вопрос, если на него уже ответили"
+                                ng-show="data.questions[$index].has_answers"></span>
                         </td>
                     </tr>
                 </table>
