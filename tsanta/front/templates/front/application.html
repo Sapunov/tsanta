@@ -2,55 +2,74 @@
 
 {% block content %}
 <div class="clearfix">
-    {% if found %}
-    <section class="half-section left">
-        <h2>Правила мероприятия</h2>
-        <div class="rules">
-            {% autoescape off %}{{ rules }}{% endautoescape %}
+  {% if found %}
+  <section class="half-section left">
+    <h2>Правила мероприятия</h2>
+    <div class="rules">
+      {% autoescape off %}{{ rules }}{% endautoescape %}
+    </div>
+    <h2>Как проходит регистрация</h2>
+    <div class="regs">
+      {% autoescape off %}{{ process }}{% endautoescape %}
+    </div>
+    <div class="thank">
+      Организация
+      <a href='http://vk.com/shthse' target="blank">Школа Тренинга</a> благодарит за помощь в создании дизайна данного сайта
+      <a href="http://vk.com/id50596252" target="blank">Марью Канту</a>,
+      <a href="http://vk.com/kamilcat" target="blank">Камиля Мундубаева</a>
+    </div>
+  </section>
+  <section class="half-section left">
+    <div class="reg-form">
+      <b>Все поля обязательны для заполнения</b>
+      <form action="#" onsubmit="return saveForm(this);">
+        <p>Имя:
+          <br>
+          <input type="text" autofocus name="name" value="">
+        </p>
+        <p>Фамилия:
+          <br>
+          <input type="text" name="surname" value="">
+        </p>
+        <div>
+          Пол:
+          <div>
+            <input type="radio" name="sex" class="radio" value="female" checked/>
+            <label>Женщина</label>
+          </div>
+          <div>
+            <input type="radio" name="sex" class="radio" value="male" />
+            <label>Мужчина</label>
+          </div>
         </div>
-        <h2>Как проходит регистрация</h2>
-        <div class="regs">
-            {% autoescape off %}{{ process }}{% endautoescape %}
+        <p>Email:
+          <br>
+          <input type="text" name="email" value="">
+        </p>
+        <p>Мобильный телефон:
+          <br>
+          <input type="text" name="phone" value="">
+        </p>
+        <p>Ссылка на социальную сеть
+          <br>
+          <input type="text" name="vk">
+        </p>
+        {% if questions %}
+        {% for question in questions %}
+        <p>{{ question.typed_content }}
+          <br>
+          <textarea></textarea>
+        </p>
+        {% endfor %}
+        {% endif %}
+        <div class="but-wrap">
+          <button class="main-button" name="but">Зарегистрироваться</button>
         </div>
-        <div class="thank">
-            Организация
-            <a href='http://vk.com/shthse' target="blank">Школа Тренинга</a> благодарит за помощь в создании дизайна данного сайта
-            <a href="http://vk.com/id50596252" target="blank">Марью Канту</a>,
-            <a href="http://vk.com/kamilcat" target="blank">Камиля Мундубаева</a>
-        </div>
-    </section>
-    <section class="half-section left">
-        <div class="reg-form">
-            <b>Все поля обязательны для заполнения</b>
-            <form action="#" onsubmit="return saveForm(this);">
-                <p>Имя:
-                    <br>
-                    <input type="text" autofocus name="name" value="">
-                </p>
-                <p>Фамилия:
-                    <br>
-                    <input type="text" name="surname" value="">
-                </p>
-                <p>Email:
-                    <br>
-                    <input type="text" name="email" value="">
-                </p>
-                <p>Мобильный телефон:
-                    <br>
-                    <input type="text" name="phone" value="">
-                </p>
-                <p>Ссылка на социальную сеть
-                    <br>
-                    <input type="text" name="vk">
-                </p>
-                <div class="but-wrap">
-                    <button class="main-button" name="but">Зарегистрироваться</button>
-                </div>
-            </form>
-        </div>
-    </section>
-    {% else %}
-    <h3 class="text-center">Такой группы нет! Попробуйте еще раз</h3>
-    {% endif %}
+      </form>
+    </div>
+  </section>
+  {% else %}
+  <h3 class="text-center">Такой группы нет! Попробуйте еще раз</h3>
+  {% endif %}
 </div>
 {% endblock content %}

@@ -34,6 +34,7 @@ def application(request):
     context['top_header_title'] = current_group.repr_name
     context['rules'] = event.rules_html
     context['process'] = event.process_html
+    context['questions'] = event.questions.all()
 
     return render(request, "front/application.html", context=context)
 
