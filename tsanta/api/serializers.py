@@ -111,6 +111,7 @@ class QuestionSer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
     type = serializers.IntegerField()
     typed_content = serializers.CharField()
+    has_answers = serializers.BooleanField(required=False)
 
 
 class EventSer(serializers.Serializer):
@@ -253,7 +254,17 @@ class EventSer(serializers.Serializer):
             qid for qid in bound_question_ids if qid not in questions_with_ids.keys()
         ]
         if unbound_question_ids:
-            models.Question.objects.filter(id__in=unbound_question_ids).delete()
+            questions = models.Question.objects.filter(id__in=unbound_question_ids)
+            invulnerable_questions = False
+            for q in questions:
+                invulnerable_questions = q.has_answers()
+                if invulnerable_questions:
+                    break
+
+            if invulnerable_questions:
+                raise ValidationError("Нельзя удалять вопросы, на которые уже есть ответы")
+            else:
+                questions.delete()
 
         # Проверяем оставшиеся вопросы на наличие изменений
         mod_questions_ids = [
@@ -261,10 +272,11 @@ class EventSer(serializers.Serializer):
         ]
         if mod_questions_ids:
             questions = models.Question.objects.filter(id__in=mod_questions_ids)
-            for question in questions:
-                if question.typed_content != questions_with_ids[question.id]['typed_content']:
-                    question.typed_content = questions_with_ids[question.id]['typed_content']
-                    question.save()
+            for q in questions:
+                if not q.has_answers() \
+                   and q.typed_content != questions_with_ids[q.id]['typed_content']:
+                    q.typed_content = questions_with_ids[q.id]['typed_content']
+                    q.save()
                 # TODO Type
 
         # Абсолютно новые вопросы
