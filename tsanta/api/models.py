@@ -274,6 +274,7 @@ class Question(models.Model):
     typed_content = models.TextField()
 
     def has_answers(self):
+
         return self.answer_set.count() > settings.QUESTION_DELETE_TRESHOLD
 
     def __str__(self):
@@ -286,6 +287,14 @@ class Answer(models.Model):
     question = models.ForeignKey(Question)
     questionnaire = models.ForeignKey(Questionnaire)
     content = models.TextField()
+
+    def __str__(self):
+
+        return 'Answer[{0}]'.format(self.id)
+
+    def __repr__(self):
+
+        return self.__str__()
 
 
 class Notification(models.Model):

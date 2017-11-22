@@ -260,7 +260,7 @@ class EventSer(serializers.Serializer):
                 invulnerable_questions = q.has_answers()
                 if invulnerable_questions:
                     break
-            
+
             if invulnerable_questions:
                 raise ValidationError("Нельзя удалять вопросы, на которые уже есть ответы")
             else:
