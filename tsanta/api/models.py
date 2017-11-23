@@ -151,6 +151,7 @@ class Group(models.Model):
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
     tag = models.CharField(max_length=500, default="", blank=True)
+    searchable = models.BooleanField(default=False)
 
     @classmethod
     def get_my_groups(cls, user, prefix=""):
@@ -196,7 +197,7 @@ class Group(models.Model):
         query_kb_inverse = misc.keyboard_layout_inverse(query)
 
         groups = cls.objects.filter(
-            Q(event_lock=True) & (
+            Q(searchable=True) & Q(event_lock=True) & (
                 # С нормальный раскладкой
                 Q(short_name__icontains=query)
                 | Q(alt_names__icontains=query)
