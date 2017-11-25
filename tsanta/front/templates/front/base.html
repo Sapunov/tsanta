@@ -17,6 +17,7 @@
 <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100&subset=latin,cyrillic" rel="stylesheet" type="text/css"/>
 <link href="https://fonts.googleapis.com/css?family=Underdog" rel="stylesheet" type="text/css"/>
 <link href="/static/styles/styles.min.css?v={{ app_version }}" rel="stylesheet" type="text/css" />
+{% block css %}{% endblock %}
 
 <!-- scripts -->
 <script type="text/javascript">
@@ -28,6 +29,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-route.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-sanitize.min.js"></script>
+{% block jstop %}{% endblock %}
 
 <!-- Yandex.Metrika counter -->
 <!-- <script type="text/javascript">
@@ -74,7 +76,9 @@
           <br>Школа Тренинга
         </span>
       </div>
-      <div class="logo-santa left"></div>
+      <div class="logo-santa left">
+        <a href="/"></a>
+      </div>
       <div class="social-share left clearfix">
         <div class="yashare-auto-init right" data-yashareL10n="ru" data-yashareQuickServices="vkontakte,facebook,twitter,odnoklassniki"
           data-yashareTheme="counter"></div>
@@ -97,5 +101,6 @@
   <div class="olen"></div>
 <script src="/static/js/script.js?v={{ app_version }}"></script>
 <script type="text/javascript" async src="//yastatic.net/share/share.js" charset="utf-8"></script>
+{% block jsbottom %}{% endblock %}
 </body>
 </html>
