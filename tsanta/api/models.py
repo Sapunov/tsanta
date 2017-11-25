@@ -216,6 +216,8 @@ class Group(models.Model):
         text = text.lower()
 
         is_exists = cls.objects.filter(slug=text).count() > 0
+        is_exists = is_exists or text in settings.RESERVED_SLUG_WORDS
+
         is_correct = True
 
         try:
