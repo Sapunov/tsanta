@@ -246,16 +246,25 @@ class Group(models.Model):
         query = query.lower()
         query_kb_inverse = misc.keyboard_layout_inverse(query)
 
-        groups = cls.objects.filter(
-            Q(searchable=True) & Q(event_lock=True) & (
-                # С нормальный раскладкой
-                Q(short_name__icontains=query)
-                | Q(alt_names__icontains=query)
-                | Q(slug__icontains=query)
-                # С инвертированной раскладкой
-                | Q(short_name__icontains=query_kb_inverse)
-                | Q(alt_names__icontains=query_kb_inverse)
-            ))
+        if len(query) > 1:
+            groups = cls.objects.filter(
+                Q(searchable=True) & Q(event_lock=True) & (
+                    # С нормальный раскладкой
+                    Q(short_name__icontains=query)
+                    | Q(alt_names__icontains=query)
+                    | Q(slug__icontains=query)
+                    # С инвертированной раскладкой
+                    | Q(short_name__icontains=query_kb_inverse)
+                    | Q(alt_names__icontains=query_kb_inverse)
+                ))
+        else:
+            groups = cls.objects.filter(
+                Q(searchable=True) & Q(event_lock=True) & (
+                    # С нормальный раскладкой
+                    Q(short_name__icontains=query)
+                    | Q(alt_names__icontains=query)
+                    | Q(slug__icontains=query)
+                ))
 
         registered = {}
 
