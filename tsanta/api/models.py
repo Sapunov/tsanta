@@ -216,6 +216,8 @@ class Group(models.Model):
         text = text.lower()
 
         is_exists = cls.objects.filter(slug=text).count() > 0
+        is_exists = is_exists or text in settings.RESERVED_SLUG_WORDS
+
         is_correct = True
 
         try:
@@ -244,16 +246,25 @@ class Group(models.Model):
         query = query.lower()
         query_kb_inverse = misc.keyboard_layout_inverse(query)
 
-        groups = cls.objects.filter(
-            Q(searchable=True) & Q(event_lock=True) & (
-                # С нормальный раскладкой
-                Q(short_name__icontains=query)
-                | Q(alt_names__icontains=query)
-                | Q(slug__icontains=query)
-                # С инвертированной раскладкой
-                | Q(short_name__icontains=query_kb_inverse)
-                | Q(alt_names__icontains=query_kb_inverse)
-            ))
+        if len(query) > 1:
+            groups = cls.objects.filter(
+                Q(searchable=True) & Q(event_lock=True) & (
+                    # С нормальный раскладкой
+                    Q(short_name__icontains=query)
+                    | Q(alt_names__icontains=query)
+                    | Q(slug__icontains=query)
+                    # С инвертированной раскладкой
+                    | Q(short_name__icontains=query_kb_inverse)
+                    | Q(alt_names__icontains=query_kb_inverse)
+                ))
+        else:
+            groups = cls.objects.filter(
+                Q(searchable=True) & Q(event_lock=True) & (
+                    # С нормальный раскладкой
+                    Q(short_name__icontains=query)
+                    | Q(alt_names__icontains=query)
+                    | Q(slug__icontains=query)
+                ))
 
         registered = {}
 

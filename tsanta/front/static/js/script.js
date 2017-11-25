@@ -131,7 +131,7 @@ function ApplicationCtrl($scope, $http) {
     $scope.questions = {};
 
     let errors = {
-        'validation': 'Заполните, пожалуйста, все поля. Не забудьте, что email должен быть правильной формы.',
+        'validation': 'Заполните, пожалуйста, все поля.<br>Не забудьте, что email должен быть правильной формы, а номер телефона должен иметь минимум 10 цифр.',
         'submit': 'Произошла неизвестная ошибка. Пожалуйста, напишите об этом в <a href="https://vk.com/t_santa" target="blank">группе Тайного Санты</a>',
         'already_sent': 'Данные уже были отправлены. Если у вас есть подозрение, что они не дошли до Санты, напишите в группу <a href="https://vk.com/t_santa" target="blank">Тайного Санты</a>, разберемся.',
         'already_signed': 'Вы уже зарегистрированы на данное событие в этой группе. Если вы еще не регистрировались, напишите в группу <a href="https://vk.com/t_santa" target="blank">Тайного Санты</a>, разберемся.'
@@ -212,11 +212,17 @@ function ApplicationCtrl($scope, $http) {
     }
 }
 
+function SliderCtrl($scope, $http) {
+    $scope.images = [1, 2, 3, 4 , 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+}
+
+// Angular application
 (function() {
     angular.module('tsantafront', ['ngSanitize', 'ngRoute'])
 
     .controller('indexCtrl', IndexCtrl)
     .controller('applicationCtrl', ApplicationCtrl)
+    .controller('sliderCtrl', SliderCtrl)
 
     .config(['$locationProvider', '$routeProvider', '$httpProvider',
         function config($locationProvider, $routeProvider, $httpProvider) {
@@ -224,4 +230,20 @@ function ApplicationCtrl($scope, $http) {
             $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
         }
     ]);
+})();
+
+// JQuery parts
+(function() {
+    $(document).ready(function() {
+        $('.photos-slider .photos').show().slick({
+            dots: true,
+            infinite: true,
+            speed: 300,
+            slidesToShow: 3,
+            centerMode: true,
+            variableWidth: true,
+            autoplay: true,
+            autoplaySpeed: 3000,
+        });
+    });
 })();

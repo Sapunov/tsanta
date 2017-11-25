@@ -192,6 +192,7 @@
 }
 
 .santas-photos {
+    margin-top: 50px;
     .title {
         text-align: center;
         font-family: Underdog;
@@ -199,9 +200,24 @@
         font-size: 40px
     }
     .photos-slider {
-        background-color: red;
         height: 400px;
         margin-bottom: 50px;
+        position: relative;
+    }
+    .photo {
+        height: 400px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background-color: #fff;
+        box-sizing: border-box;
+        outline: none;
+        display: none;
+
+        img {
+            height: 100%;
+        }
     }
 }
 
@@ -220,7 +236,7 @@
         float: right;
         width: 680px;
         height: 750px;
-        background-color: blue; // Удалить
+        background-color: #fff;
     }
 }
 

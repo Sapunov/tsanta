@@ -108,4 +108,15 @@ LOGIN_URL = '/panel/login'
 
 API_DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S'
 
+# Количество ответов на вопросы, при котором вопрос можно удалить
 QUESTION_DELETE_TRESHOLD = 0
+
+# Те слова, которые не могут употреблять пользователи в своих slug
+RESERVED_SLUG_WORDS = [
+    'thanks',
+    'confirm',
+    'santa',
+    'recipient',
+    'ward',
+    'panel',
+    'admin']

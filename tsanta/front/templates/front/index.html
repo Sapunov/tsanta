@@ -1,5 +1,22 @@
 {% extends "front/base.html" %}
 
+{% block jstop %}
+<script src="https://vk.com/js/api/openapi.js?150" type="text/javascript"></script>
+<script type="text/javascript">
+  VK.Widgets.Group("vk_groups", {mode: 4, no_cover: 1, width: "680", height: "750"}, 62775353);
+</script>
+{% endblock jstop %}
+
+{% block jsbottom %}
+<script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script type="text/javascript" src="/static/slick/slick.min.js"></script>
+{% endblock jsbottom %}
+
+{% block css %}
+<link rel="stylesheet" type="text/css" href="/static/slick/slick.css"/>
+<link rel="stylesheet" type="text/css" href="/static/slick/slick-theme.css"/>
+{% endblock css %}
+
 {% block content %}
 <div ng-controller="indexCtrl">
   <div class="welcome-text">
@@ -32,10 +49,16 @@
   </div>
 </div>
 
-<div class="santas-photos">
+<div class="santas-photos" ng-controller="sliderCtrl">
   <h2 class="title">Ваши фото!</h2>
   <div class="photos-slider">
-
+    <div class="photos">
+      <div class="photo" ng-repeat="i in images">
+        {% verbatim %}
+        <img ng-src="/static/images/slider/{{ i }}.jpg">
+        {% endverbatim %}
+      </div>
+    </div>
   </div>
 </div>
 
@@ -43,11 +66,6 @@
   <p class="title">
     <b>Следите за<br> нами<br> Вконтакте!</b>
   </p>
-  <!-- VK Widget -->
   <div class="index-vk-widget" id="vk_groups"></div>
-  <script src="https://vk.com/js/api/openapi.js?150" type="text/javascript"></script>
-  <script type="text/javascript">
-    VK.Widgets.Group("vk_groups", {mode: 4, no_cover: 1, width: "680", height: "750"}, 62775353);
-  </script>
 </div>
 {% endblock content %}
