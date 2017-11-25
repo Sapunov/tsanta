@@ -2,8 +2,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError, PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
-from api import serializers
+from api import serializers, exceptions
 from api.models import City, Group, Event
 from api.serializers import serialize, deserialize
 
@@ -137,3 +139,18 @@ class EventView(APIView):
         serializer.save(user=request.user)
 
         return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([])
+def submit_questionnaire(request):
+
+    try:
+        serializer = deserialize(serializers.SubmitFormSer, request.data)
+        serializer.save()
+    except exceptions.AlreadySignedException:
+        return Response(
+            status=status.HTTP_409_CONFLICT,
+            data={"error": "Вы уже зарегистрированы на данной событие в этой группе"})
+
+    return Response(status=status.HTTP_201_CREATED)

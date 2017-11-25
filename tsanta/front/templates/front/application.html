@@ -2,55 +2,88 @@
 
 {% block content %}
 <div class="clearfix">
-    {% if found %}
-    <section class="half-section left">
-        <h2>Правила мероприятия</h2>
-        <div class="rules">
-            {% autoescape off %}{{ rules }}{% endautoescape %}
+  {% if found %}
+  <section class="half-section left">
+    <h2>Правила мероприятия</h2>
+    <div class="rules">
+      {% autoescape off %}{{ rules }}{% endautoescape %}
+    </div>
+    <h2>Как проходит регистрация</h2>
+    <div class="regs">
+      {% autoescape off %}{{ process }}{% endautoescape %}
+    </div>
+    <div class="thank">
+      Организация
+      <a href='http://vk.com/shthse' target="blank">Школа Тренинга</a> благодарит за помощь в создании дизайна данного сайта
+      <a href="http://vk.com/id50596252" target="blank">Марью Канту</a>,
+      <a href="http://vk.com/kamilcat" target="blank">Камиля Мундубаева</a>
+    </div>
+  </section>
+  <section class="half-section left">
+    <div class="reg-form" ng-controller="applicationCtrl">
+      <b>Все поля обязательны для заполнения</b>
+      <form novalidate
+        ng-submit="saveApplication(applicationForm.$invalid, {{ event_id }}, {{ group_id }})"
+        name="applicationForm">
+        {% csrf_token %}
+        <p>Имя:
+          <br>
+          <input type="text" required autofocus ng-model="data.name" ng-keyup="suggest($this)">
+        </p>
+        <p>Фамилия:
+          <br>
+          <input type="text" required ng-model="data.surname" ng-keyup="suggest($this)">
+        </p>
+        <div>
+          Пол:
+          <div>
+            <input type="radio" class="radio" name="sex"
+              id="sex-female" ng-model="data.sex" value="female" ng-checked="true"/>
+            <label for="sex-female">Женщина</label>
+          </div>
+          <div>
+            <input type="radio" class="radio" name="sex"
+              id="sex-male" ng-model="data.sex" value="male" />
+            <label for="sex-male">Мужчина</label>
+          </div>
         </div>
-        <h2>Как проходит регистрация</h2>
-        <div class="regs">
-            {% autoescape off %}{{ process }}{% endautoescape %}
+        <p>Email:
+          <br>
+          <input type="email" required ng-model="data.email" ng-keyup="suggest($this)">
+        </p>
+        <p>Мобильный телефон:
+          <br>
+          <input type="text" required ng-model="data.phone" ng-keyup="suggest($this)" ng-minlength="10">
+        </p>
+        <p>Ссылка на социальную сеть
+          <br>
+          <input type="text" required ng-model="data.social_network_link" ng-keyup="suggest($this)">
+        </p>
+        {% if questions %}
+        {% for question in questions %}
+        <p>{{ question.typed_content }}
+          <br>
+          <textarea required
+            ng-model="questions[{{ question.id }}]" ng-keyup="suggest($this)"></textarea>
+        </p>
+        {% endfor %}
+        {% endif %}
+        <div class="text-danger form-error" ng-show="formError" ng-cloak>
+          <p ng-bind-html="errorMsg"></p>
         </div>
-        <div class="thank">
-            Организация
-            <a href='http://vk.com/shthse' target="blank">Школа Тренинга</a> благодарит за помощь в создании дизайна данного сайта
-            <a href="http://vk.com/id50596252" target="blank">Марью Канту</a>,
-            <a href="http://vk.com/kamilcat" target="blank">Камиля Мундубаева</a>
+        <div class="but-wrap">
+          <button class="main-button">Зарегистрироваться</button>
         </div>
-    </section>
-    <section class="half-section left">
-        <div class="reg-form">
-            <b>Все поля обязательны для заполнения</b>
-            <form action="#" onsubmit="return saveForm(this);">
-                <p>Имя:
-                    <br>
-                    <input type="text" autofocus name="name" value="">
-                </p>
-                <p>Фамилия:
-                    <br>
-                    <input type="text" name="surname" value="">
-                </p>
-                <p>Email:
-                    <br>
-                    <input type="text" name="email" value="">
-                </p>
-                <p>Мобильный телефон:
-                    <br>
-                    <input type="text" name="phone" value="">
-                </p>
-                <p>Ссылка на социальную сеть
-                    <br>
-                    <input type="text" name="vk">
-                </p>
-                <div class="but-wrap">
-                    <button class="main-button" name="but">Зарегистрироваться</button>
-                </div>
-            </form>
-        </div>
-    </section>
-    {% else %}
-    <h3 class="text-center">Такой группы нет! Попробуйте еще раз</h3>
-    {% endif %}
+      </form>
+    </div>
+  </section>
+  {% else %}
+  <h3 class="text-center">
+    Группа, которую вы ищете еще не создана!
+  </h3>
+  <div class="text-center">
+    Но вы можете её <strong><a href="/panel/">cоздать</a></strong> или <a href="/">поискать</a> повнимательнее.
+  </div>
+  {% endif %}
 </div>
 {% endblock content %}

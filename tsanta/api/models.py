@@ -36,9 +36,8 @@ class Participant(models.Model):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, null=True, blank=True)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     social_network_link = models.URLField(null=True, blank=True)
-    age = models.SmallIntegerField(null=True, blank=True)
     sex = models.SmallIntegerField(choices=SEX_CHOICES, default=2)
 
     @classmethod
@@ -136,6 +135,10 @@ class Event(models.Model):
 
         return items
 
+    def in_progress(self):
+
+        return self.date_end > timezone.now() and self.date_start < timezone.now()
+
     def __str__(self):
 
         return 'Event[{0}]: {1}'.format(self.id, self.name)
@@ -150,16 +153,62 @@ class Group(models.Model):
     slug = models.SlugField(unique=True)
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
-    tag = models.CharField(max_length=500, default="", blank=True)
+    searchable = models.BooleanField(default=False)
 
     @classmethod
-    def get_my_groups(cls, user, prefix=""):
+    def get_my_groups(cls, user, prefix="", limit=20):
+
+        query = prefix.lower()
+        query_kb_inverse = misc.keyboard_layout_inverse(query)
 
         participant = Participant.objects.get(user=user)
 
-        items = cls.objects.filter(owner=participant, short_name__istartswith=prefix)
+        groups = cls.objects.filter(
+            Q(owner=participant) & (
+                # С нормальный раскладкой
+                Q(short_name__icontains=query)
+                | Q(alt_names__icontains=query)
+                | Q(slug__icontains=query)
+                # С инвертированной раскладкой
+                | Q(short_name__icontains=query_kb_inverse)
+                | Q(alt_names__icontains=query_kb_inverse)
+            ))
 
-        return items
+        registered = {}
+
+        # Сбор статистики по зарегистрировавшимся людям в группах
+        if groups.count() > 0:
+            for item in Questionnaire.objects.filter(
+                    is_closed=False).values('group').annotate(count=Count('group')):
+                registered[item['group']] = item['count']
+
+        answer = []
+
+        for group in groups:
+            in_short_name = group.short_name.lower().count(query)
+            in_alt_names = group.alt_names.lower().count(query)
+            count_participants = 0
+            startswith = 1 if group.short_name.lower().startswith(query) else 0
+
+            if group.id in registered:
+                count_participants = registered[group.id]
+
+            # Супер формула
+            score = (in_short_name / len(group.short_name)) * 0.3
+            score += startswith * 0.4
+            score += (in_alt_names / len(group.alt_names)) * 0.2
+            score += count_participants * 0.1
+
+            answer.append(
+                {'group': group,
+                 'score': score})
+
+        if answer:
+            answer.sort(key=lambda it: it['score'], reverse=True)
+
+        return [it['group'] for it in answer[:limit]]
+
+        return groups
 
     @classmethod
     def check_slug(cls, text):
@@ -196,7 +245,7 @@ class Group(models.Model):
         query_kb_inverse = misc.keyboard_layout_inverse(query)
 
         groups = cls.objects.filter(
-            Q(event_lock=True) & (
+            Q(searchable=True) & Q(event_lock=True) & (
                 # С нормальный раскладкой
                 Q(short_name__icontains=query)
                 | Q(alt_names__icontains=query)

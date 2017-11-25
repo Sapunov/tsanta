@@ -77,7 +77,7 @@ function IndexCtrl($scope, $http) {
         }
     }
 
-    $scope.suggest = function() {
+    $scope.suggest = function(event) {
         switch (event.keyCode) {
             case 13: // enter
                 $scope.toggleSuggests('enter');
@@ -89,6 +89,12 @@ function IndexCtrl($scope, $http) {
                 $scope.toggleSuggests('down');
                 return;
             default: break;
+        }
+
+        if ( $scope.text === "" ) {
+            $scope.suggests = [];
+            $scope.hideSuggests();
+            return;
         }
 
         $http.get(tsanta.api + '/groups/suggest?q=' + $scope.text)
@@ -118,14 +124,104 @@ function IndexCtrl($scope, $http) {
             }
         });
     };
+}
 
-    $scope.checkToGo = function() {
+function ApplicationCtrl($scope, $http) {
 
+    $scope.questions = {};
+
+    let errors = {
+        'validation': 'Заполните, пожалуйста, все поля. Не забудьте, что email должен быть правильной формы.',
+        'submit': 'Произошла неизвестная ошибка. Пожалуйста, напишите об этом в <a href="https://vk.com/t_santa" target="blank">группе Тайного Санты</a>',
+        'already_sent': 'Данные уже были отправлены. Если у вас есть подозрение, что они не дошли до Санты, напишите в группу <a href="https://vk.com/t_santa" target="blank">Тайного Санты</a>, разберемся.',
+        'already_signed': 'Вы уже зарегистрированы на данное событие в этой группе. Если вы еще не регистрировались, напишите в группу <a href="https://vk.com/t_santa" target="blank">Тайного Санты</a>, разберемся.'
     };
+
+    $scope.errorMsg = errors.validation;
+    $scope.lock = false;
+
+    $scope.data = {
+        name: undefined,
+        surname: undefined,
+        sex: undefined,
+        email: undefined,
+        phone: undefined,
+        social_network_link: undefined,
+        questions: {},
+        event: undefined,
+        group: undefined
+    };
+
+    $scope.formError = false;
+
+    $scope.suggest = function(element) {
+        $scope.formError = false;
+    }
+
+    $scope.saveApplication = function(isInvalid, eventId, groupId) {
+        if ( isInvalid ) {
+            $scope.formError = true;
+            return;
+        }
+
+        $scope.data.event = parseInt(eventId);
+        $scope.data.group = parseInt(groupId);
+        $scope.data.questions = prepareQuestions($scope.questions);
+
+        if ( !$scope.lock ) {
+            $scope.lock = true;
+
+            $http.post(tsanta.api + '/events/submit', $scope.data)
+            .then(function (response) {
+                if ( response.status == 201 ) { // HTTP_201_CREATED
+                    document.location = '/thanks';
+                } else {
+                    $scope.errorMsg = errors.submit;
+                    $scope.formError = true;
+                }
+            // Обработка ошибок
+            }, function(response) {
+                switch (response.status) {
+                    case 409:
+                        $scope.errorMsg = errors.already_signed;
+                        $scope.formError = true;
+                        break;
+                    default:
+                        $scope.errorMsg = errors.submit;
+                        $scope.formError = true;
+                }
+            });
+        } else {
+            $scope.errorMsg = errors.already_sent;
+            $scope.formError = true;
+        }
+    }
+
+    function prepareQuestions(questions) {
+        let tmp = [];
+
+        for (var key in questions) {
+            if (questions.hasOwnProperty(key)) {
+                // type == 0 - text
+                // Пока так
+                tmp.push({id: parseInt(key), typed_content: questions[key], type: 0});
+            }
+        }
+
+        return tmp;
+    }
 }
 
 (function() {
-    angular.module('tsantafront', ['ngSanitize'])
+    angular.module('tsantafront', ['ngSanitize', 'ngRoute'])
 
-    .controller('indexCtrl', IndexCtrl);
+    .controller('indexCtrl', IndexCtrl)
+    .controller('applicationCtrl', ApplicationCtrl)
+
+    .config(['$locationProvider', '$routeProvider', '$httpProvider',
+        function config($locationProvider, $routeProvider, $httpProvider) {
+            $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+            $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+        }
+    ]);
 })();

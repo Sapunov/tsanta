@@ -2,8 +2,12 @@ from rest_framework import serializers
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 import mistune
+from django.contrib.auth.models import User
 
 from api import models
+from api import exceptions
+
+from tsanta import misc
 
 
 def deserialize(serializer_class, data):
@@ -291,3 +295,110 @@ class EventSer(serializers.Serializer):
                 typed_content=question['typed_content'])
 
         return instance
+
+
+class SubmitFormSer(serializers.Serializer):
+
+    name = serializers.CharField()
+    surname = serializers.CharField()
+    email = serializers.EmailField()
+    phone = serializers.CharField()
+    sex = serializers.CharField()
+    social_network_link = serializers.CharField()
+    questions = QuestionSer(many=True)
+    event = serializers.IntegerField()
+    group = serializers.IntegerField()
+
+    def validate(self, data):
+
+        try:
+            group = models.Group.objects.get(pk=data['group'])
+        except models.Group.DoesNotExist:
+            raise ValidationError('Группа с данным идентификатором не существует')
+
+        if not group.event_lock:
+            raise ValidationError('Группа с данным идентификатором в данный момент не участвует ни в одном событии')
+
+        try:
+            event = models.Event.objects.get(pk=data['event'])
+        except models.Event.DoesNotExist:
+            raise ValidationError('События с данным идентификатором не существует')
+
+        if not event.in_progress:
+            raise ValidationError('Событие закончилось или еще не началось')
+
+        if group.current_event.pk != event.pk:
+            raise ValidationError('Данная группа не принадлежит к указанному событию')
+
+        try:
+            participant = models.Participant.objects.get(email=data['email'])
+
+            data['participant'] = participant
+
+            if models.Questionnaire.objects.filter(
+                    participant=participant, event=event, group=group).exists():
+                raise exceptions.AlreadySignedException
+        except models.Participant.DoesNotExist:
+            pass
+
+        for i, question in enumerate(data['questions']):
+            try:
+                data['questions'][i]['question'] = models.Question.objects.get(pk=question['id'], type=question['type'])
+            except models.Question.DoesNotExist:
+                raise ValidationError('Вопрос с id `{0}` не существует'.format(question['id']))
+
+        data['group'] = group
+        data['event'] = event
+
+        data['name'] = misc.normalize_name(data['name'])
+        data['surname'] = misc.normalize_name(data['surname'])
+        data['phone'] = misc.normalize_phone(data['phone'])
+        data['social_network_link'] = misc.normalize_link(data['social_network_link'])
+
+        return data
+
+    def create(self, validated_data):
+
+        if 'participant' not in validated_data:
+            user = User.objects.create_user(username=validated_data['email'])
+            participant = models.Participant.create(
+                user=user,
+                name=validated_data['name'],
+                surname=validated_data['surname'],
+                email=validated_data['email'])
+        else:
+            participant = validated_data['participant']
+
+        if participant.sex == 2:
+            if validated_data['sex'] == 'male':
+                participant.sex = 0
+            else:
+                participant.sex = 1
+
+        if validated_data['name'] != participant.name:
+            participant.name = validated_data['name']
+
+        if validated_data['surname'] != participant.surname:
+            participant.surname = validated_data['surname']
+
+        if participant.phone is None or validated_data['phone'] != participant.phone:
+            participant.phone = validated_data['phone']
+
+        if (participant.social_network_link is None
+                or validated_data['social_network_link'] != participant.social_network_link):
+            participant.social_network_link = validated_data['social_network_link']
+
+        participant.save()
+
+        questionnaire = models.Questionnaire.objects.create(
+            participant=participant,
+            event=validated_data['event'],
+            group=validated_data['group'])
+
+        for question in validated_data['questions']:
+            models.Answer.objects.create(
+                question=question['question'],
+                questionnaire=questionnaire,
+                content=question['typed_content'])
+
+        return questionnaire
