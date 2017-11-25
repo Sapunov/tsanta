@@ -31,3 +31,18 @@ def keyboard_layout_inverse(string_):
         result += dic.get(letter, letter)
 
     return result
+
+
+def normalize_phone(phone):
+
+    return phone
+
+
+def normalize_link(link):
+
+    return link
+
+
+def normalize_name(text):
+
+    return text.lower().capitalize()

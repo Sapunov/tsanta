@@ -27,6 +27,7 @@ def application(request):
         context['found'] = True
     except Group.DoesNotExist:
         context['found'] = False
+        context['top_header_title'] = 'Not Found =('
         return render(request, "front/application.html", context=context)
 
     event = current_group.current_event
@@ -35,12 +36,16 @@ def application(request):
     context['rules'] = event.rules_html
     context['process'] = event.process_html
     context['questions'] = event.questions.all()
+    context['event_id'] = event.pk
+    context['group_id'] = current_group.pk
 
     return render(request, "front/application.html", context=context)
 
 
 def thanks(request):
 
-    context = {}
+    context = {
+        'top_header_title': 'Благодарит'
+    }
 
     return render(request, "front/thanks.html", context=context)

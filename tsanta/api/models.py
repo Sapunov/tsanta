@@ -36,9 +36,8 @@ class Participant(models.Model):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     phone = models.CharField(max_length=15, null=True, blank=True)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     social_network_link = models.URLField(null=True, blank=True)
-    age = models.SmallIntegerField(null=True, blank=True)
     sex = models.SmallIntegerField(choices=SEX_CHOICES, default=2)
 
     @classmethod
@@ -136,6 +135,10 @@ class Event(models.Model):
 
         return items
 
+    def in_progress(self):
+
+        return self.date_end > timezone.now() and self.date_start < timezone.now()
+
     def __str__(self):
 
         return 'Event[{0}]: {1}'.format(self.id, self.name)
@@ -150,7 +153,6 @@ class Group(models.Model):
     slug = models.SlugField(unique=True)
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
-    tag = models.CharField(max_length=500, default="", blank=True)
     searchable = models.BooleanField(default=False)
 
     @classmethod
