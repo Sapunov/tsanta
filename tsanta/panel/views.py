@@ -21,8 +21,8 @@ def index_view(request):
         logout_view(request)
 
     context = {
-        # 'app_version': settings.APP_VERSION
-        'app_version': misc.random_string(),
+        'app_version': settings.APP_VERSION,
+        # 'app_version': misc.random_string(),
         'name_surname': name_surname
     }
 

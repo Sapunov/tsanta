@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from api.models import Group, Participant
+from django.conf import settings
 
 from tsanta import misc
 from . import exceptions
@@ -8,7 +9,7 @@ from . import exceptions
 def index(request):
 
     context = {
-        'app_version': misc.random_string(),
+        'app_version': settings.APP_VERSION,
         'top_header_title': 'В здании'
     }
 
@@ -18,7 +19,7 @@ def index(request):
 def application(request):
 
     context = {
-        'app_version': misc.random_string(),
+        'app_version': settings.APP_VERSION,
     }
 
     path = request.path_info.lstrip('/')
