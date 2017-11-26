@@ -134,7 +134,7 @@ class EventSer(serializers.Serializer):
     def validate(self, data):
 
         if data['date_start'] > data['date_end']:
-            raise ValidationError("Дата начала события не может быть раньше даты конца")
+            raise ValidationError('Дата начала события не может быть раньше даты конца')
 
         if not data['groups']:
             raise ValidationError('Нельзя создать событие без групп')
@@ -149,7 +149,7 @@ class EventSer(serializers.Serializer):
             owner=participant, id__in=group_ids, event_lock=False)
 
         if groups.count() != len(group_ids):
-            raise ValidationError("Не все группы доступны для создания события")
+            raise ValidationError('Не все группы доступны для создания события')
 
         event = models.Event.objects.create(
             name=validated_data['name'],
@@ -167,6 +167,7 @@ class EventSer(serializers.Serializer):
         # Блокирование групп
         for group in groups:
             group.event_lock = True
+            group.locked_by = event
             group.save()
 
         # Создание вопросов и добавление их к event
@@ -203,14 +204,14 @@ class EventSer(serializers.Serializer):
             owner=participant, id__in=unbound_gids, event_lock=True
         )
         if unlocked_groups.count() != len(unbound_gids):
-            raise ValidationError("Не все группы можно удалить из события")
+            raise ValidationError('Не все группы можно удалить из события')
 
         # Можно ли заблокировать группы, которые просят добавить?
         locked_groups = models.Group.objects.filter(
             owner=participant, id__in=new_gids, event_lock=False
         )
         if locked_groups.count() != len(new_gids):
-            raise ValidationError("Не все группы можно добавить к событию")
+            raise ValidationError('Не все группы можно добавить к событию')
 
         final_groups_ids = [
             gid for gid in requested_gids
@@ -232,11 +233,13 @@ class EventSer(serializers.Serializer):
         # Блокирование групп
         for group in groups:
             group.event_lock = True
+            group.locked_by = instance
             group.save()
 
         # Разблокирование групп
         for group in unlocked_groups:
             group.event_lock = False
+            group.locked_by = None
             group.save()
 
         instance.groups = groups

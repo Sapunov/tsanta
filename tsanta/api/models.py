@@ -135,9 +135,10 @@ class Event(models.Model):
 
         return items
 
+    @property
     def in_progress(self):
 
-        return self.date_end > timezone.now() and self.date_start < timezone.now()
+        return self.date_end >= timezone.now() and self.date_start <= timezone.now()
 
     def __str__(self):
 
@@ -153,6 +154,7 @@ class Group(models.Model):
     slug = models.SlugField(unique=True)
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
+    locked_by = models.ForeignKey(Event, null=True, blank=True)
     searchable = models.BooleanField(default=False)
 
     @classmethod
@@ -234,12 +236,7 @@ class Group(models.Model):
         if not self.event_lock:
             return None
 
-        event = Event.objects.get(
-            groups__id=self.id,
-            date_start__lte=timezone.now(),
-            date_end__gte=timezone.now())
-
-        return event
+        return self.locked_by
 
     @classmethod
     def suggest(cls, query, limit=5):

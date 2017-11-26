@@ -32,6 +32,12 @@ def application(request):
 
     event = current_group.current_event
 
+    if not event.in_progress:
+        context['found'] = False
+        context['notstarted'] = True
+        context['top_header_title'] = 'В пути...'
+        return render(request, "front/application.html", context=context)
+
     context['top_header_title'] = current_group.repr_name
     context['rules'] = event.rules_html
     context['process'] = event.process_html
