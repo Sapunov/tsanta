@@ -361,7 +361,7 @@ class SubmitFormSer(serializers.Serializer):
 
         if 'participant' not in validated_data:
             user = User.objects.create_user(username=validated_data['email'])
-            participant = models.Participant.create(
+            participant = models.Participant.objects.create(
                 user=user,
                 name=validated_data['name'],
                 surname=validated_data['surname'],
