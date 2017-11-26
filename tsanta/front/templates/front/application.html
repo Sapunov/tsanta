@@ -77,9 +77,13 @@
       </form>
     </div>
   </section>
+  {% elif notstarted %}
+  <h3 class="text-center">
+    Регистрация на данное событие ещё не открыта.
+  </h3>
   {% else %}
   <h3 class="text-center">
-    Группа, которую вы ищете еще не создана!
+    Группа, которую вы ищете ещё не создана!
   </h3>
   <div class="text-center">
     Но вы можете её <strong><a href="/panel/">cоздать</a></strong> или <a href="/">поискать</a> повнимательнее.

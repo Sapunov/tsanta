@@ -143,7 +143,7 @@ function ApplicationCtrl($scope, $http) {
     $scope.data = {
         name: undefined,
         surname: undefined,
-        sex: undefined,
+        sex: 'female',
         email: undefined,
         phone: undefined,
         social_network_link: undefined,
