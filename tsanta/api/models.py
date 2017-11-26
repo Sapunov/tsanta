@@ -196,7 +196,8 @@ class Group(models.Model):
             # Супер формула
             score = (in_short_name / len(group.short_name)) * 0.3
             score += startswith * 0.4
-            score += (in_alt_names / len(group.alt_names)) * 0.2
+            if group.alt_names:
+                score += (in_alt_names / len(group.alt_names)) * 0.2
             score += count_participants * 0.1
 
             answer.append(
@@ -288,7 +289,8 @@ class Group(models.Model):
             # Супер формула
             score = (in_short_name / len(group.short_name)) * 0.3
             score += startswith * 0.4
-            score += (in_alt_names / len(group.alt_names)) * 0.2
+            if group.alt_names:
+                score += (in_alt_names / len(group.alt_names)) * 0.2
             score += count_participants * 0.1
 
             answer.append(
