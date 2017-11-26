@@ -404,4 +404,11 @@ class SubmitFormSer(serializers.Serializer):
                 questionnaire=questionnaire,
                 content=question['typed_content'])
 
+        # Помещение нотификации с подтверждением email в очередь отправки
+        if not participant.email_confirmed:
+            models.Notification.objects.create(
+                type=0,
+                name='Подтверждение email',
+                questionnaire=questionnaire)
+
         return questionnaire

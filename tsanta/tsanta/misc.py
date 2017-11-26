@@ -1,5 +1,6 @@
 import random
 import string
+from hashlib import sha1
 
 
 def random_string(length=10):
@@ -46,3 +47,8 @@ def normalize_link(link):
 def normalize_name(text):
 
     return text.lower().capitalize()
+
+
+def sha1_hash(string_):
+
+    return sha1(string_.encode('utf-8')).hexdigest()

@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
-from api.models import Group
+from api.models import Group, Participant
 
 from tsanta import misc
+from . import exceptions
 
 
 def index(request):
@@ -55,3 +56,48 @@ def thanks(request):
     }
 
     return render(request, "front/thanks.html", context=context)
+
+
+def confirm(request):
+
+    context = {
+        'message': '',
+        'top_header_title': 'Подтверждает'
+    }
+
+    try:
+        parts = request.path_info.lstrip('/').split('/')
+
+        if len(parts) != 4:
+            raise exceptions.ConfirmationError
+
+        confirm_type = parts[1]
+        try:
+            identity = int(parts[2])
+        except ValueError:
+            raise exceptions.ConfirmationError
+        content_hash = parts[3]
+
+        if confirm_type == 'email':
+            try:
+                participant = Participant.objects.get(pk=identity)
+            except Participant.DoesNotExist:
+                raise exceptions.ConfirmationError
+
+            if content_hash != participant.get_hash():
+                raise exceptions.ConfirmationError
+
+            if participant.email_confirmed:
+                raise exceptions.ConfirmationError('Ваш email не нуждается в подтверждении')
+
+            participant.email_confirmed = True
+            participant.save()
+
+            context['message'] = 'Спасибо! Ваш email подтвержден.'
+            return render(request, "front/confirm.html", context=context)
+
+        raise exceptions.ConfirmationError
+    except exceptions.ConfirmationError as exc:
+        context['message'] = str(exc)
+        return render(request, "front/confirm.html", context=context)
+

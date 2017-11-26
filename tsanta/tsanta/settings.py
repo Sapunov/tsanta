@@ -120,3 +120,14 @@ RESERVED_SLUG_WORDS = [
     'ward',
     'panel',
     'admin']
+
+
+DOMAIN_NAME = "t-santa.ru"
+MAILGUN_SECRET_KEY = "key"
+MAILGUN_API_URL = "https://api.mailgun.net/v3/"
+MAILGUN_LIMIT = 100
+
+MAIL_FROM = ('Тайный Санта', 'magician@t-santa.ru')
+MAIL_REPLY_TO = 'schoolof.training.hse@gmail.com'
+
+EMAILS_TEMPLATES_DIR = os.path.join(BASE_DIR, 'api', 'templates', 'emails')
