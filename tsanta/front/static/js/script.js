@@ -231,19 +231,3 @@ function SliderCtrl($scope, $http) {
         }
     ]);
 })();
-
-// JQuery parts
-(function() {
-    $(document).ready(function() {
-        $('.photos-slider .photos').show().slick({
-            dots: true,
-            infinite: true,
-            speed: 300,
-            slidesToShow: 3,
-            centerMode: true,
-            variableWidth: true,
-            autoplay: true,
-            autoplaySpeed: 3000,
-        });
-    });
-})();

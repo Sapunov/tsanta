@@ -1,3 +1,11 @@
+<div class="event-nav">
+    <ul class="nav nav-pills">
+        <li><a href="events/{{ event_id }}">Статистика</a></li>
+        <li><a href="events/{{ event_id }}/participants">Участники</a></li>
+        <li class="active"><a href="events/{{ event_id }}/edit">Редактировать</a></li>
+    </ul>
+</div>
+
 <form class="form-horizontal" novalidate ng-submit="submit_event()" name="event_form">
     <table class="groups-new-wrapper">
         <tr>

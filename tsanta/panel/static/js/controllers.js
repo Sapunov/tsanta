@@ -442,23 +442,55 @@ function EventsFormCtrl($scope, $http, $routeParams) {
     }
 }
 
-function EventsFlyCtrl($scope, $http, $routeParams) {
+function EventsStatCtrl($scope, $http, $routeParams) {
 
     $scope.event_id = $routeParams.eventId;
-    $scope.data = {};
+    $scope.event = {};
+    $scope.event_stat = {};
 
+    $scope.load_event_stat = function() {
+        $http.get(tsanta.api + '/events/' + $scope.event_id + '/stat')
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.event_stat = response.data;
+            }
+        }, $scope.errorHandler);
+    }
+
+    $scope.load_event_stat();
 
     $scope.load_event($scope.event_id, function(response) {
-        $scope.data = response;
-        $scope.set_pagename($scope.data.name);
+        $scope.event = response;
+        $scope.set_pagename($scope.event.name);
     });
 }
 
+function EventsParticipantsCtrl($scope, $http, $routeParams) {
 
-function ParticipantsCtrl($scope, $http) {
-    $scope.set_pagename('Участники');
-}
+    $scope.event_id = $routeParams.eventId;
+    $scope.event = {};
+    $scope.participants = [];
 
-function NotificationsCtrl($scope, $http) {
-    $scope.set_pagename('Рассылки');
+    $scope.search = {
+        text: '',
+        search: function () {
+
+        }
+    };
+
+    $scope.load_participants = function () {
+        $http.get(tsanta.api + '/events/' + $scope.event_id + '/participants')
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.participants = response.data;
+            }
+        }, $scope.errorHandler);
+    };
+
+    $scope.load_participants();
+
+    $scope.load_event($scope.event_id, function(response) {
+        $scope.event = response;
+        $scope.set_pagename($scope.event.name);
+    });
 }

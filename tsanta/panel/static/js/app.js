@@ -4,11 +4,10 @@
     .controller('baseCtrl', BaseCtrl)
     .controller('groupsCtrl', GroupsCtrl)
     .controller('eventsCtrl', EventsCtrl)
-    .controller('participantsCtrl', ParticipantsCtrl)
-    .controller('notificationsCtrl', NotificationsCtrl)
     .controller('groupFormCtrl', GroupFormCtrl)
     .controller('eventsFormCtrl', EventsFormCtrl)
-    .controller('eventsFlyCtrl', EventsFlyCtrl)
+    .controller('eventsStatCtrl', EventsStatCtrl)
+    .controller('eventsParticipantsCtrl', EventsParticipantsCtrl)
 
     // Configuring routes
     .config(['$locationProvider', '$routeProvider', '$httpProvider',
@@ -50,13 +49,18 @@
             })
 
             .when('/events/:eventId', {
-                templateUrl: '/static/partials/events_fly.html?v=' + tsanta.version,
-                controller: 'eventsFlyCtrl'
+                templateUrl: '/static/partials/event_stat.html?v=' + tsanta.version,
+                controller: 'eventsStatCtrl'
             })
 
             .when('/events/:eventId/edit', {
                 templateUrl: '/static/partials/events_form.html?v=' + tsanta.version,
                 controller: 'eventsFormCtrl'
+            })
+
+            .when('/events/:eventId/participants', {
+                templateUrl: '/static/partials/event_participants.html?v=' + tsanta.version,
+                controller: 'eventsParticipantsCtrl'
             })
 
             .when('/participants', {

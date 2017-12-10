@@ -79,7 +79,8 @@ class GroupSer(serializers.Serializer):
             repr_name=validated_data['repr_name'],
             city=city,
             slug=validated_data['slug'],
-            owner=participant)
+            owner=participant,
+            searchable=True)
 
         return group
 
@@ -404,4 +405,47 @@ class SubmitFormSer(serializers.Serializer):
                 questionnaire=questionnaire,
                 content=question['typed_content'])
 
+        # Помещение нотификации с подтверждением email в очередь отправки
+        if not participant.email_confirmed:
+            models.Notification.objects.create(
+                type=0,
+                name='Подтверждение email',
+                questionnaire=questionnaire)
+
         return questionnaire
+
+
+class ParticipantSer(serializers.Serializer):
+
+    name = serializers.CharField()
+    surname = serializers.CharField()
+    phone = serializers.CharField()
+    email = serializers.CharField()
+    social_network_link = serializers.CharField()
+    sex = serializers.IntegerField()
+    email_confirmed = serializers.BooleanField()
+
+class QuestionnaireSer(serializers.Serializer):
+
+    participant = ParticipantSer()
+    ward = ParticipantSer()
+    group = GroupSer()
+    is_closed = serializers.BooleanField()
+    participation_confirmed = serializers.BooleanField()
+
+
+class IdNameCount(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    count = serializers.IntegerField()
+
+
+class EventStatSer(serializers.Serializer):
+
+    overall_participants = serializers.IntegerField()
+    count_groups = serializers.IntegerField()
+    count_cities = serializers.IntegerField()
+    count_cities = serializers.IntegerField()
+    group_dist = IdNameCount(many=True)
+    city_dist = IdNameCount(many=True)

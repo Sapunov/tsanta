@@ -5,8 +5,11 @@ from django.core.validators import validate_slug
 from django.core import exceptions as django_exceptions
 from django.utils import timezone
 from django.db.models import Q, Count
+import os
+from jinja2 import Template
 
 from tsanta import misc
+from . import mailgun
 
 class IsExists:
 
@@ -39,6 +42,7 @@ class Participant(models.Model):
     email = models.EmailField(unique=True)
     social_network_link = models.URLField(null=True, blank=True)
     sex = models.SmallIntegerField(choices=SEX_CHOICES, default=2)
+    email_confirmed = models.BooleanField(default=False)
 
     @classmethod
     def exists(cls, user):
@@ -69,9 +73,13 @@ class Participant(models.Model):
             name=participant.name.capitalize(),
             surname=participant.surname.capitalize())
 
+    def get_hash(self):
+
+        return misc.sha1_hash(settings.SECRET_KEY + self.email + str(self.pk) + str(self.user.pk))
+
     def __str__(self):
 
-        return 'Participant[{0}]: {1} {2}'.format(self.id, self.name, self.surname)
+        return 'Participant[{0}]: {1} {2}; {3}'.format(self.id, self.name, self.surname, self.email)
 
     def __repr__(self):
 
@@ -104,6 +112,50 @@ class City(models.Model):
     class Meta:
 
         verbose_name_plural = "Cities"
+
+
+class EventStatistics:
+
+    count_groups = 0
+    count_participants = 0
+    count_cities = 0
+    group_dist = []
+    city_dist = []
+    overall_participants = 0
+
+    def __init__(self, participants):
+
+        self.count_participants = len(participants)
+
+        group_dist_tmp = {}
+        city_dist_tmp = {}
+
+        for participant in participants:
+            self.overall_participants += 1
+
+            if not participant.group.id in group_dist_tmp:
+                group_dist_tmp[participant.group.id] = {
+                    'id': participant.group.id,
+                    'name': participant.group.short_name,
+                    'count': 1
+                }
+            else:
+                group_dist_tmp[participant.group.id]['count'] += 1
+
+            if not participant.group.city.id in city_dist_tmp:
+                city_dist_tmp[participant.group.city.id] = {
+                    'id': participant.group.city.id,
+                    'name': participant.group.city.name,
+                    'count': 1
+                }
+            else:
+                city_dist_tmp[participant.group.city.id]['count'] += 1
+
+        self.count_cities = len(city_dist_tmp.keys())
+        self.count_groups = len(group_dist_tmp.keys())
+
+        self.group_dist = group_dist_tmp.values()
+        self.city_dist = city_dist_tmp.values()
 
 
 class Event(models.Model):
@@ -140,6 +192,13 @@ class Event(models.Model):
 
         return self.date_end >= timezone.now() and self.date_start <= timezone.now()
 
+    def event_statistics(self):
+
+        from api.models import Questionnaire
+        participants = Questionnaire.objects.filter(event=self)
+
+        return EventStatistics(participants)
+
     def __str__(self):
 
         return 'Event[{0}]: {1}'.format(self.id, self.name)
@@ -155,7 +214,7 @@ class Group(models.Model):
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
     locked_by = models.ForeignKey(Event, null=True, blank=True)
-    searchable = models.BooleanField(default=False)
+    searchable = models.BooleanField(default=True)
 
     @classmethod
     def get_my_groups(cls, user, prefix="", limit=20):
@@ -315,6 +374,20 @@ class Questionnaire(models.Model):
     is_closed = models.BooleanField(default=False)
     participation_confirmed = models.BooleanField(default=False)
 
+    def get_hash(self):
+
+        return misc.sha1_hash(settings.SECRET_KEY \
+            + str(self.participant.pk) \
+            + str(self.event.pk) \
+            + str(self.group.pk))
+
+    @classmethod
+    def get_event_questionnaires(cls, event):
+
+        participants = cls.objects.filter(event=event)
+
+        return participants
+
     def __str__(self):
 
         return 'Questionnaire[{0}]: {1} {2}'.format(
@@ -358,13 +431,78 @@ class Answer(models.Model):
 
 class Notification(models.Model):
 
+    TYPE = (
+        (0, 'Email confirmation'),
+        (1, 'Participation confirmation'),
+        (2, 'Send ward')
+    )
+
     name = models.CharField(max_length=100)
-    event = models.ForeignKey(Event)
+    type = models.SmallIntegerField(choices=TYPE)
     questionnaire = models.ForeignKey(Questionnaire)
     date_created = models.DateTimeField(auto_now_add=True)
-    date_sended = models.DateTimeField(null=True)
-    date_delivered = models.DateTimeField(null=True)
-    date_opened = models.DateTimeField(null=True)
+    sended_to_provider = models.BooleanField(default=False)
+    accepted = models.BooleanField(default=False)
+    delivered = models.BooleanField(default=False)
+    temporary_failed = models.BooleanField(default=False)
+    failed = models.BooleanField(default=False)
+    opened = models.BooleanField(default=False)
+    provider_mail_id = models.CharField(null=True, blank=True, max_length=200)
+
+    def send_email_confirmation(self):
+
+        if self.type != 0:
+            raise ValueError('This is wrong method for this notification type')
+
+        subject = 'Подтверждение email'
+
+        template_file = os.path.join(
+            settings.EMAILS_TEMPLATES_DIR, 'email_confirmation.html')
+
+        template = None
+
+        with open(template_file, 'r') as opened:
+            text = opened.read()
+            template = Template(text)
+
+        html = template.render(
+            participant_id=self.questionnaire.participant.pk,
+            confirm_hash=self.questionnaire.participant.get_hash())
+
+        provider_answer = mailgun.send_html(
+            settings.MAIL_FROM,
+            self.questionnaire.participant.email,
+            subject,
+            html,
+            settings.MAIL_REPLY_TO,
+            ['email_confirmation'])
+
+        if provider_answer:
+            self.sended_to_provider = True
+            self.provider_mail_id = provider_answer
+            self.save()
+
+    def send_participation_confirmation(self, questionnaire):
+
+        pass
+
+    def send_ward(self, questionnaire):
+
+        pass
+
+    @classmethod
+    def send_queued(cls):
+
+        for notification in cls.objects.all():
+            if not notification.sended_to_provider:
+                if notification.type == 0:
+                    notification.send_email_confirmation()
+                elif notification.type == 1:
+                    notification.send_participation_confirmation()
+                elif notification.type == 2:
+                    notification.send_ward()
+                else:
+                    pass
 
     def __str__(self):
 

@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 from api import serializers, exceptions
-from api.models import City, Group, Event
+from api.models import City, Group, Event, Questionnaire
 from api.serializers import serialize, deserialize
 
 
@@ -154,3 +154,33 @@ def submit_questionnaire(request):
             data={"error": "Вы уже зарегистрированы на данной событие в этой группе"})
 
     return Response(status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def event_participants(request, event_id):
+
+    event = Event.get_my_events(request.user, event_id=event_id)
+
+    if event is None:
+        raise NotFound
+
+    questionnaires = Questionnaire.get_event_questionnaires(event)
+
+    ans_serializer = serialize(serializers.QuestionnaireSer, questionnaires, many=True)
+
+    return Response(ans_serializer.data)
+
+
+@api_view(['GET'])
+def event_stat(request, event_id):
+
+    event = Event.get_my_events(request.user, event_id=event_id)
+
+    if event is None:
+        raise NotFound
+
+    stat = event.event_statistics()
+
+    ans_serializer = serialize(serializers.EventStatSer, stat)
+
+    return Response(ans_serializer.data)

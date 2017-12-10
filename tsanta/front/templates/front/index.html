@@ -10,6 +10,22 @@
 {% block jsbottom %}
 <script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 <script type="text/javascript" src="/static/slick/slick.min.js"></script>
+<script>
+(function() {
+  $(document).ready(function() {
+    $('.photos-slider .photos').slick({
+      dots: true,
+      infinite: true,
+      speed: 300,
+      slidesToShow: 3,
+      centerMode: true,
+      variableWidth: true,
+      autoplay: true,
+      autoplaySpeed: 3000,
+    }).show();
+  });
+})();
+</script>
 {% endblock jsbottom %}
 
 {% block css %}

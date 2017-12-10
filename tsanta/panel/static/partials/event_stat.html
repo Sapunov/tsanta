@@ -1,0 +1,57 @@
+<div class="event-nav">
+    <ul class="nav nav-pills">
+        <li class="active"><a href="events/{{ event_id }}">Статистика</a></li>
+        <li><a href="events/{{ event_id }}/participants">Участники</a></li>
+        <li><a href="events/{{ event_id }}/edit">Редактировать</a></li>
+    </ul>
+</div>
+
+<div>
+    <div class="stat-item">
+        <h3>
+            Общая статистика
+        </h3>
+        <h4>Всего участников: <span class="mark">{{ event_stat.overall_participants }}</span></h4>
+        <h4>Участвующих городов: <span class="mark">{{ event_stat.count_cities }}</span></h4>
+    </div>
+
+    <div class="stat-item">
+        <h3>Распределение участников по городам</h3>
+        <table class="table table-hover table-stat">
+            <thead>
+                <tr>
+                    <th class="num">#</th>
+                    <th class="title">Город</th>
+                    <th class="slug">Количество участников</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="city in event_stat.city_dist">
+                    <td class="num">{{ $index + 1 }}</td>
+                    <td class="name">{{ city.name }}</td>
+                    <td class="count">{{ city.count }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="stat-item">
+        <h3>Распределение участников по группам</h3>
+        <table class="table table-hover table-stat">
+            <thead>
+                <tr>
+                    <th class="num">#</th>
+                    <th class="title">Группа</th>
+                    <th class="slug">Количество участников</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="group in event_stat.group_dist">
+                    <td class="num">{{ $index + 1 }}</td>
+                    <td class="name">{{ group.name }}</td>
+                    <td class="count">{{ group.count }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

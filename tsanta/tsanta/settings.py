@@ -1,7 +1,7 @@
 import os
 
 
-APP_VERSION = '0.0.1'
+APP_VERSION = '0.0.2'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -9,7 +9,7 @@ SECRET_KEY = '2unty@irwi_gg5=+k#y+45q8om=cbag&8=zwf0wfq&t=aoacmw'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'api',
@@ -120,3 +120,14 @@ RESERVED_SLUG_WORDS = [
     'ward',
     'panel',
     'admin']
+
+
+DOMAIN_NAME = 't-santa.ru'
+MAILGUN_SECRET_KEY = 'key'
+MAILGUN_API_URL = 'https://api.mailgun.net/v3/'
+MAILGUN_LIMIT = 100
+
+MAIL_FROM = ('Тайный Санта', 'magician@t-santa.ru')
+MAIL_REPLY_TO = 'schoolof.training.hse@gmail.com'
+
+EMAILS_TEMPLATES_DIR = os.path.join(BASE_DIR, 'api', 'templates', 'emails')
