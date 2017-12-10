@@ -1,7 +1,7 @@
 import os
 
 
-APP_VERSION = '0.0.2'
+APP_VERSION = '0.0.3'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
