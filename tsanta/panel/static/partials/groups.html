@@ -16,23 +16,23 @@
 </table>
 
 <div class="grouplist">
-    <table class="table table-hover">
+    <table class="table table-hover table-groups">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Название</th>
-                <th>Slug</th>
-                <th>Город</th>
-                <th></th>
+                <th class="num">#</th>
+                <th class="title">Название</th>
+                <th class="slug">Slug</th>
+                <th class="city">Город</th>
+                <th class="status"></th>
             </tr>
         </thead>
         <tbody>
             <tr ng-repeat="group in groups.items" ng-click="go('groups/' + group.id + '/edit')" class="clickable">
-                <td>{{ $index + 1 }}</td>
-                <td ng-bind-html="group.short_name"></td>
-                <td>{{ group.slug }}</td>
-                <td>{{ group.city.name }}</td>
-                <th>
+                <td class="num">{{ $index + 1 }}</td>
+                <td class="title" ng-bind-html="group.short_name"></td>
+                <td class="slug">{{ group.slug }}</td>
+                <td class="city">{{ group.city.name }}</td>
+                <th class="status">
                     <span ng-show="group.event_lock"
                         uib-tooltip='Участвует в "{{ group.current_event.name }}"'
                         class="glyphicon glyphicon-play"></span>
