@@ -446,7 +446,18 @@ function EventsStatCtrl($scope, $http, $routeParams) {
 
     $scope.event_id = $routeParams.eventId;
     $scope.event = {};
+    $scope.event_stat = {};
 
+    $scope.load_event_stat = function() {
+        $http.get(tsanta.api + '/events/' + $scope.event_id + '/stat')
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.event_stat = response.data;
+            }
+        }, $scope.errorHandler);
+    }
+
+    $scope.load_event_stat();
 
     $scope.load_event($scope.event_id, function(response) {
         $scope.event = response;

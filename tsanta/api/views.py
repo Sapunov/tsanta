@@ -174,4 +174,13 @@ def event_participants(request, event_id):
 @api_view(['GET'])
 def event_stat(request, event_id):
 
-    pass
+    event = Event.get_my_events(request.user, event_id=event_id)
+
+    if event is None:
+        raise NotFound
+
+    stat = event.event_statistics()
+
+    ans_serializer = serialize(serializers.EventStatSer, stat)
+
+    return Response(ans_serializer.data)

@@ -432,3 +432,20 @@ class QuestionnaireSer(serializers.Serializer):
     group = GroupSer()
     is_closed = serializers.BooleanField()
     participation_confirmed = serializers.BooleanField()
+
+
+class IdNameCount(serializers.Serializer):
+
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    count = serializers.IntegerField()
+
+
+class EventStatSer(serializers.Serializer):
+
+    overall_participants = serializers.IntegerField()
+    count_groups = serializers.IntegerField()
+    count_cities = serializers.IntegerField()
+    count_cities = serializers.IntegerField()
+    group_dist = IdNameCount(many=True)
+    city_dist = IdNameCount(many=True)

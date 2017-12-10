@@ -114,6 +114,50 @@ class City(models.Model):
         verbose_name_plural = "Cities"
 
 
+class EventStatistics:
+
+    count_groups = 0
+    count_participants = 0
+    count_cities = 0
+    group_dist = []
+    city_dist = []
+    overall_participants = 0
+
+    def __init__(self, participants):
+
+        self.count_participants = len(participants)
+
+        group_dist_tmp = {}
+        city_dist_tmp = {}
+
+        for participant in participants:
+            self.overall_participants += 1
+
+            if not participant.group.id in group_dist_tmp:
+                group_dist_tmp[participant.group.id] = {
+                    'id': participant.group.id,
+                    'name': participant.group.short_name,
+                    'count': 1
+                }
+            else:
+                group_dist_tmp[participant.group.id]['count'] += 1
+
+            if not participant.group.city.id in city_dist_tmp:
+                city_dist_tmp[participant.group.city.id] = {
+                    'id': participant.group.city.id,
+                    'name': participant.group.city.name,
+                    'count': 1
+                }
+            else:
+                city_dist_tmp[participant.group.city.id]['count'] += 1
+
+        self.count_cities = len(city_dist_tmp.keys())
+        self.count_groups = len(group_dist_tmp.keys())
+
+        self.group_dist = group_dist_tmp.values()
+        self.city_dist = city_dist_tmp.values()
+
+
 class Event(models.Model):
 
     name = models.CharField(max_length=100)
@@ -147,6 +191,13 @@ class Event(models.Model):
     def in_progress(self):
 
         return self.date_end >= timezone.now() and self.date_start <= timezone.now()
+
+    def event_statistics(self):
+
+        from api.models import Questionnaire
+        participants = Questionnaire.objects.filter(event=self)
+
+        return EventStatistics(participants)
 
     def __str__(self):
 
