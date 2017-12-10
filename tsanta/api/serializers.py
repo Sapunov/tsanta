@@ -413,3 +413,22 @@ class SubmitFormSer(serializers.Serializer):
                 questionnaire=questionnaire)
 
         return questionnaire
+
+
+class ParticipantSer(serializers.Serializer):
+
+    name = serializers.CharField()
+    surname = serializers.CharField()
+    phone = serializers.CharField()
+    email = serializers.CharField()
+    social_network_link = serializers.CharField()
+    sex = serializers.IntegerField()
+    email_confirmed = serializers.BooleanField()
+
+class QuestionnaireSer(serializers.Serializer):
+
+    participant = ParticipantSer()
+    ward = ParticipantSer()
+    group = GroupSer()
+    is_closed = serializers.BooleanField()
+    participation_confirmed = serializers.BooleanField()

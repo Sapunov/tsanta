@@ -330,6 +330,13 @@ class Questionnaire(models.Model):
             + str(self.event.pk) \
             + str(self.group.pk))
 
+    @classmethod
+    def get_event_questionnaires(cls, event):
+
+        participants = cls.objects.filter(event=event)
+
+        return participants
+
     def __str__(self):
 
         return 'Questionnaire[{0}]: {1} {2}'.format(
