@@ -79,7 +79,8 @@ class GroupSer(serializers.Serializer):
             repr_name=validated_data['repr_name'],
             city=city,
             slug=validated_data['slug'],
-            owner=participant)
+            owner=participant,
+            searchable=True)
 
         return group
 

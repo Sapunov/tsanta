@@ -79,7 +79,7 @@ class Participant(models.Model):
 
     def __str__(self):
 
-        return 'Participant[{0}]: {1} {2}'.format(self.id, self.name, self.surname)
+        return 'Participant[{0}]: {1} {2}; {3}'.format(self.id, self.name, self.surname, self.email)
 
     def __repr__(self):
 
@@ -163,7 +163,7 @@ class Group(models.Model):
     owner = models.ForeignKey(Participant)
     event_lock = models.BooleanField(default=False)
     locked_by = models.ForeignKey(Event, null=True, blank=True)
-    searchable = models.BooleanField(default=False)
+    searchable = models.BooleanField(default=True)
 
     @classmethod
     def get_my_groups(cls, user, prefix="", limit=20):

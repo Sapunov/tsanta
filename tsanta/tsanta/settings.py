@@ -9,7 +9,7 @@ SECRET_KEY = '2unty@irwi_gg5=+k#y+45q8om=cbag&8=zwf0wfq&t=aoacmw'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'api',
@@ -122,9 +122,9 @@ RESERVED_SLUG_WORDS = [
     'admin']
 
 
-DOMAIN_NAME = "t-santa.ru"
-MAILGUN_SECRET_KEY = "key"
-MAILGUN_API_URL = "https://api.mailgun.net/v3/"
+DOMAIN_NAME = 't-santa.ru'
+MAILGUN_SECRET_KEY = 'key'
+MAILGUN_API_URL = 'https://api.mailgun.net/v3/'
 MAILGUN_LIMIT = 100
 
 MAIL_FROM = ('Тайный Санта', 'magician@t-santa.ru')
