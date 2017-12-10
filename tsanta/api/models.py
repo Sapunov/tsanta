@@ -154,8 +154,8 @@ class EventStatistics:
         self.count_cities = len(city_dist_tmp.keys())
         self.count_groups = len(group_dist_tmp.keys())
 
-        self.group_dist = group_dist_tmp.values()
-        self.city_dist = city_dist_tmp.values()
+        self.group_dist = sorted(group_dist_tmp.values(), key=lambda it: it['count'], reverse=True)
+        self.city_dist = sorted(city_dist_tmp.values(), key=lambda it: it['count'], reverse=True)
 
 
 class Event(models.Model):
