@@ -131,3 +131,5 @@ MAIL_FROM = ('Тайный Санта', 'magician@t-santa.ru')
 MAIL_REPLY_TO = 'schoolof.training.hse@gmail.com'
 
 EMAILS_TEMPLATES_DIR = os.path.join(BASE_DIR, 'api', 'templates', 'emails')
+
+WARD_ASSIGN_TYPES = ['all', 'city', 'group']

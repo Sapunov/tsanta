@@ -8,6 +8,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from api import serializers, exceptions
 from api.models import City, Group, Event, Questionnaire
 from api.serializers import serialize, deserialize
+from django.conf import settings
 
 
 class CityView(APIView):
@@ -188,3 +189,22 @@ def event_stat(request, event_id):
     ans_serializer = serialize(serializers.EventStatSer, stat)
 
     return Response(ans_serializer.data)
+
+
+@api_view(['POST'])
+def assign_wards(request, event_id):
+
+    req_serializer = deserialize(serializers.TypeFieldReq, request.query_params)
+    type_ = req_serializer.get('type')
+
+    if not type_ in settings.WARD_ASSIGN_TYPES:
+        raise ValidationError('Переданный тип распределения не поддерживается')
+
+    event = Event.get_my_events(request.user, event_id=event_id)
+
+    if event is None:
+        raise NotFound
+
+    event.assign_wards(type_=type_)
+
+    return Response(status=status.HTTP_200_OK)
