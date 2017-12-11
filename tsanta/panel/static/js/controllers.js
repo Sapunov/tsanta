@@ -101,18 +101,19 @@ function GroupsCtrl($scope, $http) {
         filter_text: '',
         filter: function() {
             $scope.load_group_list(this.filter_text, function(response) {
+                if (response.q === $scope.groups.filter_text) {
+                    $scope.groups.items = response.groups;
 
-                $scope.groups.items = response;
+                    if ( $scope.groups.filter_text ) {
+                        var regexp = new RegExp('^' + $scope.groups.filter_text, 'i');
 
-                if ( $scope.groups.filter_text ) {
-                    var regexp = new RegExp('^' + $scope.groups.filter_text, 'i');
+                        for ( var i = 0; i < response.groups.length; ++i ) {
+                            var match = response.groups[i].short_name.match(regexp);
 
-                    for ( var i = 0; i < response.length; ++i ) {
-                        var match = response[i].short_name.match(regexp);
-
-                        if ( match ) {
-                            $scope.groups.items[i].short_name = response[i].short_name.replace(
-                                match[0], '<span class="mark">' + match[0] + '</span>');
+                            if ( match ) {
+                                $scope.groups.items[i].short_name = response.groups[i].short_name.replace(
+                                    match[0], '<span class="mark">' + match[0] + '</span>');
+                            }
                         }
                     }
                 }
@@ -121,7 +122,7 @@ function GroupsCtrl($scope, $http) {
     };
 
     $scope.load_group_list('', function(response) {
-        $scope.groups.items = response;
+        $scope.groups.items = response.groups;
     });
 }
 
@@ -484,7 +485,9 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
         $http.get(tsanta.api + '/events/' + $scope.event_id + '/participants?q=' + query)
         .then(function(response) {
             if ( response.status === 200 ) {
-                $scope.participants = response.data;
+                if (response.data.q === $scope.search.text) {
+                    $scope.participants = response.data.questionnaires;
+                }
             }
         }, $scope.errorHandler);
     };
