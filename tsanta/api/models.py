@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.db.models import Q, Count
 import os
 from jinja2 import Template
+from random import shuffle
 
 from tsanta import misc
 from . import mailgun
@@ -195,9 +196,63 @@ class Event(models.Model):
     def event_statistics(self):
 
         from api.models import Questionnaire
-        participants = Questionnaire.objects.filter(event=self)
+        questionnaires = Questionnaire.objects.filter(event=self)
 
-        return EventStatistics(participants)
+        return EventStatistics(questionnaires)
+
+    def assign_wards(self, type_):
+
+        # Allowed types: city, group, all
+
+        from api.models import Questionnaire
+        questionnaires = Questionnaire.objects.filter(
+            event=self, ward=None,
+            is_closed=False, participation_confirmed=True)
+
+        temp = {}
+
+        if type_ == 'city':
+            for questionnaire in questionnaires:
+                city_pk = questionnaire.group.city.pk
+
+                if not city_pk in temp:
+                    temp[city_pk] = []
+
+                temp[city_pk].append(questionnaire.pk)
+        elif type_ == 'group':
+            for questionnaire in questionnaires:
+                group_pk = questionnaire.group.pk
+
+                if not group_pk in temp:
+                    temp[group_pk] = []
+
+                temp[group_pk].append(questionnaire.pk)
+        elif type_ == 'all':
+            temp[0] = []
+
+            for questionnaire in questionnaires:
+                temp[0].append(questionnaire.pk)
+        else:
+            raise ValueError('Not allowed assign type: {0}'.format(type_))
+
+        temp = list(temp.values())
+        assign_map = {}
+
+        for i, _ in enumerate(temp):
+            shuffle(temp[i])
+
+            j = 0
+            while j < len(temp[i]) - 1:
+                assign_map[temp[i][j]] = temp[i][j + 1]
+                j += 1
+            assign_map[temp[i][j + 1]] = temp[i][0]
+
+        for questionnaire in questionnaires:
+            ward_id = assign_map[questionnaire.pk]
+            ward = Questionnaire.objects.get(pk=ward_id)
+            questionnaire.ward = ward
+            questionnaire.save()
+
 
     def __str__(self):
 
@@ -382,11 +437,28 @@ class Questionnaire(models.Model):
             + str(self.group.pk))
 
     @classmethod
-    def get_event_questionnaires(cls, event):
+    def get_event_questionnaires(cls, event, count=20, filter_text=None):
 
-        participants = cls.objects.filter(event=event)
+        participants_ids = []
 
-        return participants
+        if filter_text:
+            filter_text = filter_text.lower()
+
+            participants = Participant.objects.filter(
+                Q(name__icontains=filter_text)
+                | Q(surname__icontains=filter_text)
+                | Q(phone__icontains=filter_text)
+                | Q(email__icontains=filter_text)
+            )
+
+            participants_ids = [it.id for it in participants]
+
+            questionnaires = cls.objects.filter(
+                event=event, participant__in=participants_ids)
+        else:
+            questionnaires = cls.objects.filter(event=event)
+
+        return questionnaires[:count]
 
     def __str__(self):
 

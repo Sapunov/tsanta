@@ -1,7 +1,7 @@
 import os
 
 
-APP_VERSION = '0.0.3'
+APP_VERSION = '0.0.4'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -131,3 +131,5 @@ MAIL_FROM = ('Тайный Санта', 'magician@t-santa.ru')
 MAIL_REPLY_TO = 'schoolof.training.hse@gmail.com'
 
 EMAILS_TEMPLATES_DIR = os.path.join(BASE_DIR, 'api', 'templates', 'emails')
+
+WARD_ASSIGN_TYPES = ['all', 'city', 'group']
