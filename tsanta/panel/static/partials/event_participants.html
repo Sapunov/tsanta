@@ -2,11 +2,58 @@
     <ul class="nav nav-pills">
         <li><a href="events/{{ event_id }}">Статистика</a></li>
         <li class="active"><a href="events/{{ event_id }}/participants">Участники</a></li>
-        <li><a href="events/{{ event_id }}/edit">Редактировать</a></li>
+        <li><a href="events/{{ event_id }}/edit">Редактировать событие</a></li>
     </ul>
 </div>
 
-<table class="groups-search-wrapper">
+<!-- <div class="event-manage">
+    <table class="table-event-manage">
+        <tr>
+            <td class="buttons">
+                <div class="btn-group">
+                    <button type="button"
+                        class="btn btn-warning dropdown-toggle"
+                        data-toggle="dropdown">
+                        Раздать подопечных
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Распределить в рамках группы</a></li>
+                        <li><a href="#">Распределить в рамках города</a></li>
+                        <li><a href="#">Распределить случайно по всем участникам</a></li>
+                    </ul>
+                </div>
+            </td>
+            <td class="status">
+                <p>Подопечные ни разу не распределялись</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="buttons">
+                <button type="button"
+                    class="btn btn-warning">
+                    Отправить подтверждения участия
+                </button>
+            </td>
+            <td class="status">
+                <p>Подтверждения еще не отправлены</p>
+            </td>
+        </tr>
+        <tr>
+            <td class="buttons">
+                <button type="button"
+                    class="btn btn-warning">
+                    Разослать подопечных
+                </button>
+            </td>
+            <td class="status">
+                <p>Подопечные еще не рассылались</p>
+            </td>
+        </tr>
+    </table>
+</div> -->
+
+<table class="participants-search-wrapper">
     <tr>
         <td class="search-input">
             <input type="text" class="form-control"
