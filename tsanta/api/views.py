@@ -164,7 +164,11 @@ def event_participants(request, event_id):
     if event is None:
         raise NotFound
 
-    questionnaires = Questionnaire.get_event_questionnaires(event)
+    req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
+    filter_text = req_serializer.data['q']
+
+    questionnaires = Questionnaire.get_event_questionnaires(
+        event, filter_text=filter_text)
 
     ans_serializer = serialize(serializers.QuestionnaireSer, questionnaires, many=True)
 

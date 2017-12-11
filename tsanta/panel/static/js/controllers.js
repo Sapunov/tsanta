@@ -474,12 +474,14 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
     $scope.search = {
         text: '',
         search: function () {
-
+            $scope.load_participants(this.text);
         }
     };
 
-    $scope.load_participants = function () {
-        $http.get(tsanta.api + '/events/' + $scope.event_id + '/participants')
+    $scope.load_participants = function (query) {
+        query = query || '';
+
+        $http.get(tsanta.api + '/events/' + $scope.event_id + '/participants?q=' + query)
         .then(function(response) {
             if ( response.status === 200 ) {
                 $scope.participants = response.data;

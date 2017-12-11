@@ -382,11 +382,28 @@ class Questionnaire(models.Model):
             + str(self.group.pk))
 
     @classmethod
-    def get_event_questionnaires(cls, event):
+    def get_event_questionnaires(cls, event, count=20, filter_text=None):
 
-        participants = cls.objects.filter(event=event)
+        participants_ids = []
 
-        return participants
+        if filter_text:
+            filter_text = filter_text.lower()
+
+            participants = Participant.objects.filter(
+                Q(name__icontains=filter_text)
+                | Q(surname__icontains=filter_text)
+                | Q(phone__icontains=filter_text)
+                | Q(email__icontains=filter_text)
+            )
+
+            participants_ids = [it.id for it in participants]
+
+            questionnaires = cls.objects.filter(
+                event=event, participant__in=participants_ids)
+        else:
+            questionnaires = cls.objects.filter(event=event)
+
+        return questionnaires[:count]
 
     def __str__(self):
 

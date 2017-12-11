@@ -29,14 +29,15 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="participant in participants">
+            <tr ng-repeat="p in participants">
                 <td class="num">{{ $index + 1 }}</td>
                 <td class="name">
-                    {{ participant.participant.name }}
-                    {{ participant.participant.surname }}
+                    <p>{{ p.participant.name }} {{ p.participant.surname }}</p>
+                    <p>{{ p.participant.email }}</p>
+                    <p>{{ p.participant.phone }}</p>
                 </td>
-                <td class="group">{{ participant.group.short_name }}</td>
-                <td class="status">{{ participant.status }}</td>
+                <td class="group">{{ p.group.short_name }}</td>
+                <td class="status">{{ p.status }}</td>
             </tr>
         </tbody>
     </table>
