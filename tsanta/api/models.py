@@ -554,13 +554,62 @@ class Notification(models.Model):
             self.provider_mail_id = provider_answer
             self.save()
 
-    def send_participation_confirmation(self, questionnaire):
+    def send_participation_confirmation(self):
 
         pass
 
-    def send_ward(self, questionnaire):
+    def send_ward(self):
 
-        pass
+        if self.type != 2:
+            raise ValueError('This is wrong method for this notification type')
+
+        subject = 'Ваш подопечный'
+
+        ward = self.questionnaire.ward
+
+        name = ward.participant.name
+        surname = ward.participant.surname
+        phone = ward.participant.phone
+        social_network_link = ward.participant.social_network_link
+
+        answers = []
+        for ans in Answer.objects.filter(questionnaire=ward):
+            answers.append({
+                'question': ans.question.typed_content,
+                'answer': ans.content
+            })
+
+        template_file = os.path.join(
+            settings.EMAILS_TEMPLATES_DIR, 'ward.html')
+
+        template = None
+
+        with open(template_file, 'r') as opened:
+            text = opened.read()
+            template = Template(text)
+
+        html = template.render(
+            name=name,
+            surname=surname,
+            phone=phone,
+            social_network_link=social_network_link,
+            answers=answers
+        )
+
+        provider_answer = mailgun.send_html(
+            settings.MAIL_FROM,
+            self.questionnaire.participant.email,
+            subject,
+            html,
+            settings.MAIL_REPLY_TO,
+            ['ward'])
+
+        if provider_answer:
+            self.sended_to_provider = True
+            self.provider_mail_id = provider_answer
+            self.save()
+        else:
+            raise ValueError(provider_answer)
 
     @classmethod
     def send_queued(cls):
