@@ -6,8 +6,19 @@
     </ul>
 </div>
 
-<!-- <div class="event-manage">
+<div class="event-manage" ng-controller="eventManageCtrl">
     <table class="table-event-manage">
+        <!-- <tr>
+            <td class="buttons">
+                <button type="button"
+                    class="btn btn-warning">
+                    Отправить подтверждения участия
+                </button>
+            </td>
+            <td class="status">
+                <p>Подтверждения еще не отправлены</p>
+            </td>
+        </tr> -->
         <tr>
             <td class="buttons">
                 <div class="btn-group">
@@ -18,9 +29,9 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Распределить в рамках группы</a></li>
-                        <li><a href="#">Распределить в рамках города</a></li>
-                        <li><a href="#">Распределить случайно по всем участникам</a></li>
+                        <li><a href="#" ng-click="assign_wards('group');">Распределить в рамках группы</a></li>
+                        <li><a href="#" ng-click="assign_wards('city');">Распределить в рамках города</a></li>
+                        <li><a href="#" ng-click="assign_wards('all');">Распределить случайно по всем участникам</a></li>
                     </ul>
                 </div>
             </td>
@@ -28,18 +39,7 @@
                 <p>Подопечные ни разу не распределялись</p>
             </td>
         </tr>
-        <tr>
-            <td class="buttons">
-                <button type="button"
-                    class="btn btn-warning">
-                    Отправить подтверждения участия
-                </button>
-            </td>
-            <td class="status">
-                <p>Подтверждения еще не отправлены</p>
-            </td>
-        </tr>
-        <tr>
+        <!-- <tr>
             <td class="buttons">
                 <button type="button"
                     class="btn btn-warning">
@@ -49,9 +49,9 @@
             <td class="status">
                 <p>Подопечные еще не рассылались</p>
             </td>
-        </tr>
+        </tr> -->
     </table>
-</div> -->
+</div>
 
 <table class="participants-search-wrapper">
     <tr>

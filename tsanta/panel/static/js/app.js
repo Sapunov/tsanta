@@ -7,6 +7,7 @@
     .controller('groupFormCtrl', GroupFormCtrl)
     .controller('eventsFormCtrl', EventsFormCtrl)
     .controller('eventsStatCtrl', EventsStatCtrl)
+    .controller('eventManageCtrl', EventManageCtrl)
     .controller('eventsParticipantsCtrl', EventsParticipantsCtrl)
 
     // Configuring routes

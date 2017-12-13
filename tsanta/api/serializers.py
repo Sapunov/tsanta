@@ -433,7 +433,7 @@ class ParticipantSer(serializers.Serializer):
 class QuestionnaireSer(serializers.Serializer):
 
     participant = ParticipantSer()
-    ward = ParticipantSer()
+    # ward
     group = GroupSer()
     is_closed = serializers.BooleanField()
     participation_confirmed = serializers.BooleanField()

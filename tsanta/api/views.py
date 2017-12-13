@@ -215,7 +215,7 @@ def event_stat(request, event_id):
 def assign_wards(request, event_id):
 
     req_serializer = deserialize(serializers.TypeFieldReq, request.query_params)
-    type_ = req_serializer.get('type')
+    type_ = req_serializer.data['type']
 
     if not type_ in settings.WARD_ASSIGN_TYPES:
         raise ValidationError('Переданный тип распределения не поддерживается')

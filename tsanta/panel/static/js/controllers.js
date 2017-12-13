@@ -499,3 +499,23 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
         $scope.set_pagename($scope.event.name);
     });
 }
+
+
+function EventManageCtrl($scope, $http) {
+
+    let types = {
+        'all': 'по всем анкетам',
+        'city': 'в рамках городов',
+        'group': 'в рамках групп'
+    };
+
+    $scope.assign_wards = function(assign_type) {
+        console.log(assign_type);
+        $http.post(tsanta.api + '/events/' + $scope.event_id + '/assign?type=' + assign_type)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.say('Подопечные распределены ' + types[assign_type]);
+            }
+        }, $scope.errorHandler);
+    }
+}
