@@ -422,6 +422,7 @@ class SubmitFormSer(serializers.Serializer):
 
 class ParticipantSer(serializers.Serializer):
 
+    id = serializers.IntegerField()
     name = serializers.CharField()
     surname = serializers.CharField()
     phone = serializers.CharField()

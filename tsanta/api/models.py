@@ -208,6 +208,9 @@ class Event(models.Model):
         questionnaires = Questionnaire.objects.filter(
             event=self, is_closed=False, participation_confirmed=True)
 
+        # TODO: нельзя трогать тех, кто уже является чьи-то
+        # подопечным, а этот кто-то уже is_closed=True
+
         temp = {}
 
         if type_ == 'city':
