@@ -178,9 +178,11 @@ function ApplicationCtrl($scope, $http) {
                 } else {
                     $scope.errorMsg = errors.submit;
                     $scope.formError = true;
+                    $scope.lock = false;
                 }
             // Обработка ошибок
             }, function(response) {
+                $scope.lock = false;
                 switch (response.status) {
                     case 409:
                         $scope.errorMsg = errors.already_signed;

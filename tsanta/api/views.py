@@ -49,6 +49,14 @@ def suggest_group(request):
     return Response(Group.suggest(req_serializer.data['q']))
 
 
+class GroupAns:
+
+    def __init__(self, q, groups):
+
+        self.q = q
+        self.groups = groups
+
+
 class GroupView(APIView):
 
     def get(self, request, group_id=None):
@@ -56,8 +64,10 @@ class GroupView(APIView):
         if group_id is None:
             req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
 
-            items = Group.get_my_groups(request.user, prefix=req_serializer.data['q'])
-            ans_serializer = serialize(serializers.GroupSer, items, many=True)
+            groups = Group.get_my_groups(request.user, prefix=req_serializer.data['q'])
+            ans_serializer = serialize(
+                serializers.GroupAnsSer,
+                GroupAns(req_serializer.data['q'], groups))
         else:
             item = Group.objects.get(pk=group_id)
             ans_serializer = serialize(serializers.GroupSer, item)
@@ -157,6 +167,14 @@ def submit_questionnaire(request):
     return Response(status=status.HTTP_201_CREATED)
 
 
+class ParticipantsAns:
+
+    def __init__(self, q, questionnaires):
+
+        self.q = q
+        self.questionnaires = questionnaires
+
+
 @api_view(['GET'])
 def event_participants(request, event_id):
 
@@ -171,7 +189,9 @@ def event_participants(request, event_id):
     questionnaires = Questionnaire.get_event_questionnaires(
         event, filter_text=filter_text)
 
-    ans_serializer = serialize(serializers.QuestionnaireSer, questionnaires, many=True)
+    ans_serializer = serialize(
+        serializers.QuestionnaireAnsSer,
+        ParticipantsAns(filter_text, questionnaires))
 
     return Response(ans_serializer.data)
 
@@ -195,7 +215,7 @@ def event_stat(request, event_id):
 def assign_wards(request, event_id):
 
     req_serializer = deserialize(serializers.TypeFieldReq, request.query_params)
-    type_ = req_serializer.get('type')
+    type_ = req_serializer.data['type']
 
     if not type_ in settings.WARD_ASSIGN_TYPES:
         raise ValidationError('Переданный тип распределения не поддерживается')

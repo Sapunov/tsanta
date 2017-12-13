@@ -1,0 +1,48 @@
+<html>
+<body>
+<h1>Дорогой Тайный Санта!</h1>
+<p style="font-size:20px;">Эльфы на твоей фабрике не успевают подготовить подарки для всех!</p>
+<div style="max-width:700px;">
+    <img src="https://pp.vk.me/c638417/v638417158/14ab4/KfEsGrPpvKI.jpg" width='100%' alt='Санта'>
+</div>
+
+<p style='font-size:20px;'>Чтобы все успеть уже к Новому году, они просят тебя сделать подарок для твоего подопечного!
+<br>Знакомься: <i>{{ name }} {{ surname }}</i>
+</p>
+
+<h4>Мы нашли кое-какие записи в наших архивах о твоем подопечном:</h4>
+
+<div style='font-family:arial,sans-serif;max-width:500px;padding:15px;
+  background-image:url(http://t-santa.ru/static/images/de.png);
+  -webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box'>
+  <div style='background-color:#fff;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;
+    box-sizing:border-box;padding:10px;-webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);'>
+    <p style='line-height:18px;font-size:18px;'>{{ name }} {{ surname }}<span style='color:#666;font-size:12px;'> - имя твоего подопечного</span></p>
+    <p style='line-height:18px;font-size:18px;'>{{ phone }}<span style='color:#666;font-size:12px;'> - его телефон</span></p>
+    <p style='line-height:18px;font-size:18px;'>{{ social_network_link }}<span style='color:#666;font-size:12px;'> - ссылочка на соц. сеть</span></p>
+
+    <div style='height:1px;background-color:#ccc;margin:5px 0;'></div>
+
+    {% for answer in answers %}
+    <p style='line-height:18px;font-size:18px;font-weight: bold;'>{{ answer.question }}<p style='font-size:16px;'>{{ answer.answer }}</p></p>
+    {% endfor %}
+
+    <div style='height:1px;background-color:#ccc;margin:5px 0;'></div>
+
+    <p style='line-height:18px;font-size:18px;'>
+      <ol style='margin-left:0;padding-left:22px;font-size:16px;'>
+        <li>Связаться с подопечным ты можешь в социальной сети или по телефону.</li>
+        <li>Подарок необходимо доставить до 31 декабря! Даже если ты не успеваешь, обязательно свяжись со своим подопечным, чтобы он не переживал.Торопись, Санта! Тебя уже ждут :)</li>
+      </ol>
+    </p>
+    <p style='font-size:16px;line-height:20px;'>Ждем твое селфи со счастливым подопечным в группе <a href="https://vk.com/t_santa">Тайного Санты</a>, а также в социальных сетях с хештегом <b>#t_santa</b></p>
+
+    <div style='height:1px;background-color:#ccc;margin:5px 0;'></div>
+
+    <p style='line-height:18px;font-size:18px;color:red;'>Внимание! В любом случае после 31 декабря мы сообщим твоему подопечному, что ты был его Тайным Сантой! Так что не забудь про него!</p>
+  </div>
+</div>
+
+<p>Целуем-обнимаем!<br>Твоя <a href='https://vk.com/shthse'>Школа Тренинга</a></p>
+</body></html>

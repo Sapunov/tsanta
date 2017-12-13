@@ -99,6 +99,11 @@ class GroupSer(serializers.Serializer):
         return instance
 
 
+class GroupAnsSer(serializers.Serializer):
+
+    q = serializers.CharField()
+    groups = GroupSer(many=True)
+
 class ExistsSer(serializers.Serializer):
 
     is_exists = serializers.BooleanField()
@@ -428,10 +433,16 @@ class ParticipantSer(serializers.Serializer):
 class QuestionnaireSer(serializers.Serializer):
 
     participant = ParticipantSer()
-    ward = ParticipantSer()
+    # ward
     group = GroupSer()
     is_closed = serializers.BooleanField()
     participation_confirmed = serializers.BooleanField()
+
+
+class QuestionnaireAnsSer(serializers.Serializer):
+
+    q = serializers.CharField()
+    questionnaires = QuestionnaireSer(many=True)
 
 
 class IdNameCount(serializers.Serializer):

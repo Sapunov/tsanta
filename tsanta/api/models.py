@@ -206,8 +206,7 @@ class Event(models.Model):
 
         from api.models import Questionnaire
         questionnaires = Questionnaire.objects.filter(
-            event=self, ward=None,
-            is_closed=False, participation_confirmed=True)
+            event=self, is_closed=False, participation_confirmed=True)
 
         temp = {}
 
@@ -241,18 +240,22 @@ class Event(models.Model):
         for i, _ in enumerate(temp):
             shuffle(temp[i])
 
-            j = 0
-            while j < len(temp[i]) - 1:
-                assign_map[temp[i][j]] = temp[i][j + 1]
-                j += 1
-            assign_map[temp[i][j + 1]] = temp[i][0]
+            temp_len = len(temp[i])
 
-        for questionnaire in questionnaires:
-            ward_id = assign_map[questionnaire.pk]
-            ward = Questionnaire.objects.get(pk=ward_id)
-            questionnaire.ward = ward
-            questionnaire.save()
+            if temp_len > 1:
+                for j in range(temp_len):
+                    assign_map[temp[i][j]] = temp[i][(j + 1) % temp_len]
+            else:
+                # TODO: сделать обработку одиночек
+                pass
 
+        for key, value in assign_map.items():
+            if key != value:
+                questionnaire = Questionnaire.objects.get(pk=key)
+                ward = Questionnaire.objects.get(pk=value)
+
+                questionnaire.ward = ward
+                questionnaire.save()
 
     def __str__(self):
 
@@ -554,13 +557,65 @@ class Notification(models.Model):
             self.provider_mail_id = provider_answer
             self.save()
 
-    def send_participation_confirmation(self, questionnaire):
+    def send_participation_confirmation(self):
 
         pass
 
-    def send_ward(self, questionnaire):
+    def send_ward(self):
 
-        pass
+        if self.type != 2:
+            raise ValueError('This is wrong method for this notification type')
+
+        subject = 'Ваш подопечный'
+
+        ward = self.questionnaire.ward
+
+        name = ward.participant.name
+        surname = ward.participant.surname
+        phone = ward.participant.phone
+        social_network_link = ward.participant.social_network_link
+
+        answers = []
+        for ans in Answer.objects.filter(questionnaire=ward):
+            answers.append({
+                'question': ans.question.typed_content,
+                'answer': ans.content
+            })
+
+        template_file = os.path.join(
+            settings.EMAILS_TEMPLATES_DIR, 'ward.html')
+
+        template = None
+
+        with open(template_file, 'r') as opened:
+            text = opened.read()
+            template = Template(text)
+
+        html = template.render(
+            name=name,
+            surname=surname,
+            phone=phone,
+            social_network_link=social_network_link,
+            answers=answers
+        )
+
+        provider_answer = mailgun.send_html(
+            settings.MAIL_FROM,
+            self.questionnaire.participant.email,
+            subject,
+            html,
+            settings.MAIL_REPLY_TO,
+            ['ward'])
+
+        if provider_answer:
+            self.sended_to_provider = True
+            self.provider_mail_id = provider_answer
+            self.save()
+
+            self.questionnaire.is_closed = True
+            self.questionnaire.save()
+        else:
+            raise ValueError(provider_answer)
 
     @classmethod
     def send_queued(cls):

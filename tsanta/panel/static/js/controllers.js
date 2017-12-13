@@ -101,18 +101,19 @@ function GroupsCtrl($scope, $http) {
         filter_text: '',
         filter: function() {
             $scope.load_group_list(this.filter_text, function(response) {
+                if (response.q === $scope.groups.filter_text) {
+                    $scope.groups.items = response.groups;
 
-                $scope.groups.items = response;
+                    if ( $scope.groups.filter_text ) {
+                        var regexp = new RegExp('^' + $scope.groups.filter_text, 'i');
 
-                if ( $scope.groups.filter_text ) {
-                    var regexp = new RegExp('^' + $scope.groups.filter_text, 'i');
+                        for ( var i = 0; i < response.groups.length; ++i ) {
+                            var match = response.groups[i].short_name.match(regexp);
 
-                    for ( var i = 0; i < response.length; ++i ) {
-                        var match = response[i].short_name.match(regexp);
-
-                        if ( match ) {
-                            $scope.groups.items[i].short_name = response[i].short_name.replace(
-                                match[0], '<span class="mark">' + match[0] + '</span>');
+                            if ( match ) {
+                                $scope.groups.items[i].short_name = response.groups[i].short_name.replace(
+                                    match[0], '<span class="mark">' + match[0] + '</span>');
+                            }
                         }
                     }
                 }
@@ -121,7 +122,7 @@ function GroupsCtrl($scope, $http) {
     };
 
     $scope.load_group_list('', function(response) {
-        $scope.groups.items = response;
+        $scope.groups.items = response.groups;
     });
 }
 
@@ -484,7 +485,9 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
         $http.get(tsanta.api + '/events/' + $scope.event_id + '/participants?q=' + query)
         .then(function(response) {
             if ( response.status === 200 ) {
-                $scope.participants = response.data;
+                if (response.data.q === $scope.search.text) {
+                    $scope.participants = response.data.questionnaires;
+                }
             }
         }, $scope.errorHandler);
     };
@@ -495,4 +498,24 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
         $scope.event = response;
         $scope.set_pagename($scope.event.name);
     });
+}
+
+
+function EventManageCtrl($scope, $http) {
+
+    let types = {
+        'all': 'по всем анкетам',
+        'city': 'в рамках городов',
+        'group': 'в рамках групп'
+    };
+
+    $scope.assign_wards = function(assign_type) {
+        console.log(assign_type);
+        $http.post(tsanta.api + '/events/' + $scope.event_id + '/assign?type=' + assign_type)
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.say('Подопечные распределены ' + types[assign_type]);
+            }
+        }, $scope.errorHandler);
+    }
 }
