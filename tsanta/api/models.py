@@ -736,7 +736,7 @@ class Notification(models.Model):
     def send_queued(cls):
 
         for notification in cls.objects.all():
-            if not notification.state == 0:
+            if notification.state == 0:
                 if notification.type == 0:
                     notification.send_email_confirmation()
                 elif notification.type == 1:
