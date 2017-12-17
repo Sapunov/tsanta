@@ -623,13 +623,12 @@ class Notification(models.Model):
 
     STATES = (
         (0, 'Created'),
-        (1, 'SendedToProvider'),
-        (2, 'RejectedByProvider'),
-        (3, 'Accepted'),
-        (4, 'TemporaryFailed'),
-        (5, 'FailedPermanently'),
-        (6, 'Delivered'),
-        (7, 'Opened')
+        (1, 'Rejected'),
+        (2, 'Accepted'),
+        (3, 'TemporaryFailed'),
+        (4, 'FailedPermanently'),
+        (5, 'Delivered'),
+        (6, 'Opened')
     )
 
     name = models.CharField(max_length=100)
@@ -668,9 +667,12 @@ class Notification(models.Model):
             ['email_confirmation'])
 
         if provider_answer:
-            self.state = 1
+            self.state = 2
             self.provider_mail_id = provider_answer
-            self.save()
+        else:
+            self.state = 1
+
+        self.save()
 
     def send_participation_confirmation(self):
 
@@ -723,20 +725,20 @@ class Notification(models.Model):
             ['ward'])
 
         if provider_answer:
-            self.state = 1
+            self.state = 2
             self.provider_mail_id = provider_answer
-            self.save()
-
             self.questionnaire.is_closed = True
             self.questionnaire.save()
         else:
-            raise ValueError(provider_answer)
+            self.state = 1
+
+        self.save()
 
     @classmethod
     def send_queued(cls):
 
         for notification in cls.objects.all():
-            if notification.state == 0:
+            if notification.state == 0 or notification.state == 1:
                 if notification.type == 0:
                     notification.send_email_confirmation()
                 elif notification.type == 1:
@@ -762,7 +764,6 @@ class Notification(models.Model):
         messages_processed = set()
 
         for item in items:
-
             try:
                 message_id = item['message']['headers']['message-id']
             except KeyError:
@@ -782,25 +783,23 @@ class Notification(models.Model):
             old_state = notification.state
 
             if item['event'] == 'accepted':
-                notification.state = 3
-            elif item['event'] == 'rejected':
                 notification.state = 2
             elif item['event'] == 'delivered':
-                notification.state = 6
+                notification.state = 5
             elif item['event'] == 'failed':
                 if item['severity'] == 'temporary':
-                    notification.state = 4
+                    notification.state = 3
                 elif item['severity'] == 'permanent':
-                    notification.state = 5
+                    notification.state = 4
             # Ниже одинаковые статусы так как любой и данных статусов
             # провайдера означает открытое письмо, а открытие - финишный
             # статус нотификации
             elif item['event'] == 'opened':
-                notification.state = 7
+                notification.state = 6
             elif item['event'] == 'clicked':
-                notification.state = 7
+                notification.state = 6
             elif item['event'] == 'complained':
-                notification.state = 7
+                notification.state = 6
             else:
                 continue
 
