@@ -39,6 +39,12 @@ class OnlyQSerReq(serializers.Serializer):
     q = serializers.CharField(allow_blank=True)
 
 
+class QReqLimitSer(serializers.Serializer):
+
+    q = serializers.CharField(allow_blank=True)
+    limit = serializers.IntegerField(required=False, default=10)
+
+
 class OnlyQSer(serializers.Serializer):
 
     q = serializers.CharField(allow_blank=True, required=False, default='')
@@ -48,6 +54,7 @@ class CitySer(serializers.Serializer):
 
     id = serializers.IntegerField()
     name = serializers.CharField()
+    freq = serializers.IntegerField()
 
 
 class EventForGroupSer(serializers.Serializer):
@@ -82,6 +89,8 @@ class GroupSer(serializers.Serializer):
             owner=participant,
             searchable=True)
 
+        models.City.update_frequencies()
+
         return group
 
     def update(self, instance, validated_data):
@@ -95,6 +104,8 @@ class GroupSer(serializers.Serializer):
         instance.slug = validated_data['slug']
 
         instance.save()
+
+        models.City.update_frequencies()
 
         return instance
 
@@ -422,6 +433,7 @@ class SubmitFormSer(serializers.Serializer):
 
 class ParticipantSer(serializers.Serializer):
 
+    id = serializers.IntegerField()
     name = serializers.CharField()
     surname = serializers.CharField()
     phone = serializers.CharField()

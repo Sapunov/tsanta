@@ -15,9 +15,9 @@ class CityView(APIView):
 
     def get(self, request):
 
-        req_serializer = deserialize(serializers.OnlyQSerReq, request.query_params)
+        req_serializer = deserialize(serializers.QReqLimitSer, request.query_params)
 
-        items = City.suggest(req_serializer.data['q'])
+        items = City.suggest(req_serializer.data['q'], req_serializer.data['limit'])
 
         ans_serializer = serialize(serializers.CitySer, items, many=True)
 

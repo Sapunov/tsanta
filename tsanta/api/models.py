@@ -1,16 +1,23 @@
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.db import models
-from django.core.validators import validate_slug
-from django.core import exceptions as django_exceptions
-from django.utils import timezone
-from django.db.models import Q, Count
-import os
-from jinja2 import Template
+from datetime import timedelta
 from random import shuffle
+import logging
+import os
 
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core import exceptions as django_exceptions
+from django.core.validators import validate_slug
+from django.db import models
+from django.db.models import Q, Count
+from django.utils import timezone
+from jinja2 import Template
+
+from . import mailgun, exceptions
 from tsanta import misc
-from . import mailgun
+
+
+log = logging.getLogger('main.' + __name__)
+
 
 class IsExists:
 
@@ -97,10 +104,29 @@ class City(models.Model):
 
         items = cls.objects.filter(name__istartswith=text).order_by('-freq')
 
-        if text != '':
+        if limit and limit > 0:
             items = items[:limit]
 
         return items
+
+    @classmethod
+    def update_frequencies(cls):
+
+        from api.models import Group
+        groups = Group.objects.all()
+
+        cities_map = {}
+        for group in groups:
+            if not group.city.pk in cities_map:
+                cities_map[group.city.pk] = 0
+            cities_map[group.city.pk] += 1
+
+        cities = cls.objects.all()
+
+        for city in cities:
+            if city.pk in cities_map:
+                city.freq = cities_map[city.pk]
+                city.save()
 
     def __str__(self):
 
@@ -207,6 +233,9 @@ class Event(models.Model):
         from api.models import Questionnaire
         questionnaires = Questionnaire.objects.filter(
             event=self, is_closed=False, participation_confirmed=True)
+
+        # TODO: нельзя трогать тех, кто уже является чьи-то
+        # подопечным, а этот кто-то уже is_closed=True
 
         temp = {}
 
@@ -504,6 +533,86 @@ class Answer(models.Model):
         return self.__str__()
 
 
+class KVParams(models.Model):
+
+    TYPES = (
+        (0, 'text'),
+        (1, 'datetime')
+    )
+
+    key = models.CharField(max_length=100, primary_key=True)
+    value = models.TextField()
+    type = models.SmallIntegerField(choices=TYPES, default=0)
+
+    @classmethod
+    def get(cls, key):
+
+        key = key.lower().strip()
+
+        try:
+            obj = cls.objects.get(pk=key)
+        except cls.DoesNotExist:
+            return None
+
+        if obj.type == 1:
+            obj.value = timezone.datetime.strptime(
+                obj.value, settings.KV_DATETIME_FORMAT)
+
+        return obj
+
+    @classmethod
+    def set(cls, key, value, type_=0, update=False):
+
+        key = key.lower().strip()
+
+        if not type_ in [it[0] for it in cls.TYPES]:
+            raise exceptions.UnsupportedKeyType
+
+        obj = cls.get(key)
+
+        if type_ == 0:
+            if obj is None:
+                obj = cls.objects.create(pk=key, value=value)
+            elif update:
+                obj.value = value
+                obj.type = type_
+                obj.save()
+            else:
+                raise exceptions.KeyExistsException
+        elif type_ == 1:
+            if not isinstance(value, timezone.datetime):
+                raise ValueError('Value is not datetime. Change type_ param')
+
+            value = value.strftime(settings.KV_DATETIME_FORMAT)
+
+            if obj is None:
+                obj = cls.objects.create(key=key, value=value, type=type_)
+            elif update:
+                obj.value = value
+                obj.type = type_
+                obj.save()
+            else:
+                raise exceptions.KeyExistsException
+
+            # Чтобы в value было datetime, сделаем так:
+            return cls.get(key)
+
+        return obj
+
+    @classmethod
+    def set_update(cls, key, value, type_=0):
+
+        return cls.set(key, value, type_, update=True)
+
+    def __str__(self):
+
+        return 'KVParam[{0}]: {1}'.format(self.pk, self.value)
+
+    def __repr__(self):
+
+        return self.__str__()
+
+
 class Notification(models.Model):
 
     TYPE = (
@@ -512,16 +621,22 @@ class Notification(models.Model):
         (2, 'Send ward')
     )
 
+    STATES = (
+        (0, 'Created'),
+        (1, 'SendedToProvider'),
+        (2, 'RejectedByProvider'),
+        (3, 'Accepted'),
+        (4, 'TemporaryFailed'),
+        (5, 'FailedPermanently'),
+        (6, 'Delivered'),
+        (7, 'Opened')
+    )
+
     name = models.CharField(max_length=100)
     type = models.SmallIntegerField(choices=TYPE)
     questionnaire = models.ForeignKey(Questionnaire)
     date_created = models.DateTimeField(auto_now_add=True)
-    sended_to_provider = models.BooleanField(default=False)
-    accepted = models.BooleanField(default=False)
-    delivered = models.BooleanField(default=False)
-    temporary_failed = models.BooleanField(default=False)
-    failed = models.BooleanField(default=False)
-    opened = models.BooleanField(default=False)
+    state = models.SmallIntegerField(choices=STATES, default=0)
     provider_mail_id = models.CharField(null=True, blank=True, max_length=200)
 
     def send_email_confirmation(self):
@@ -621,19 +736,85 @@ class Notification(models.Model):
     def send_queued(cls):
 
         for notification in cls.objects.all():
-            if not notification.sended_to_provider:
+            if not notification.state == 0:
                 if notification.type == 0:
                     notification.send_email_confirmation()
                 elif notification.type == 1:
                     notification.send_participation_confirmation()
                 elif notification.type == 2:
                     notification.send_ward()
-                else:
-                    pass
+
+    @classmethod
+    def update_states(cls):
+
+        utc_begin = KVParams.get('notification_utc_last')
+        if utc_begin is None:
+            utc_begin = timezone.now() - timedelta(days=366)
+        else:
+            utc_begin = utc_begin.value
+
+        utc_end = timezone.now()
+
+        items = mailgun.get_all_results(utc_begin, utc_end)
+
+        log.info('There is %s events received from provider', len(items))
+
+        messages_processed = set()
+
+        for item in items:
+
+            try:
+                message_id = item['message']['headers']['message-id']
+            except KeyError:
+                continue
+
+            # Так как события выбираются в обратном порядке,
+            # то логично обрабатывать только самое последнее событи
+            # для одного сообщения
+            if message_id in messages_processed:
+                continue
+
+            try:
+                notification = cls.objects.get(provider_mail_id=message_id)
+            except cls.DoesNotExist:
+                continue
+
+            old_state = notification.state
+
+            if item['event'] == 'accepted':
+                notification.state = 3
+            elif item['event'] == 'rejected':
+                notification.state = 2
+            elif item['event'] == 'delivered':
+                notification.state = 6
+            elif item['event'] == 'failed':
+                if item['severity'] == 'temporary':
+                    notification.state = 4
+                elif item['severity'] == 'permanent':
+                    notification.state = 5
+            # Ниже одинаковые статусы так как любой и данных статусов
+            # провайдера означает открытое письмо, а открытие - финишный
+            # статус нотификации
+            elif item['event'] == 'opened':
+                notification.state = 7
+            elif item['event'] == 'clicked':
+                notification.state = 7
+            elif item['event'] == 'complained':
+                notification.state = 7
+            else:
+                continue
+
+            if notification.state > old_state:
+                notification.save()
+
+            messages_processed.add(message_id)
+
+            log.info('%s exposed to a %s status', notification, notification.state)
+
+        KVParams.set_update('notification_utc_last', utc_end, type_=1)
 
     def __str__(self):
 
-        return 'Notification[{0}]: {1} to {2} {3}'.format(
+        return 'Notification[{0}]: {1} to {2}'.format(
             self.id, self.name,
-            self.questionnaire.participant.name,
-            self.questionnaire.participant.surname)
+            self.questionnaire.participant)
