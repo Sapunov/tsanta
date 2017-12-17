@@ -668,7 +668,7 @@ class Notification(models.Model):
             ['email_confirmation'])
 
         if provider_answer:
-            self.sended_to_provider = True
+            self.state = 1
             self.provider_mail_id = provider_answer
             self.save()
 
@@ -723,7 +723,7 @@ class Notification(models.Model):
             ['ward'])
 
         if provider_answer:
-            self.sended_to_provider = True
+            self.state = 1
             self.provider_mail_id = provider_answer
             self.save()
 
@@ -736,7 +736,7 @@ class Notification(models.Model):
     def send_queued(cls):
 
         for notification in cls.objects.all():
-            if not notification.state == 0:
+            if notification.state == 0:
                 if notification.type == 0:
                     notification.send_email_confirmation()
                 elif notification.type == 1:
