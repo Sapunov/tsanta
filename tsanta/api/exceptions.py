@@ -9,3 +9,12 @@ class TSantaException(Exception):
 class AlreadySignedException(TSantaException):
 
     pass
+
+
+class KeyExistsException(TSantaException):
+
+    pass
+
+class UnsupportedKeyType(TSantaException):
+
+    pass

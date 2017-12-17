@@ -1,6 +1,10 @@
 import requests
+import logging
 
 from django.conf import settings
+
+
+log = logging.getLogger('main.' + __name__)
 
 
 def send_html(mail_from, mail_to, subject, mail_html, reply_to=None, tag=None):
@@ -31,7 +35,8 @@ def send_html(mail_from, mail_to, subject, mail_html, reply_to=None, tag=None):
     try:
         ans = requests.post(
             api_url, auth=("api", settings.MAILGUN_SECRET_KEY), data=data)
-    except Exception as e:
+    except requests.exceptions.RequestException as exc:
+        log.exception('Exception while request %s: %s', api_url, exc)
         return False
 
     if ans.status_code == 200:
@@ -40,3 +45,47 @@ def send_html(mail_from, mail_to, subject, mail_html, reply_to=None, tag=None):
             return json['id'].rstrip('>').lstrip('<')
 
     return False
+
+
+def get_all_results(utc_begin, utc_end):
+    '''Возвращает все события, которые есть у провайдера
+        за данный промежуток времени.
+
+        Важно: timestamp от провайдера возвращается по московскому времени
+    '''
+
+    api_url = settings.MAILGUN_API_URL +settings.DOMAIN_NAME + "/events"
+    params = {
+        'begin': utc_begin.timestamp(),
+        'end': utc_end.timestamp(),
+        'ascending': 'yes',
+        'limit': settings.MAILGUN_MAX_EVENTS_LIMIT
+    }
+
+    items = []
+
+    while True:
+        try:
+            res = requests.get(
+                api_url,
+                auth=("api", settings.MAILGUN_SECRET_KEY),
+                params=params)
+
+            if res.status_code != 200:
+                log.exception('Bad status_code while request %s; ' \
+                    'status_code: %s; text: %s', api_url, res.status_code, res.text)
+                break
+
+            data = res.json()
+
+            if data['items']:
+                items.extend(data['items'])
+                if 'next' in data['paging'] and data['paging']['next']:
+                    api_url = data['paging']['next']
+            else:
+                break
+        except requests.exceptions.RequestException as exc:
+            log.exception('Exception while request %s: %s', api_url, exc)
+            break
+
+    return items[::-1]

@@ -5,6 +5,8 @@ APP_VERSION = '0.0.5'
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+DATA_DIR = os.path.dirname(BASE_DIR)
+
 SECRET_KEY = '2unty@irwi_gg5=+k#y+45q8om=cbag&8=zwf0wfq&t=aoacmw'
 
 DEBUG = True
@@ -126,6 +128,7 @@ DOMAIN_NAME = 't-santa.ru'
 MAILGUN_SECRET_KEY = 'key'
 MAILGUN_API_URL = 'https://api.mailgun.net/v3/'
 MAILGUN_LIMIT = 100
+MAILGUN_MAX_EVENTS_LIMIT = 300
 
 MAIL_FROM = ('Тайный Санта', 'magician@t-santa.ru')
 MAIL_REPLY_TO = 'schoolof.training.hse@gmail.com'
@@ -133,3 +136,37 @@ MAIL_REPLY_TO = 'schoolof.training.hse@gmail.com'
 EMAILS_TEMPLATES_DIR = os.path.join(BASE_DIR, 'api', 'templates', 'emails')
 
 WARD_ASSIGN_TYPES = ['all', 'city', 'group']
+
+LOGS_DIR = os.path.join(DATA_DIR, 'logs')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(filename)s:'
+                      '%(funcName)s:%(lineno)s '
+                      '%(levelname)s: %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(message)s'
+        },
+    },
+    'handlers': {
+        'main': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_DIR, 'main.log'),
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'main': {
+            'handlers': ['main'],
+            'level': 'DEBUG',
+            'propagate': True
+        }
+    },
+}
+
+KV_DATETIME_FORMAT = '%d.%m.%Y %H:%M:%S%z'
