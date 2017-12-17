@@ -626,12 +626,10 @@ class Notification(models.Model):
         (1, 'SendedToProvider'),
         (2, 'RejectedByProvider'),
         (3, 'Accepted'),
-        (4, 'Delivered'),
-        (5, 'TemporaryFailed'),
-        (6, 'FailedPermanently'),
-        (7, 'Opened'),
-        (8, 'Сomplained'),
-        (9, 'Clicked')
+        (4, 'TemporaryFailed'),
+        (5, 'FailedPermanently'),
+        (6, 'Delivered'),
+        (7, 'Opened')
     )
 
     name = models.CharField(max_length=100)
@@ -781,27 +779,34 @@ class Notification(models.Model):
             except cls.DoesNotExist:
                 continue
 
+            old_state = notification.state
+
             if item['event'] == 'accepted':
                 notification.state = 3
             elif item['event'] == 'rejected':
                 notification.state = 2
             elif item['event'] == 'delivered':
-                notification.state = 3
+                notification.state = 6
             elif item['event'] == 'failed':
                 if item['severity'] == 'temporary':
-                    notification.state = 5
+                    notification.state = 4
                 elif item['severity'] == 'permanent':
-                    notification.state = 6
+                    notification.state = 5
+            # Ниже одинаковые статусы так как любой и данных статусов
+            # провайдера означает открытое письмо, а открытие - финишный
+            # статус нотификации
             elif item['event'] == 'opened':
                 notification.state = 7
             elif item['event'] == 'clicked':
-                notification.state = 9
+                notification.state = 7
             elif item['event'] == 'complained':
-                notification.state = 8
+                notification.state = 7
             else:
                 continue
 
-            notification.save()
+            if notification.state > old_state:
+                notification.save()
+
             messages_processed.add(message_id)
 
             log.info('%s exposed to a %s status', notification, notification.state)
