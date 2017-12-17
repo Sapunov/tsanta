@@ -97,10 +97,29 @@ class City(models.Model):
 
         items = cls.objects.filter(name__istartswith=text).order_by('-freq')
 
-        if text != '':
+        if limit and limit > 0:
             items = items[:limit]
 
         return items
+
+    @classmethod
+    def update_frequencies(cls):
+
+        from api.models import Group
+        groups = Group.objects.all()
+
+        cities_map = {}
+        for group in groups:
+            if not group.city.pk in cities_map:
+                cities_map[group.city.pk] = 0
+            cities_map[group.city.pk] += 1
+
+        cities = cls.objects.all()
+
+        for city in cities:
+            if city.pk in cities_map:
+                city.freq = cities_map[city.pk]
+                city.save()
 
     def __str__(self):
 

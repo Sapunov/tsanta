@@ -289,7 +289,7 @@ function GroupFormCtrl($scope, $http, $routeParams) {
     function load_cities(prefix) {
         prefix = prefix || '';
 
-        $http.get(tsanta.api + '/cities?q=' + prefix)
+        $http.get(tsanta.api + '/cities?limit=-1&q=' + prefix)
         .then(function(response) {
             if ( response.status === 200 ) {
                 $scope.cities.items = response.data;
