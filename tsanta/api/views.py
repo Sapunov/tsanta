@@ -219,3 +219,16 @@ def assign_wards(request, event_id):
     event.assign_wards(type_=type_)
 
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def send_confirms(request, event_id):
+
+    event = Event.get_my_events(request.user, event_id=event_id)
+
+    if event is None:
+        raise NotFound
+
+    event.send_confirms()
+
+    return Response(status=status.HTTP_200_OK)

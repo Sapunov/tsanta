@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from api.models import Group, Participant
+from api.models import Group, Participant, Questionnaire
 from django.conf import settings
 
 from tsanta import misc
@@ -95,9 +95,24 @@ def confirm(request):
 
             context['message'] = 'Спасибо! Ваш email подтвержден.'
             return render(request, "front/confirm.html", context=context)
+        elif confirm_type == 'participation':
+            try:
+                questionnaire = Questionnaire.objects.get(pk=identity)
+            except Questionnaire.DoesNotExist:
+                raise exceptions.ConfirmationError
+
+            if content_hash != questionnaire.get_hash():
+                raise exceptions.ConfirmationError
+
+            if questionnaire.state > 3:
+                raise exceptions.ConfirmationError('Подтверждение участия для данной анкеты не требуется')
+
+            questionnaire.confirm_participation()
+
+            context['message'] = 'Спасибо! Ваше участие подтверждено.'
+            return render(request, "front/confirm.html", context=context)
 
         raise exceptions.ConfirmationError
     except exceptions.ConfirmationError as exc:
         context['message'] = str(exc)
         return render(request, "front/confirm.html", context=context)
-

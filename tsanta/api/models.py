@@ -239,6 +239,18 @@ class Event(models.Model):
 
         return EventStatistics(questionnaires)
 
+    def send_confirms(self):
+
+        from api.models import Questionnaire
+        questionnaires = Questionnaire.objects.filter(event=self, state=2)
+
+        from api.models import Notification
+        for questionnaire in questionnaires:
+            Notification.objects.create(
+                type=1,
+                name='Подтверждение участия',
+                questionnaire=questionnaire)
+
     def assign_wards(self, type_):
 
         # Allowed types: city, group, all
@@ -509,6 +521,11 @@ class Questionnaire(models.Model):
             + str(self.event.pk) \
             + str(self.group.pk))
 
+    def confirm_participation(self):
+
+        self.state = 4
+        self.save()
+
     @classmethod
     def get_event_questionnaires(cls, event, count=20, filter_text=None, filter_state=-1):
 
@@ -726,6 +743,8 @@ class Notification(models.Model):
         if provider_answer:
             self.state = 2
             self.provider_mail_id = provider_answer
+            self.questionnaire.state = 1
+            self.questionnaire.save()
         else:
             self.state = 1
 
@@ -733,7 +752,41 @@ class Notification(models.Model):
 
     def send_participation_confirmation(self):
 
-        pass
+        if self.type != 1:
+            raise ValueError('This is wrong method for this notification type')
+
+        subject = 'Подтверждение участия в Тайном Санте!'
+
+        template_file = os.path.join(
+            settings.EMAILS_TEMPLATES_DIR, 'participation_confirm.html')
+
+        template = None
+
+        with open(template_file, 'r') as opened:
+            text = opened.read()
+            template = Template(text)
+
+        html = template.render(
+            questionnaire_id=self.questionnaire.pk,
+            confirm_hash=self.questionnaire.get_hash())
+
+        provider_answer = mailgun.send_html(
+            settings.MAIL_FROM,
+            self.questionnaire.participant.email,
+            subject,
+            html,
+            settings.MAIL_REPLY_TO,
+            ['participation_confirmation'])
+
+        if provider_answer:
+            self.state = 2
+            self.provider_mail_id = provider_answer
+            self.questionnaire.state = 3
+            self.questionnaire.save()
+        else:
+            self.state = 1
+
+        self.save()
 
     def send_ward(self):
 

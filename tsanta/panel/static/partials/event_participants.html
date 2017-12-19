@@ -3,6 +3,9 @@
         <li><a href="events/{{ event_id }}">Статистика</a></li>
         <li class="active"><a href="events/{{ event_id }}/participants">Участники</a></li>
         <li><a href="events/{{ event_id }}/edit">Редактировать событие</a></li>
+        <li><a href="#" uib-tooltip="Обновить данные" ng-click=update()>
+            <span class="glyphicon glyphicon-refresh"></span>
+        </a></li>
     </ul>
 </div>
 
@@ -27,7 +30,8 @@
         <tr>
             <td class="buttons">
                 <button type="button"
-                    class="btn btn-warning">
+                    class="btn btn-warning"
+                    ng-click="send_confirms()">
                     Отправить подтверждения участия
                 </button>
             </td>
@@ -35,7 +39,7 @@
                 <p>Подтверждения еще не отправлены</p>
             </td>
         </tr>
-        <tr>
+        <!-- <tr>
             <td class="buttons">
                 <div class="btn-group">
                     <button type="button"
@@ -54,8 +58,8 @@
             <td class="status">
                 <p>Подопечные ни разу не распределялись</p>
             </td>
-        </tr>
-        <tr>
+        </tr> -->
+        <!-- <tr>
             <td class="buttons">
                 <button type="button"
                     class="btn btn-warning">
@@ -65,7 +69,7 @@
             <td class="status">
                 <p>Подопечные еще не рассылались</p>
             </td>
-        </tr>
+        </tr> -->
     </table>
 </div>
 

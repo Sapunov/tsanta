@@ -527,6 +527,10 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
         $scope.load_participants($scope.filter_state, $scope.search.text);
     }
 
+    $scope.update = function() {
+        $scope.load_participants($scope.filter_state, $scope.search.text);
+    };
+
     $scope.load_event($scope.event_id, function(response) {
         $scope.event = response;
         $scope.set_pagename($scope.event.name);
@@ -536,18 +540,34 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
 
 function EventManageCtrl($scope, $http) {
 
-    let types = {
+    let assign_types = {
         'all': 'по всем анкетам',
         'city': 'в рамках городов',
         'group': 'в рамках групп'
     };
 
     $scope.assign_wards = function(assign_type) {
-        console.log(assign_type);
         $http.post(tsanta.api + '/events/' + $scope.event_id + '/assign?type=' + assign_type)
         .then(function(response) {
             if ( response.status === 200 ) {
-                $scope.say('Подопечные распределены ' + types[assign_type]);
+                $scope.say('Подопечные распределены ' + assign_types[assign_type]);
+
+                $scope.search.text = '';
+                $scope.filter_state = -1;
+                $scope.load_participants($scope.filter_state);
+            }
+        }, $scope.errorHandler);
+    }
+
+    $scope.send_confirms = function() {
+        $http.post(tsanta.api + '/events/' + $scope.event_id + '/send_confirms')
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.say('Подтверждения об участии будут отправлены');
+
+                $scope.search.text = '';
+                $scope.filter_state = -1;
+                $scope.load_participants($scope.filter_state);
             }
         }, $scope.errorHandler);
     }
