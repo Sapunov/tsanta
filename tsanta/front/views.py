@@ -91,8 +91,7 @@ def confirm(request):
             if participant.email_confirmed:
                 raise exceptions.ConfirmationError('Ваш email не нуждается в подтверждении')
 
-            participant.email_confirmed = True
-            participant.save()
+            participant.confirm_email()
 
             context['message'] = 'Спасибо! Ваш email подтвержден.'
             return render(request, "front/confirm.html", context=context)

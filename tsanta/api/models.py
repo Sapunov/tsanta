@@ -85,6 +85,19 @@ class Participant(models.Model):
 
         return misc.sha1_hash(settings.SECRET_KEY + self.email + str(self.pk) + str(self.user.pk))
 
+    def confirm_email(self):
+
+        self.email_confirmed = True
+        self.save()
+
+        from api.models import Questionnaire
+        questionnaires = Questionnaire.objects.filter(
+            participant=self, state=1, is_closed=False)
+
+        for questionnaire in questionnaires:
+            questionnaire.state = 2
+            questionnaire.save()
+
     def __str__(self):
 
         return 'Participant[{0}]: {1} {2}; {3}'.format(self.id, self.name, self.surname, self.email)
@@ -454,12 +467,23 @@ class Group(models.Model):
 
 class Questionnaire(models.Model):
 
+    STATES = (
+        (0, 'Registered'),
+        (1, 'EmailConfirmationSent'),
+        (2, 'EmailConfirmed'),
+        (3, 'ConfirmationSent'),  # О подтвержнее участия
+        (4, 'Confirmed'),         #
+        (5, 'WardAssigned'),
+        (6, 'WardSent')
+    )
+
     participant = models.ForeignKey(Participant)
     event = models.ForeignKey(Event)
     ward = models.ForeignKey("self", null=True, blank=True)
     group = models.ForeignKey(Group)
     is_closed = models.BooleanField(default=False)
     participation_confirmed = models.BooleanField(default=False)
+    state = models.SmallIntegerField(choices=STATES, default=0)
 
     def get_hash(self):
 

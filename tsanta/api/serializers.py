@@ -427,6 +427,11 @@ class SubmitFormSer(serializers.Serializer):
                 type=0,
                 name='Подтверждение email',
                 questionnaire=questionnaire)
+            questionnaire.state = 1  # Подтверждение email отправлено
+        else:
+            questionnaire.state = 2  # Email уже подтвержден
+
+        questionnaire.save()
 
         return questionnaire
 
@@ -449,6 +454,7 @@ class QuestionnaireSer(serializers.Serializer):
     group = GroupSer()
     is_closed = serializers.BooleanField()
     participation_confirmed = serializers.BooleanField()
+    state = serializers.IntegerField()
 
 
 class QuestionnaireAnsSer(serializers.Serializer):

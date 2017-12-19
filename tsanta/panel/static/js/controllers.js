@@ -472,6 +472,16 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
     $scope.event = {};
     $scope.participants = [];
 
+    let states = [
+        'Зарегистрирован',
+        'Подтверждение email отправлено',
+        'Email подтвержден',
+        'Подтверждение участия отправлено',
+        'Участие подтверждено',
+        'Назначен подопечный',
+        'Подопечный отправлен'
+    ];
+
     $scope.search = {
         text: '',
         search: function () {
@@ -486,6 +496,10 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
         .then(function(response) {
             if ( response.status === 200 ) {
                 if (response.data.q === $scope.search.text) {
+                    // Заменить коды статусов на названия
+                    for (let i = 0; i < response.data.questionnaires.length; ++i) {
+                        response.data.questionnaires[i].state = states[response.data.questionnaires[i].state];
+                    }
                     $scope.participants = response.data.questionnaires;
                 }
             }
