@@ -465,6 +465,23 @@ class Group(models.Model):
         return 'Group[{0}]: {1}'.format(self.id, self.short_name)
 
 
+class CountItem():
+
+    def __init__(self, state, count=0):
+
+        self.state = state
+        self.count = count
+
+
+class ParticipantsAns:
+
+    def __init__(self, q, questionnaires, state_counters):
+
+        self.q = q
+        self.questionnaires = questionnaires
+        self.state_counters = state_counters
+
+
 class Questionnaire(models.Model):
 
     STATES = (
@@ -493,9 +510,15 @@ class Questionnaire(models.Model):
             + str(self.group.pk))
 
     @classmethod
-    def get_event_questionnaires(cls, event, count=20, filter_text=None):
+    def get_event_questionnaires(cls, event, count=20, filter_text=None, filter_state=-1):
 
         participants_ids = []
+
+        states = {}
+        for questionnaire in cls.objects.filter(event=event):
+            if not questionnaire.state in states:
+                states[questionnaire.state] = CountItem(state=questionnaire.state)
+            states[questionnaire.state].count += 1
 
         if filter_text:
             filter_text = filter_text.lower()
@@ -509,12 +532,22 @@ class Questionnaire(models.Model):
 
             participants_ids = [it.id for it in participants]
 
-            questionnaires = cls.objects.filter(
-                event=event, participant__in=participants_ids)
+            if filter_state >= 0:
+                questionnaires = cls.objects.filter(
+                    event=event, participant__in=participants_ids, state=filter_state)
+            else:
+                questionnaires = cls.objects.filter(
+                    event=event, participant__in=participants_ids)
         else:
-            questionnaires = cls.objects.filter(event=event)
+            if filter_state >= 0:
+                questionnaires = cls.objects.filter(event=event, state=filter_state)
+            else:
+                questionnaires = cls.objects.filter(event=event)
 
-        return questionnaires[:count]
+        return ParticipantsAns(
+            filter_text,
+            questionnaires[:count],
+            sorted(states.values(), key=lambda it: it.state))
 
     def __str__(self):
 

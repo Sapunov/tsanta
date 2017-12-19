@@ -50,6 +50,12 @@ class OnlyQSer(serializers.Serializer):
     q = serializers.CharField(allow_blank=True, required=False, default='')
 
 
+class EventPartReqSer(serializers.Serializer):
+
+    q = serializers.CharField(allow_blank=True, required=False, default='')
+    state = serializers.IntegerField(required=False, default=-1)
+
+
 class CitySer(serializers.Serializer):
 
     id = serializers.IntegerField()
@@ -447,6 +453,7 @@ class ParticipantSer(serializers.Serializer):
     sex = serializers.IntegerField()
     email_confirmed = serializers.BooleanField()
 
+
 class QuestionnaireSer(serializers.Serializer):
 
     participant = ParticipantSer()
@@ -457,10 +464,17 @@ class QuestionnaireSer(serializers.Serializer):
     state = serializers.IntegerField()
 
 
+class CounterSer(serializers.Serializer):
+
+    state = serializers.IntegerField()
+    count = serializers.IntegerField()
+
+
 class QuestionnaireAnsSer(serializers.Serializer):
 
     q = serializers.CharField()
     questionnaires = QuestionnaireSer(many=True)
+    state_counters = CounterSer(many=True)
 
 
 class IdNameCount(serializers.Serializer):

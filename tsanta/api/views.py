@@ -167,14 +167,6 @@ def submit_questionnaire(request):
     return Response(status=status.HTTP_201_CREATED)
 
 
-class ParticipantsAns:
-
-    def __init__(self, q, questionnaires):
-
-        self.q = q
-        self.questionnaires = questionnaires
-
-
 @api_view(['GET'])
 def event_participants(request, event_id):
 
@@ -183,15 +175,14 @@ def event_participants(request, event_id):
     if event is None:
         raise NotFound
 
-    req_serializer = deserialize(serializers.OnlyQSer, request.query_params)
+    req_serializer = deserialize(serializers.EventPartReqSer, request.query_params)
     filter_text = req_serializer.data['q']
+    filter_state = req_serializer.data['state']
 
     questionnaires = Questionnaire.get_event_questionnaires(
-        event, filter_text=filter_text)
+        event, filter_text=filter_text, filter_state=filter_state)
 
-    ans_serializer = serialize(
-        serializers.QuestionnaireAnsSer,
-        ParticipantsAns(filter_text, questionnaires))
+    ans_serializer = serialize(serializers.QuestionnaireAnsSer, questionnaires)
 
     return Response(ans_serializer.data)
 
