@@ -350,16 +350,16 @@ function EventsFormCtrl($scope, $http, $routeParams) {
 
     $scope.load_group_list('', function(response) {
         var j = 0;
-        for ( var i = 0; i < response.length; ++i ) {
+        for ( var i = 0; i < response.groups.length; ++i ) {
 
-            if ( $scope.event_id !== undefined && $scope.groups.item_ids.indexOf(response[i].id) != -1) {
-                $scope.groups.items[j] = response[i];
+            if ( $scope.event_id !== undefined && $scope.groups.item_ids.indexOf(response.groups[i].id) != -1) {
+                $scope.groups.items[j] = response.groups[i];
                 $scope.groups.items[j].checked = true;
 
                 j++;
             }
             else if ( response[i].event_lock === false ) {
-                $scope.groups.items[j] = response[i];
+                $scope.groups.items[j] = response.groups[i];
                 $scope.groups.items[j].checked = false;
 
                 j++;
