@@ -85,6 +85,19 @@ class Participant(models.Model):
 
         return misc.sha1_hash(settings.SECRET_KEY + self.email + str(self.pk) + str(self.user.pk))
 
+    def confirm_email(self):
+
+        self.email_confirmed = True
+        self.save()
+
+        from api.models import Questionnaire
+        questionnaires = Questionnaire.objects.filter(
+            participant=self, state=1, is_closed=False)
+
+        for questionnaire in questionnaires:
+            questionnaire.state = 2
+            questionnaire.save()
+
     def __str__(self):
 
         return 'Participant[{0}]: {1} {2}; {3}'.format(self.id, self.name, self.surname, self.email)
@@ -225,6 +238,18 @@ class Event(models.Model):
         questionnaires = Questionnaire.objects.filter(event=self)
 
         return EventStatistics(questionnaires)
+
+    def send_confirms(self):
+
+        from api.models import Questionnaire
+        questionnaires = Questionnaire.objects.filter(event=self, state=2)
+
+        from api.models import Notification
+        for questionnaire in questionnaires:
+            Notification.objects.create(
+                type=1,
+                name='Подтверждение участия',
+                questionnaire=questionnaire)
 
     def assign_wards(self, type_):
 
@@ -452,7 +477,34 @@ class Group(models.Model):
         return 'Group[{0}]: {1}'.format(self.id, self.short_name)
 
 
+class CountItem():
+
+    def __init__(self, state, count=0):
+
+        self.state = state
+        self.count = count
+
+
+class ParticipantsAns:
+
+    def __init__(self, q, questionnaires, state_counters):
+
+        self.q = q
+        self.questionnaires = questionnaires
+        self.state_counters = state_counters
+
+
 class Questionnaire(models.Model):
+
+    STATES = (
+        (0, 'Registered'),
+        (1, 'EmailConfirmationSent'),
+        (2, 'EmailConfirmed'),
+        (3, 'ConfirmationSent'),  # О подтвержнее участия
+        (4, 'Confirmed'),         #
+        (5, 'WardAssigned'),
+        (6, 'WardSent')
+    )
 
     participant = models.ForeignKey(Participant)
     event = models.ForeignKey(Event)
@@ -460,6 +512,7 @@ class Questionnaire(models.Model):
     group = models.ForeignKey(Group)
     is_closed = models.BooleanField(default=False)
     participation_confirmed = models.BooleanField(default=False)
+    state = models.SmallIntegerField(choices=STATES, default=0)
 
     def get_hash(self):
 
@@ -468,10 +521,21 @@ class Questionnaire(models.Model):
             + str(self.event.pk) \
             + str(self.group.pk))
 
+    def confirm_participation(self):
+
+        self.state = 4
+        self.save()
+
     @classmethod
-    def get_event_questionnaires(cls, event, count=20, filter_text=None):
+    def get_event_questionnaires(cls, event, count=20, filter_text=None, filter_state=-1):
 
         participants_ids = []
+
+        states = {}
+        for questionnaire in cls.objects.filter(event=event):
+            if not questionnaire.state in states:
+                states[questionnaire.state] = CountItem(state=questionnaire.state)
+            states[questionnaire.state].count += 1
 
         if filter_text:
             filter_text = filter_text.lower()
@@ -485,12 +549,22 @@ class Questionnaire(models.Model):
 
             participants_ids = [it.id for it in participants]
 
-            questionnaires = cls.objects.filter(
-                event=event, participant__in=participants_ids)
+            if filter_state >= 0:
+                questionnaires = cls.objects.filter(
+                    event=event, participant__in=participants_ids, state=filter_state)
+            else:
+                questionnaires = cls.objects.filter(
+                    event=event, participant__in=participants_ids)
         else:
-            questionnaires = cls.objects.filter(event=event)
+            if filter_state >= 0:
+                questionnaires = cls.objects.filter(event=event, state=filter_state)
+            else:
+                questionnaires = cls.objects.filter(event=event)
 
-        return questionnaires[:count]
+        return ParticipantsAns(
+            filter_text,
+            questionnaires[:count],
+            sorted(states.values(), key=lambda it: it.state))
 
     def __str__(self):
 
@@ -669,6 +743,8 @@ class Notification(models.Model):
         if provider_answer:
             self.state = 2
             self.provider_mail_id = provider_answer
+            self.questionnaire.state = 1
+            self.questionnaire.save()
         else:
             self.state = 1
 
@@ -676,7 +752,41 @@ class Notification(models.Model):
 
     def send_participation_confirmation(self):
 
-        pass
+        if self.type != 1:
+            raise ValueError('This is wrong method for this notification type')
+
+        subject = 'Подтверждение участия в Тайном Санте!'
+
+        template_file = os.path.join(
+            settings.EMAILS_TEMPLATES_DIR, 'participation_confirm.html')
+
+        template = None
+
+        with open(template_file, 'r') as opened:
+            text = opened.read()
+            template = Template(text)
+
+        html = template.render(
+            questionnaire_id=self.questionnaire.pk,
+            confirm_hash=self.questionnaire.get_hash())
+
+        provider_answer = mailgun.send_html(
+            settings.MAIL_FROM,
+            self.questionnaire.participant.email,
+            subject,
+            html,
+            settings.MAIL_REPLY_TO,
+            ['participation_confirmation'])
+
+        if provider_answer:
+            self.state = 2
+            self.provider_mail_id = provider_answer
+            self.questionnaire.state = 3
+            self.questionnaire.save()
+        else:
+            self.state = 1
+
+        self.save()
 
     def send_ward(self):
 

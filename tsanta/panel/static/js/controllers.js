@@ -471,28 +471,65 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
     $scope.event_id = $routeParams.eventId;
     $scope.event = {};
     $scope.participants = [];
+    $scope.counters = [];
+    $scope.filter_state = -1;
+
+    let states = [
+        'Зарегистрирован',
+        'Подтверждение email отправлено',
+        'Email подтвержден',
+        'Подтверждение участия отправлено',
+        'Участие подтверждено',
+        'Назначен подопечный',
+        'Подопечный отправлен'
+    ];
 
     $scope.search = {
         text: '',
         search: function () {
-            $scope.load_participants(this.text);
+            $scope.load_participants($scope.filter_state, this.text);
         }
     };
 
-    $scope.load_participants = function (query) {
+    $scope.load_participants = function (state, query) {
+        if (state !== undefined) {
+            state = state;
+        } else {
+            state = -1;
+        }
         query = query || '';
 
-        $http.get(tsanta.api + '/events/' + $scope.event_id + '/participants?q=' + query)
+        $http.get(tsanta.api + '/events/' + $scope.event_id + '/participants?q=' + query + '&state=' + state)
         .then(function(response) {
             if ( response.status === 200 ) {
                 if (response.data.q === $scope.search.text) {
+                    // Заменить коды статусов на названия
+                    for (let i = 0; i < response.data.questionnaires.length; ++i) {
+                        response.data.questionnaires[i].state_code = response.data.questionnaires[i].state;
+                        response.data.questionnaires[i].state = states[response.data.questionnaires[i].state];
+                    }
                     $scope.participants = response.data.questionnaires;
+
+                    for (let i = 0; i < response.data.state_counters.length; ++i) {
+                        response.data.state_counters[i].state_code = response.data.state_counters[i].state;
+                        response.data.state_counters[i].state = states[response.data.state_counters[i].state];
+                    }
+                    $scope.counters = response.data.state_counters;
                 }
             }
         }, $scope.errorHandler);
     };
 
-    $scope.load_participants();
+    $scope.load_participants($scope.filter_state);
+
+    $scope.filter_participants = function (state) {
+        $scope.filter_state = state;
+        $scope.load_participants($scope.filter_state, $scope.search.text);
+    }
+
+    $scope.update = function() {
+        $scope.load_participants($scope.filter_state, $scope.search.text);
+    };
 
     $scope.load_event($scope.event_id, function(response) {
         $scope.event = response;
@@ -503,18 +540,34 @@ function EventsParticipantsCtrl($scope, $http, $routeParams) {
 
 function EventManageCtrl($scope, $http) {
 
-    let types = {
+    let assign_types = {
         'all': 'по всем анкетам',
         'city': 'в рамках городов',
         'group': 'в рамках групп'
     };
 
     $scope.assign_wards = function(assign_type) {
-        console.log(assign_type);
         $http.post(tsanta.api + '/events/' + $scope.event_id + '/assign?type=' + assign_type)
         .then(function(response) {
             if ( response.status === 200 ) {
-                $scope.say('Подопечные распределены ' + types[assign_type]);
+                $scope.say('Подопечные распределены ' + assign_types[assign_type]);
+
+                $scope.search.text = '';
+                $scope.filter_state = -1;
+                $scope.load_participants($scope.filter_state);
+            }
+        }, $scope.errorHandler);
+    }
+
+    $scope.send_confirms = function() {
+        $http.post(tsanta.api + '/events/' + $scope.event_id + '/send_confirms')
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.say('Подтверждения об участии будут отправлены');
+
+                $scope.search.text = '';
+                $scope.filter_state = -1;
+                $scope.load_participants($scope.filter_state);
             }
         }, $scope.errorHandler);
     }

@@ -3,23 +3,43 @@
         <li><a href="events/{{ event_id }}">Статистика</a></li>
         <li class="active"><a href="events/{{ event_id }}/participants">Участники</a></li>
         <li><a href="events/{{ event_id }}/edit">Редактировать событие</a></li>
+        <li><a href="#" uib-tooltip="Обновить данные" ng-click=update()>
+            <span class="glyphicon glyphicon-refresh"></span>
+        </a></li>
     </ul>
+</div>
+
+<div class="event-counters">
+    <table class="table table-event-counters table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Статус анкеты</th>
+                <th>Количество анкет с данным статусом</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="state in counters" ng-click="filter_participants(state.state_code)" class="clickable">
+            <td class="states">{{ state.state }}</td>
+            <td class="counters">{{ state.count }}</td>
+        </tr>
+    </table>
+    <a ng-show="filter_state >= 0" ng-click="filter_participants(-1)" href="#">Сбросить фильтр</a>
 </div>
 
 <div class="event-manage" ng-controller="eventManageCtrl">
     <table class="table-event-manage">
-        <!-- <tr>
+        <tr>
             <td class="buttons">
                 <button type="button"
-                    class="btn btn-warning">
+                    class="btn btn-warning"
+                    ng-click="send_confirms()">
                     Отправить подтверждения участия
                 </button>
             </td>
             <td class="status">
                 <p>Подтверждения еще не отправлены</p>
             </td>
-        </tr> -->
-        <tr>
+        </tr>
+        <!-- <tr>
             <td class="buttons">
                 <div class="btn-group">
                     <button type="button"
@@ -38,7 +58,7 @@
             <td class="status">
                 <p>Подопечные ни разу не распределялись</p>
             </td>
-        </tr>
+        </tr> -->
         <!-- <tr>
             <td class="buttons">
                 <button type="button"
@@ -84,7 +104,7 @@
                     <p>{{ p.participant.phone }}</p>
                 </td>
                 <td class="group">{{ p.group.short_name }}</td>
-                <td class="status">{{ p.status }}</td>
+                <td class="status">{{ p.state }}</td>
             </tr>
         </tbody>
     </table>
