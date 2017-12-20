@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^events/(?P<event_id>[0-9]{1,10})/stat$', views.event_stat),
     url(r'^events/(?P<event_id>[0-9]{1,10})/assign$', views.assign_wards),
     url(r'^events/(?P<event_id>[0-9]{1,10})/send_confirms$', views.send_confirms),
+    url(r'^events/(?P<event_id>[0-9]{1,10})/send_wards$', views.send_wards),
 ]

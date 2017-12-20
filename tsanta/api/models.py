@@ -251,6 +251,18 @@ class Event(models.Model):
                 name='Подтверждение участия',
                 questionnaire=questionnaire)
 
+    def send_wards(self):
+
+        from api.models import Questionnaire
+        questionnaires = Questionnaire.objects.filter(event=self, state=5)
+
+        from api.models import Notification
+        for questionnaire in questionnaires:
+            Notification.objects.create(
+                type=2,
+                name='Рассылка подопечных',
+                questionnaire=questionnaire)
+
     def assign_wards(self, type_):
 
         # Allowed types: city, group, all
@@ -852,6 +864,7 @@ class Notification(models.Model):
             self.state = 2
             self.provider_mail_id = provider_answer
             self.questionnaire.is_closed = True
+            self.questionnaire.state = 6
             self.questionnaire.save()
         else:
             self.state = 1

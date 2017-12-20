@@ -579,4 +579,17 @@ function EventManageCtrl($scope, $http) {
             }
         }, $scope.errorHandler);
     }
+
+    $scope.send_wards = function() {
+        $http.post(tsanta.api + '/events/' + $scope.event_id + '/send_wards')
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.say('Подопечные будут отправлены');
+
+                $scope.search.text = '';
+                $scope.filter_state = -1;
+                $scope.load_participants($scope.filter_state);
+            }
+        }, $scope.errorHandler);
+    }
 }
