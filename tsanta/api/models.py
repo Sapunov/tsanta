@@ -1,5 +1,5 @@
 from datetime import timedelta
-from random import shuffle
+from random import shuffle, randint
 import logging
 import os
 
@@ -162,8 +162,9 @@ class EventStatistics:
     group_dist = []
     city_dist = []
     overall_participants = 0
+    state = None
 
-    def __init__(self, participants):
+    def __init__(self, participants, state):
 
         self.count_participants = len(participants)
 
@@ -196,6 +197,8 @@ class EventStatistics:
 
         self.group_dist = sorted(group_dist_tmp.values(), key=lambda it: it['count'], reverse=True)
         self.city_dist = sorted(city_dist_tmp.values(), key=lambda it: it['count'], reverse=True)
+
+        self.state = state
 
 
 class Event(models.Model):
@@ -232,12 +235,15 @@ class Event(models.Model):
 
         return self.date_end >= timezone.now() and self.date_start <= timezone.now()
 
-    def event_statistics(self):
+    def event_statistics(self, state=None):
 
         from api.models import Questionnaire
-        questionnaires = Questionnaire.objects.filter(event=self)
+        if state is None:
+            questionnaires = Questionnaire.objects.filter(event=self)
+        else:
+            questionnaires = Questionnaire.objects.filter(event=self, state__gte=state)
 
-        return EventStatistics(questionnaires)
+        return EventStatistics(questionnaires, state)
 
     def send_confirms(self):
 
@@ -251,15 +257,27 @@ class Event(models.Model):
                 name='Подтверждение участия',
                 questionnaire=questionnaire)
 
+    def send_wards(self):
+
+        from api.models import Questionnaire
+        questionnaires = Questionnaire.objects.filter(event=self, state=5)
+
+        from api.models import Notification
+        for questionnaire in questionnaires:
+            Notification.objects.create(
+                type=2,
+                name='Рассылка подопечных',
+                questionnaire=questionnaire)
+
     def assign_wards(self, type_):
 
         # Allowed types: city, group, all
 
         from api.models import Questionnaire
         questionnaires = Questionnaire.objects.filter(
-            event=self, is_closed=False, participation_confirmed=True)
+            event=self, is_closed=False, state=4)
 
-        # TODO: нельзя трогать тех, кто уже является чьи-то
+        # TODO: нельзя трогать тех, кто уже является чьим-то
         # подопечным, а этот кто-то уже is_closed=True
 
         temp = {}
@@ -291,25 +309,39 @@ class Event(models.Model):
         temp = list(temp.values())
         assign_map = {}
 
+        # Убирание пустоты
+        temp = [it for it in temp if it]
+
+        # Разберемся с одиночками
+        alone = []
+        for i, item in enumerate(temp):
+            if len(item) == 1:
+                alone.append(item[0])
+                temp.pop(i)
+
+        if len(alone) > 1:
+            temp.append(alone)
+        elif len(alone) == 1:
+            if temp:
+                temp[randint(0, len(temp) - 1)].extend(alone)
+            else:
+                raise exceptions.AssignWardError('Cannot assign ward when only 1 participant')
+
         for i, _ in enumerate(temp):
             shuffle(temp[i])
 
             temp_len = len(temp[i])
 
-            if temp_len > 1:
-                for j in range(temp_len):
-                    assign_map[temp[i][j]] = temp[i][(j + 1) % temp_len]
-            else:
-                # TODO: сделать обработку одиночек
-                pass
+            for j in range(temp_len):
+                assign_map[temp[i][j]] = temp[i][(j + 1) % temp_len]
 
         for key, value in assign_map.items():
-            if key != value:
-                questionnaire = Questionnaire.objects.get(pk=key)
-                ward = Questionnaire.objects.get(pk=value)
+            questionnaire = Questionnaire.objects.get(pk=key)
+            ward = Questionnaire.objects.get(pk=value)
 
-                questionnaire.ward = ward
-                questionnaire.save()
+            questionnaire.ward = ward
+            questionnaire.state = 5
+            questionnaire.save()
 
     def __str__(self):
 
@@ -838,6 +870,7 @@ class Notification(models.Model):
             self.state = 2
             self.provider_mail_id = provider_answer
             self.questionnaire.is_closed = True
+            self.questionnaire.state = 6
             self.questionnaire.save()
         else:
             self.state = 1

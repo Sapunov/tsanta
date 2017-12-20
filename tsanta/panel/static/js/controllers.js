@@ -350,16 +350,16 @@ function EventsFormCtrl($scope, $http, $routeParams) {
 
     $scope.load_group_list('', function(response) {
         var j = 0;
-        for ( var i = 0; i < response.length; ++i ) {
+        for ( var i = 0; i < response.groups.length; ++i ) {
 
-            if ( $scope.event_id !== undefined && $scope.groups.item_ids.indexOf(response[i].id) != -1) {
-                $scope.groups.items[j] = response[i];
+            if ( $scope.event_id !== undefined && $scope.groups.item_ids.indexOf(response.groups[i].id) != -1) {
+                $scope.groups.items[j] = response.groups[i];
                 $scope.groups.items[j].checked = true;
 
                 j++;
             }
             else if ( response[i].event_lock === false ) {
-                $scope.groups.items[j] = response[i];
+                $scope.groups.items[j] = response.groups[i];
                 $scope.groups.items[j].checked = false;
 
                 j++;
@@ -450,7 +450,7 @@ function EventsStatCtrl($scope, $http, $routeParams) {
     $scope.event_stat = {};
 
     $scope.load_event_stat = function() {
-        $http.get(tsanta.api + '/events/' + $scope.event_id + '/stat')
+        $http.get(tsanta.api + '/events/' + $scope.event_id + '/stat?state=4')
         .then(function(response) {
             if ( response.status === 200 ) {
                 $scope.event_stat = response.data;
@@ -546,6 +546,14 @@ function EventManageCtrl($scope, $http) {
         'group': 'в рамках групп'
     };
 
+    function errorHandler(response) {
+        if (response.status === 400) {
+            $scope.say_error(response.data[0]);
+        } else {
+            $scope.errorHandler(response);
+        }
+    };
+
     $scope.assign_wards = function(assign_type) {
         $http.post(tsanta.api + '/events/' + $scope.event_id + '/assign?type=' + assign_type)
         .then(function(response) {
@@ -556,7 +564,7 @@ function EventManageCtrl($scope, $http) {
                 $scope.filter_state = -1;
                 $scope.load_participants($scope.filter_state);
             }
-        }, $scope.errorHandler);
+        }, errorHandler);
     }
 
     $scope.send_confirms = function() {
@@ -564,6 +572,19 @@ function EventManageCtrl($scope, $http) {
         .then(function(response) {
             if ( response.status === 200 ) {
                 $scope.say('Подтверждения об участии будут отправлены');
+
+                $scope.search.text = '';
+                $scope.filter_state = -1;
+                $scope.load_participants($scope.filter_state);
+            }
+        }, $scope.errorHandler);
+    }
+
+    $scope.send_wards = function() {
+        $http.post(tsanta.api + '/events/' + $scope.event_id + '/send_wards')
+        .then(function(response) {
+            if ( response.status === 200 ) {
+                $scope.say('Подопечные будут отправлены');
 
                 $scope.search.text = '';
                 $scope.filter_state = -1;

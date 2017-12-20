@@ -18,3 +18,8 @@ class KeyExistsException(TSantaException):
 class UnsupportedKeyType(TSantaException):
 
     pass
+
+
+class AssignWardError(TSantaException):
+
+    pass
