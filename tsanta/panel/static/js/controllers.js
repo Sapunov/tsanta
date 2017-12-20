@@ -546,6 +546,14 @@ function EventManageCtrl($scope, $http) {
         'group': 'в рамках групп'
     };
 
+    function errorHandler(response) {
+        if (response.status === 400) {
+            $scope.say_error(response.data[0]);
+        } else {
+            $scope.errorHandler(response);
+        }
+    };
+
     $scope.assign_wards = function(assign_type) {
         $http.post(tsanta.api + '/events/' + $scope.event_id + '/assign?type=' + assign_type)
         .then(function(response) {
@@ -556,7 +564,7 @@ function EventManageCtrl($scope, $http) {
                 $scope.filter_state = -1;
                 $scope.load_participants($scope.filter_state);
             }
-        }, $scope.errorHandler);
+        }, errorHandler);
     }
 
     $scope.send_confirms = function() {

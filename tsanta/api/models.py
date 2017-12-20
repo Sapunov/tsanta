@@ -1,5 +1,5 @@
 from datetime import timedelta
-from random import shuffle
+from random import shuffle, randint
 import logging
 import os
 
@@ -257,9 +257,9 @@ class Event(models.Model):
 
         from api.models import Questionnaire
         questionnaires = Questionnaire.objects.filter(
-            event=self, is_closed=False, participation_confirmed=True)
+            event=self, is_closed=False, state=4)
 
-        # TODO: нельзя трогать тех, кто уже является чьи-то
+        # TODO: нельзя трогать тех, кто уже является чьим-то
         # подопечным, а этот кто-то уже is_closed=True
 
         temp = {}
@@ -291,25 +291,39 @@ class Event(models.Model):
         temp = list(temp.values())
         assign_map = {}
 
+        # Убирание пустоты
+        temp = [it for it in temp if it]
+
+        # Разберемся с одиночками
+        alone = []
+        for i, item in enumerate(temp):
+            if len(item) == 1:
+                alone.append(item[0])
+                temp.pop(i)
+
+        if len(alone) > 1:
+            temp.append(alone)
+        elif len(alone) == 1:
+            if temp:
+                temp[randint(0, len(temp) - 1)].extend(alone)
+            else:
+                raise exceptions.AssignWardError('Cannot assign ward when only 1 participant')
+
         for i, _ in enumerate(temp):
             shuffle(temp[i])
 
             temp_len = len(temp[i])
 
-            if temp_len > 1:
-                for j in range(temp_len):
-                    assign_map[temp[i][j]] = temp[i][(j + 1) % temp_len]
-            else:
-                # TODO: сделать обработку одиночек
-                pass
+            for j in range(temp_len):
+                assign_map[temp[i][j]] = temp[i][(j + 1) % temp_len]
 
         for key, value in assign_map.items():
-            if key != value:
-                questionnaire = Questionnaire.objects.get(pk=key)
-                ward = Questionnaire.objects.get(pk=value)
+            questionnaire = Questionnaire.objects.get(pk=key)
+            ward = Questionnaire.objects.get(pk=value)
 
-                questionnaire.ward = ward
-                questionnaire.save()
+            questionnaire.ward = ward
+            questionnaire.state = 5
+            questionnaire.save()
 
     def __str__(self):
 

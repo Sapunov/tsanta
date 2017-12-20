@@ -216,7 +216,10 @@ def assign_wards(request, event_id):
     if event is None:
         raise NotFound
 
-    event.assign_wards(type_=type_)
+    try:
+        event.assign_wards(type_=type_)
+    except exceptions.AssignWardError as exc:
+        raise ValidationError(exc)
 
     return Response(status=status.HTTP_200_OK)
 
