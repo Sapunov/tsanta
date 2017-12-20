@@ -162,8 +162,9 @@ class EventStatistics:
     group_dist = []
     city_dist = []
     overall_participants = 0
+    state = None
 
-    def __init__(self, participants):
+    def __init__(self, participants, state):
 
         self.count_participants = len(participants)
 
@@ -196,6 +197,8 @@ class EventStatistics:
 
         self.group_dist = sorted(group_dist_tmp.values(), key=lambda it: it['count'], reverse=True)
         self.city_dist = sorted(city_dist_tmp.values(), key=lambda it: it['count'], reverse=True)
+
+        self.state = state
 
 
 class Event(models.Model):
@@ -232,12 +235,15 @@ class Event(models.Model):
 
         return self.date_end >= timezone.now() and self.date_start <= timezone.now()
 
-    def event_statistics(self):
+    def event_statistics(self, state=None):
 
         from api.models import Questionnaire
-        questionnaires = Questionnaire.objects.filter(event=self)
+        if state is None:
+            questionnaires = Questionnaire.objects.filter(event=self)
+        else:
+            questionnaires = Questionnaire.objects.filter(event=self, state__gte=state)
 
-        return EventStatistics(questionnaires)
+        return EventStatistics(questionnaires, state)
 
     def send_confirms(self):
 

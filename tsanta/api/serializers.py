@@ -491,8 +491,13 @@ class EventStatSer(serializers.Serializer):
     count_cities = serializers.IntegerField()
     group_dist = IdNameCount(many=True)
     city_dist = IdNameCount(many=True)
+    state = serializers.IntegerField()
 
 
 class TypeFieldReq(serializers.Serializer):
 
     type = serializers.CharField()
+
+class StateFieldReq(serializers.Serializer):
+
+    state = serializers.IntegerField(default=None)

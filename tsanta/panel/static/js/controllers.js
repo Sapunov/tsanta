@@ -450,7 +450,7 @@ function EventsStatCtrl($scope, $http, $routeParams) {
     $scope.event_stat = {};
 
     $scope.load_event_stat = function() {
-        $http.get(tsanta.api + '/events/' + $scope.event_id + '/stat')
+        $http.get(tsanta.api + '/events/' + $scope.event_id + '/stat?state=4')
         .then(function(response) {
             if ( response.status === 200 ) {
                 $scope.event_stat = response.data;

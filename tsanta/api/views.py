@@ -190,12 +190,14 @@ def event_participants(request, event_id):
 @api_view(['GET'])
 def event_stat(request, event_id):
 
+    req_serializer = deserialize(serializers.StateFieldReq, request.query_params)
+
     event = Event.get_my_events(request.user, event_id=event_id)
 
     if event is None:
         raise NotFound
 
-    stat = event.event_statistics()
+    stat = event.event_statistics(state=req_serializer.data['state'])
 
     ans_serializer = serialize(serializers.EventStatSer, stat)
 
