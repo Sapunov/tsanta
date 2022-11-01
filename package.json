@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/Sapunov/tsanta#readme",
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-clean-css": "^3.9.0",
     "gulp-concat": "^2.6.1",
     "gulp-less": "^3.3.2",
